@@ -33,13 +33,6 @@ helm repo add bitnami https://charts.bitnami.com/bitnami
 helm repo add mosip https://mosip.github.io/mosip-helm
 ```
 
-## Global configmap
-* `cd ../`
-* Copy `global_configmap.yaml.sample` to `global_configmap.yaml`  
-* Update the domain names in `global_configmap.yaml` and run
-```sh
-kubectl apply -f global_configmap.yaml
-```
 ## Create using Rancher
 You can also create cluster on Cloud using the Rancher console.  Refer to Rancher documentation.
 
@@ -52,7 +45,7 @@ You can also create cluster on Cloud using the Rancher console.  Refer to Ranche
 ## Persistence
 ### GP2
 * Default storage class is `gp2` which by is in "Delete" mode which means if PV is deleted, the underlying storage is also deleted.  
-* Create storage class `gp2-retain` by running `sc.yaml` for PV in Retain mode. Set the storage class as gp2-retain in case you want to retain PV.  See some more details on persistence [here](../../docs/persistence.md).
+* Create storage class `gp2-retain` by running `sc.yaml` for PV in Retain mode. Set the storage class as gp2-retain in case you want to retain PV. See some more details on persistence [here](../docs/persistence.md).
 ```sh
 kubectl apply -f sc.yaml
 ```
