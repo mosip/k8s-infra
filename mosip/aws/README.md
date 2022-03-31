@@ -65,7 +65,7 @@ Install LongHorn as given [here](../longhorn/README.md)
 EFS may not be necessary if you are using LongHorn + backup on S3. However, if needed you may install it as given [here](efs/README.md)
 
 ## Ingress and load balancer (LB)
-Ingress is not installed by default on EKS. We use Istio ingress gateway controller to allow traffic in the cluster. Two channels are created - public and internal. See [architecture](../../docs/images/deployment_architecture.png).
+Ingress is not installed by default on EKS. We use Istio ingress gateway controller to allow traffic in the cluster. Two channels are created - public and internal. See [architecture](../../README.md).
 * Install Istioctl as given [here](https://istio.io/latest/docs/ops/diagnostic-tools/istioctl/#install-hahahugoshortcode-s2-hbhb)
 * Install ingresses as given here:
 ```sh
