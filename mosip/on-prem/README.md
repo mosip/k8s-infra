@@ -121,6 +121,7 @@ kubect get nodes
 ```sh
 kubectl apply -f global_configmap.yaml
 ```
+
 ## Register the cluster with Rancher
 * Login as admin in Rancher console
 * Select `Import Existing` for cluster addition.
