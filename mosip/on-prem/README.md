@@ -114,6 +114,7 @@ KUBECONFIG="$HOME/.kube/<cluster_name>_config
 ```
 kubect get nodes
 ```
+
 ## Global configmap
 * `cd ../`
 * Copy `global_configmap.yaml.sample` to `global_configmap.yaml`  
