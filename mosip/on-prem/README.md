@@ -114,13 +114,7 @@ KUBECONFIG="$HOME/.kube/<cluster_name>_config
 ```
 kubect get nodes
 ```
-## Global configmap
-* `cd ../`
-* Copy `global_configmap.yaml.sample` to `global_configmap.yaml`  
-* Update the domain names in `global_configmap.yaml` and run
-```sh
-kubectl apply -f global_configmap.yaml
-```
+
 ## Register the cluster with Rancher
 * Login as admin in Rancher console
 * Select `Import Existing` for cluster addition.
