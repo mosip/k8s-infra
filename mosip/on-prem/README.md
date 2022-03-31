@@ -3,7 +3,7 @@
 ## Overview
 This is a guide to set up Kubernetes cluster on Virtual Machines using RKE. This cluster would host all MOSIP modules.
 
-![Architecture](../../docs/images/deployment_architecture.png)
+![Architecture](../../docs/_images/architecture.png)
 
 ## Prerequisites
 - [Ansible](https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html).
