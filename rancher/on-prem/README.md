@@ -16,7 +16,7 @@ _If you already have a Wireguard bastion host then you may skip this step._
 ```
 ansible-playbook -i hosts.ini wireguard.yaml
 ```
-* Install [Wireguard docker](../../docs/wireguard-bastion.md) with enough number of peers.
+* Install [Wireguard bastion](https://docs.mosip.io/1.2.0/deployment/sandbox-deployment/wireguard-bastion) with enough number of peers.
 - Assign peer1 to yourself and set your Wireguard client before working on the cluster.
 
 ## Ports
@@ -116,7 +116,7 @@ helm install \
 
 ## Reverse proxy (Nginx) + Wireguard bastion host
 * Install [Nginx reverse proxy](./nginx/) that proxies into ingresscontroller on a seperate node.
-* Note that TLS termination is done on Nginx which means traffic from Nginx to cluster is HTTP (not HTTPS). A [Wireguard mesh](../../utils/wireguard-mesh/README.md) may be installed to ensure encrypted traffic.  
+* Note that TLS termination is done on Nginx which means traffic from Nginx to cluster is HTTP (not HTTPS). A [Wireguard mesh](https://github.com/mosip/mosip-infra/tree/develop/deployment/v3/utils/wireguard-mesh) may be installed to ensure encrypted traffic.  
 
 ##  Adding new nodes to cluster
 _This step is only required if you have to add more nodes to an existing cluster._
