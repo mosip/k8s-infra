@@ -52,14 +52,14 @@ You can also create cluster on Cloud using the Rancher console.  Refer to Ranche
 ## Persistence
 ### GP2
 * Default storage class is `gp2` which by is in "Delete" mode which means if PV is deleted, the underlying storage is also deleted.  
-* Create storage class `gp2-retain` by running `sc.yaml` for PV in Retain mode. Set the storage class as gp2-retain in case you want to retain PV. See some more details on persistence [here](../docs/persistence.md).
+* Create storage class `gp2-retain` by running `sc.yaml` for PV in Retain mode. Set the storage class as gp2-retain in case you want to retain PV. Learn more on [persistence](../docs/persistence.md).
 ```sh
 kubectl apply -f sc.yaml
 ```
 * If the PV gets deleted (say cluster was retarted), then you will have to define a PV connecting to this instance of storage (you will need volume ID etc). TODO: how to do this?
 
 ### LongHorn
-Install LongHorn as given [here](../longhorn/README.md)
+Install [LongHorn](../longhorn/README.md).
 
 ### EFS
 EFS may not be necessary if you are using LongHorn + backup on S3. However, if needed you may install it as given [here](efs/README.md)
