@@ -2,8 +2,8 @@
 
 ## Overview
 This repo contains architecture and instructions to install Kubernetes based clusters for MOSIP deployment. The deployment consists of following clusters:
-1. Rancher cluster: Rancher is used for cluster administration and [RBAC](https://kubernetes.io/docs/reference/access-authn-authz/rbac/). One Rancher can manage multiple MOSIP clusters and hence a single organisation wide installation of this cluster would suffice.
-1. MOSIP cluster:  All MOSIP modules run on this cluster. Each installation of MOSIP like development, testing, staging and production would have a cluster each. 
+1. **Rancher cluster**: Rancher is used for cluster administration and [RBAC](https://kubernetes.io/docs/reference/access-authn-authz/rbac/). One Rancher can manage multiple MOSIP clusters and hence a single organisation wide installation of this cluster would suffice.
+1. **MOSIP cluster**:  All MOSIP modules run on this cluster. Each installation of MOSIP for development, testing, staging, production etc. would have a cluster each. 
 
 ![](docs/_images/architecture.png)
 
