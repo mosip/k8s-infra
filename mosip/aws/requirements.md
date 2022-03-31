@@ -36,7 +36,7 @@ The following DNS mappings will be required.
 | mosip-kafka-host | Internal LB |
 | mosip-iam-external-host | Internal LB |
 
-Note: The above table is just a placeholder for hostnames, the actual name itself varies from organisation to organisation.  A sample hostname list is given at [global_configmap.yaml.sample](../global_configmap.yaml.sample) <br/>
+Note: The above table is just a placeholder for hostnames, the actual name itself varies from organisation to organisation.  A sample hostname list is given at [global_configmap.yaml.sample](https://github.com/mosip/mosip-infra/blob/develop/deployment/v3/cluster/global_configmap.yaml.sample) <br/>
 Note: Only proceed to DNS mapping after the ingressgateways are installed and the loadbalancers are setup.
 
 ## Certificate Requirements
