@@ -24,5 +24,6 @@ Following install sequence is recommended:
 * [Rancher](rancher/README.md) 
 * [MOSIP cluster](mosip/README.md)
 * [Monitoring](monitoring/README.md)
+* [Logging](logging/README.md)
 
 
