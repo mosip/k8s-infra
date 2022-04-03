@@ -8,7 +8,7 @@ Nginx is used as a reverse proxy to direct traffic into the cluster via two chan
 * OS: Debian based. Recommended Ubuntu Server.
 * [SSL certificates](../../../docs/wildcard-ssl-certs-letsencrypt.md).
 * Make sure this Nginx node has two network interfaces:
-    1.  Public: Facing public Internet.
+    1.  Public: Facing public Internet. _(Only required when accessing APIs over Intenet)_.
     1.  Private: Must be on the same subnet as cluster nodes/machines.  Wireguard connects to this interface. 
 * Command-line utilities:
   * `bash`
