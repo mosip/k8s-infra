@@ -6,11 +6,10 @@ Nginx is used as a reverse proxy to direct traffic into the cluster via two chan
 ## Prerequisites
 * Provision one VM for Nginx. Or multiple VMs for high avaiability like Nginx Plus.
 * OS: Debian based. Recommended Ubuntu Server.
-* SSL certificate and key pair (for TLS termination) are required. The script will prompt for the path to these.
-    * To get wildcard SSL certificates using letsencrypt, use [this](../../../docs/wildcard-ssl-certs-letsencrypt.md).
+* [SSL certificates](../../../docs/wildcard-ssl-certs-letsencrypt.md).
 * Make sure this Nginx node has two network interfaces:
     1.  Public: Facing public Internet.
-    1.  Internal: With private IP front-ended by Wireguard. This interface must be on same the same network as the cluster nodes/machines. (In case, provisioning another interface is not possible, create a virtual interface on Lnux like a `tap/macvtap`. A dummy virtual interface also will do.)
+    1.  Private: Must be on the same subnet as cluster nodes/machines.  Wireguard connects to this interface. 
 * Command-line utilities:
   * `bash`
   * `sed`
