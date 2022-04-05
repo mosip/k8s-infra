@@ -38,8 +38,9 @@ spec:
         - cookie
   components:
     ingressGateways:
+      ## Public access to external ingress gateway is disabled by default. Enable it in production.
       - name: istio-ingressgateway
-        enabled: true
+        enabled: false
         k8s:
           env:
           - name: ISTIO_META_IDLE_TIMEOUT
