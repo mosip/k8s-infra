@@ -91,6 +91,8 @@ ansible-playbook -i hosts.ini docker.yaml
     ingress:
       provider: none
     ```
+* [Sample config file](sample.cluster.yml) is provider in this folder.
+
 * For production deplopyments edit the `cluster.yml`, according to this [RKE Cluster Hardening Guide](../../docs/rke-cluster-hardening.md).
 
 * Bring up the cluster:
