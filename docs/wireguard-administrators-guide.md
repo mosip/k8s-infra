@@ -7,7 +7,7 @@ This document helps in creating wireguard configurations for the particular user
 
 1. Login to the wireguard instance via ssh.
    ```
-    ssh -i mosip-aws.pem ubuntu@3.7.248.153
+    ssh -i <pem> <user>@<ip>
    ```
 2. Use `ls` cmd to see the list of files.
    ```
