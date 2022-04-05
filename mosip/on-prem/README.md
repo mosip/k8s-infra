@@ -143,7 +143,7 @@ kubectl apply -f https://rancher.e2e.mosip.net/v3/import/pdmkx6b4xxtpcd699gzwdtt
 
 ## Istio for service discovery and Ingress
 * `cd /istio/`
-* Edit the `install.sh` and `iop.yaml` accordingly and install it.
+* Edit `iop.yaml` if required.
   ```
   export KUBECONFIG="$HOME/.kube/<cluster_name>_config
   ./install.sh
