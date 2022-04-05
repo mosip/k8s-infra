@@ -12,8 +12,8 @@
 * OS: Debian based. Recommended Ubuntu Server.
 * [SSL certificates](../../../docs/wildcard-ssl-certs-letsencrypt.md).
 * Make sure this Nginx node has two network interfaces:
-    1.  Public: Facing public Internet. _(Only required when accessing APIs over Intenet)_.
-    1.  Private: Must be on the same subnet as cluster nodes/machines.  Wireguard connects to this interface. 
+    *  Public: Facing public Internet. _(Only required when accessing APIs over Intenet)_.
+    *  Private: Must be on the same subnet as cluster nodes/machines.  Wireguard connects to this interface. 
 * Command-line utilities:
   * `bash`
   * `sed`
@@ -21,11 +21,11 @@
 * Make sure wireguard is up and running as per [Wireguard instalation guide](https://docs.mosip.io/1.2.0/deployment/sandbox-deployment/wireguard-bastion).
 
 ## Installation
-1. Enable firewall with required ports:
+* Enable firewall with required ports:
 ```
 ansible-playbook -i ../hosts.ini nginx_ports.yaml
 ```
-1. Configure nginx.conf and install nginx. 
+* Configure nginx.conf and install nginx. 
 ```sh
  sudo ./install.sh
 ```
