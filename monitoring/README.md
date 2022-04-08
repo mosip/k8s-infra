@@ -5,7 +5,7 @@ Prometheus and Graphana tools are used to monitor the cluster. Install as given 
 1. Select 'Monitoring' App from  Rancher console -> _Apps & Marketplaces_. 
 1. In Helm options, open the YAML file and disable Nginx Ingress. 
 
-    ![](../docs/_images/ingress-disable.png)
+    <img src="../docs/_images/ingress-disable.png" width="300">
 
 1. Click on 'Install'.
 
