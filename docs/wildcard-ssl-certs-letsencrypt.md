@@ -8,7 +8,7 @@ sudo apt install certbot python3-certbot-nginx
 ```
 * Generate certificates for your domain name.
 ```
-sudo certbot certonly --agree-tos --manual --preferred-challenges=dns -d *.mosip.xyz.net
+sudo certbot certonly --agree-tos --manual --preferred-challenges=dns -d *.sandbox.xyz.net -d sandbox.xyz.net
 ```
    * The default challenge HTTP is changed to DNS challenge, as we require wildcard certificates.
    * Create a DNS record in your DNS service of type TXT with host `_acme-challenge.mosip.xyz.net`, with the string prompted by the script.
