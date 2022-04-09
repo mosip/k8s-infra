@@ -99,14 +99,6 @@ The reason for considering a LB for ingress is such that TLS termination can hap
 * On AWS this may be done on Route 53 console.
 * After Go live decision enable [public access](../../docs/public-access.md).
 
-## Metrics server
-Although Prometheus runs it's own metrics server to collect data, it is useful to install Kubernetes Metrics Server.  The same will enable `kubectl top` command and also some of the metrics in Rancher UI. Install as below:
-```sh
-helm -n kube-system install metrics-server bitnami/metrics-server
-helm -n kube-system upgrade metrics-server bitnami/metrics-server  --set apiService.create=true
-```
-We have installed in `default` namespace.  You may choose any other namespace as per your deployment.
-
 ## Httpbin
 Install `httpbin` for testing the wiring as per [httpbin check](../../utils/httpbin/README.md).
 
