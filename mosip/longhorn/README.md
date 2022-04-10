@@ -12,7 +12,7 @@
 * Install using Rancher UI as given [here](https://longhorn.io/docs/latest/deploy/install/install-with-rancher/).
 * In Helm options of Longhorn, set the replicas for stroage class appropriately. For sandbox, replica of 1 would suffice otherwise storage consumption will be very high. For production, keep the default count.
 
-![](../../docs/_images/storage-class-replicas.png)
+ <img src="../../docs/_images/storage-class-replicas.png" width="500">
 
 * For cloud-native install disable default storage class flag. This will ensure that cloud providers storage class will be used as default. 
 	```
