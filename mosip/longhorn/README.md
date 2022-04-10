@@ -14,7 +14,7 @@
 
  <img src="../../docs/_images/storage-class-replicas.png" width="500">
 
-* For cloud-native install disable default storage class flag. This will ensure that cloud providers storage class will be used as default. 
+* For cloud-native install disable default storage class flag. This will ensure that cloud providers' storage class shall be used as default. 
 	```
 	$ kubectl patch storageclass longhorn -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"false"}}}'
 	```
