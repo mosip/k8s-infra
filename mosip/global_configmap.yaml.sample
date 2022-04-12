@@ -21,4 +21,5 @@ data:
   mosip-kafka-host: kafka.sandbox.xyz.net
   mosip-iam-external-host: iam.sandbox.xyz.net
   mosip-postgres-host: postgres.sandbox.xyz.net
+  mosip-pmp-host: pmp.sandbox.xyz.net
   is_glowroot_env: absent
