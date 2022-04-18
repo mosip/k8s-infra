@@ -50,10 +50,12 @@ Refer [here](keycloak/README.md) for installation of Keycloak.
   * Rancher API Host: https://your-rancher-domain
   * Groups Field: member
 
-* For users in keycloak assign roles rancher - cluster and project roles.  Under `default` project add all the namespaces. Then, for a non-admin user you may provide Read-Only role (under projects).
+## RBAC
+* For users in Keycloak assign roles in Rancher - **cluster** and **project** roles. Under `default` project add all the namespaces. Then, to a non-admin user you may provide Read-Only role (under projects).
 * Add a member to cluster/project in Rancher:
   * Give member name exactly as `username` in Keycloak
   * Assign appropriate role like Cluster Owner, Cluster Viewer etc.
+  * You may create new role with fine grained acccess control.
 
 ## Certificates expiry
 In case you see certificate expiry message while adding users, on **local** cluster run these commands:
