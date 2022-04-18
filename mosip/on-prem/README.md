@@ -114,7 +114,7 @@ KUBECONFIG="$HOME/.kube/<cluster_name>_config
 ```
 * Test
 ```
-kubect get nodes
+kubectl get nodes
 ```
 
 ## Global configmap
