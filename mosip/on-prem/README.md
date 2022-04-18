@@ -1,7 +1,7 @@
 # MOSIP K8S Cluster Setup using RKE
 
 ## Overview
-This is a guide to set up Kubernetes cluster on Virtual Machines using RKE. This cluster would host all MOSIP modules.
+This is a guide to set up Kubernetes cluster on Virtual Machines using [RKE](https://rancher.com/products/rke). This cluster would host all MOSIP modules.
 
 ![Architecture](../../docs/_images/architecture.png)
 
