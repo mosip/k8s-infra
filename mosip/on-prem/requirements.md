@@ -5,8 +5,8 @@ Listed below are hardware, network and certificate requirements to setup a **MOS
 ## Hardware requirements
 |Purpose|vCPUs|RAM|Storage|Number of VMs\*|
 |---|:---:|:---:|:---:|---:|
-|Cluster nodes | 8 | 32 GB | 64 GB |5|
-|Wireguard bastion host| 2 | 1 GB | 8 GB |1|
+|Cluster nodes | 8 | 32 GB | 128 GB |5|
+|Wireguard bastion host| 2 | 4 GB | 8 GB |1|
 |Nginx|2|4GB|16 GB|1|
 
 \* Virtual Machines
