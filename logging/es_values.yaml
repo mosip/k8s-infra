@@ -12,7 +12,7 @@ master:
   heapSize: 1024m
   persistence:
     enabled: true
-    size: 64Gi
+    size: 4Gi
   resources:
     requests:
       memory: 728Mi
