@@ -21,7 +21,7 @@ There are certain differences between cloud and on-prem deployments. Few of them
 
 ## Installation
 Following install sequence is recommended:
-* [Rancher](rancher/README.md) 
+* [Rancher cluster](rancher/README.md) 
 * [MOSIP cluster](mosip/README.md)
 * [Monitoring](monitoring/README.md)
 * [Logging](logging/README.md)
