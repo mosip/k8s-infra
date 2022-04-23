@@ -8,7 +8,7 @@ The following number of EC2 nodes/instances will be required
 | No. of nodes | No. of vCPUs | RAM | Storage | AWS Type of each node | Used as part of |
 |---|---|---|---|---|---|
 | 5 | 8 vCPU | 32GB | 64 GB | t3.2xlarge | Cluster nodes |
-| 1 | 2 vCPU | 1 GB | 8 GB | t2.micro | Wireguard Bastion Node |
+| 1 | 2 vCPU | 4 GB | 8 GB | t2.micro | Wireguard Bastion Node |
 
 All the above nodes should be in the same VPC.
 
