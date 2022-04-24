@@ -27,12 +27,12 @@ To collect logs from MOSIP services:
     * Select `ClusterFlows` from `Logging` screen and create one with below mentioned configuration: 
         * Name: eg. elasticflow
         * Description: small description
-        * select `Filters` and replace the contents with the contents of [filter.yml](./filter.yaml)
+        * select `Filters` and replace the contents with the contents of [filter.yaml](./filter.yaml)
         * select `Outputs` as the name of the `ClusterOutputs` and save the same.
 
-Note that with this filter any json object received in `log` field will be parsed into individual fields and indexed.
+Note that with this filter any JSON object received in `log` field will be parsed into individual fields and indexed.
 
-* TODO: Issues: Elasticsearch and Kibana pod logs are not getting recorded.  Further, setting up Cluster Flow for pods specified by pod labels doesn't seem to work.  Needs investigation.
+* TODO: Issues: Elasticsearch and Kibana pod logs are not getting recorded. Further, setting up Cluster Flow for pods specified by pod labels doesn't seem to work. Needs investigation.
 
 ## View logs
 * Open Kibana console `https://<kibana host name>//` (`hostname` in `kibana_values.yaml`)
