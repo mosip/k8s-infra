@@ -51,7 +51,8 @@ You can also create cluster on Cloud using the Rancher console.  Refer to Ranche
 
 ## Persistence
 ### GP2
-* Default storage class is `gp2` which by is in "Delete" mode which means if PV is deleted, the underlying storage is also deleted.  
+* Default storage class on EKS is `gp2` which by is in "Delete" mode which means if PV is deleted, the underlying storage is also deleted.  
+* Add the `gp2` storage class config to add the following in YAML: `allowVolumeExpansion: true`.
 * Create storage class `gp2-retain` by running `sc.yaml` for PV in Retain mode. Set the storage class as gp2-retain in case you want to retain PV. Learn more on [persistence](../docs/persistence.md).
 ```sh
 kubectl apply -f sc.yaml
@@ -61,8 +62,15 @@ kubectl apply -f sc.yaml
 ### LongHorn
 Install [LongHorn](../longhorn/README.md).
 
-### EFS
-EFS may not be necessary if you are using LongHorn + backup on S3. However, if needed you may install it as given [here](efs/README.md)
+### Volume expansion
+If a particular PVC is running short of storage, follow these steps for EKS (AWS) storage.
+1. Find out the name of PV corresponding to the PVC from Rancher.
+2. On AWS console --> Volumes search for this volume.
+3. Increase the storage of this volume to the desired capacity. _(Storage can only be increased)_.
+4. 4. On Rancher, edit PV's YAML config to match the above capacity.
+5. On Rancher, edit PVC's YAML to increase the requested storage to the same capacity.
+
+The capacity of the PVC should have increased.
 
 ## Ingress and load balancer (LB)
 Ingress is not installed by default on EKS. We use Istio ingress gateway controller to allow traffic in the cluster. Two channels are created - public and internal. See [architecture](../../README.md).
