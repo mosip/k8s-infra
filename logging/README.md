@@ -28,7 +28,7 @@ To collect logs from MOSIP services:
         * Name: eg. elasticflow
         * Description: small description
         * select `Filters` and replace the contents with the contents of [filter.yml](./filter.yaml)
-        * select Outputs as the name of the ClusterOutputs and save the same.
+        * select `Outputs` as the name of the `ClusterOutputs` and save the same.
 
 Note that with this filter any json object received in `log` field will be parsed into individual fields and indexed.
 
