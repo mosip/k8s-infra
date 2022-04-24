@@ -14,7 +14,7 @@ Kibana connects to Elasticsearch. Make sure you have a domain like `kibana.sandb
 ## Configure Rancher FluentD
 To collect logs from MOSIP services:
 * To route the logs to elasticsearch, create ClusterOutputs as belows:
-    * Select `Logging` from `Cluster Explorar` section on top left corner of Rancher dashboard's 'Cluster Explorar' page.
+    * Select `Logging` from `Cluster Explorer` section on top left corner of Rancher dashboard's 'Cluster Explorar' page.
     * Select `ClusterOutputs` from `Logging` screen and create one with below mentioned configuration:
         *  Name: eg. elasticsearch.
         *  Description: small description.
