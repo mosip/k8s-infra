@@ -19,10 +19,10 @@ Kibana connects to Elasticsearch. Make sure you have a domain like `kibana.sandb
         *  Description: small description.
         *  select `Elasticsearch` as Output.
         *  update the `Target` as below and save the same.
-            ```
-            http://elasticsearch-master:9200 
-            ```
-            Note :  Make sure that you select Output as `Elasticsearch`, Target as `http`,  Host as `elasticsearch-master` and Port as `9200`.
+          * _Output_: `Elasticsearch`, 
+          * _Target_: `http`
+          * _Host_: `elasticsearch-master` 
+          * _Port_: `9200`.
     * Select `ClusterFlows` from `Logging` screen and create one with below mentioned configuration: 
         * Name: eg. elasticflow
         * Description: small description
