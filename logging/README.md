@@ -34,7 +34,7 @@ Note that with this filter any JSON object received in `log` field will be parse
 TODO: Issues: Elasticsearch and Kibana pod logs are not getting recorded. Further, setting up Cluster Flow for pods specified by pod labels doesn't seem to work. Needs investigation.
 
 ## View logs
-* Open Kibana console `https://<kibana host name>//` (`hostname` in `kibana_values.yaml`)
+* Open Kibana console `https://<hostname in kibana_values.yaml>//`
 * In Kibana console add Index Pattern "fluentd*" under Stack Management.
 * View logs in Home->Analytics->Discover.
 
