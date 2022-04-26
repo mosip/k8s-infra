@@ -12,5 +12,5 @@
 - grep:
     exclude:
       - key: log
-        pattern: /acutator\/health/
+        pattern: /actuator\/health/
 
