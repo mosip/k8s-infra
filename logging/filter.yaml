@@ -13,4 +13,8 @@
     exclude:
       - key: log
         pattern: /actuator\/health/
-
+# TODO: The below pattern in for unwanted errors from Activemq. We must fix this in Activemq config.
+- grep:
+    exclude:
+      - key: log
+        pattern: /Temporary Store limit is 51200 mb, whilst the temporary data directory:/
