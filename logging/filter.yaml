@@ -9,4 +9,8 @@
       type: json
     replace_invalid_sequence: true
     reserve_data: true
+- grep:
+    exclude:
+      - key: log
+        pattern: /acutator\/health/
 
