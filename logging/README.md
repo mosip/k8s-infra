@@ -41,3 +41,7 @@ TODO: Issues: Elasticsearch and Kibana pod logs are not getting recorded. Furthe
 ## Troubleshooting
 * If MOSIP logs are not seen, check if all fields here have quotes (except numbers):
 Log pattern in [mosip-config](https://github.com/mosip/mosip-config/blob/develop3-v3/application-default.properties) property `server.tomcat.accesslog.pattern`.
+* To check latest record in Elasticsearch index:
+    ```
+    curl -X POST -H 'Content-Type: application/json' -d '{ "query": { "match_all": {} }, "size": 1, "sort": [ { "@timestamp": { "order": "desc" } } ] }' http://localhost:9200/<index-name>/_search
+    ```
