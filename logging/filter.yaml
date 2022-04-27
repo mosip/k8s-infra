@@ -1,4 +1,4 @@
-# Parse the message json from MOSIP modules to individual paramaters
+# Parse any JSON object received in `log` field into individual fields.
 - record_modifier:
     replaces:
       - expression: /"/

@@ -23,20 +23,48 @@ To collect logs from MOSIP services create `ClusterOutputs` as belows:
       * _Target_: `http`
       * _Host_: `elasticsearch-master` 
       * _Port_: `9200`.
+
+* Update propertes of Elasticsearch index in `ClusterOuputs` --> `Output Buffer` --> Edit YAML.
+```
+elasticsearch:
+    buffer:
+      flush_interval: 10s
+      flush_mode: interval
+    host: elasticsearch-master
+    logstash_format: true
+    port: 9200
+    scheme: http
+    ssl_verify: true
+    ssl_version: TLSv1_2
+flush_interval: 10s
+flush_mode: interval
+```
 * Select `ClusterFlows` from `Logging` screen and create one with below mentioned configuration: 
     * Name: eg. elasticflow
     * Description: small description
     * select `Filters` and replace the contents with the contents of [filter.yaml](./filter.yaml)
     * select `Outputs` as the name of the `ClusterOutputs` and save the same.
 
-Note that with this filter any JSON object received in `log` field will be parsed into individual fields and indexed.
-
 TODO: Issues: Elasticsearch and Kibana pod logs are not getting recorded. Further, setting up Cluster Flow for pods specified by pod labels doesn't seem to work. Needs investigation.
 
-## View logs
+## Indices
+Daywise indices with the name `logstash*` are created once the above dashboards are imported. The `logstash_format: true` setting above enables the same.
+
+## Filters
+Note the filters applied in `filters.yaml`. You may update the same for your install if required. 
+
+## Dashboards
 * Open Kibana console `https://<hostname in kibana_values.yaml>//`
-* In Kibana console add Index Pattern "fluentd*" under Stack Management.
-* View logs in Home->Analytics->Discover.
+* Under Stack Management --> Saved Objects, import all dashboards under `dashbords/` folder in order of file names. 
+
+## Traceid
+You can click the `traceId` field to see the full log trace related to the particular `traceId`. The dashboard `02-error-only-logs.ndjson` contains field map for the same.  To setup such links manually, provide the following url in the given viewof Saved Objects --> logstash --> traceId 
+
+![](../docs/_images/traceid-kibana-setting.png)
+ 
+```
+kibana#/discover/0efe9240-c521-11ec-92b4-4f5e54b3d2f7?_g=(filters:!(),refreshInterval:(pause:!t,value:10000),time:(from:now-15m,to:now))&_a=(columns:!(kubernetes.container_name,traceId,level,message),filters:!(('$state':(store:appState),meta:(alias:!n,disabled:!f,index:'1edfabd0-c3d8-11ec-a947-83cd2093795e',key:traceId.keyword,negate:!f,params:(query:'{{value}}'),type:phrase),query:(match_phrase:(traceId.keyword:'{{value}}')))),grid:(),hideChart:!f,index:'1edfabd0-c3d8-11ec-a947-83cd2093795e',interval:auto,query:(language:kuery,query:''),sort:!(!('@timestamp',desc)))
+```
 
 ## Troubleshooting
 * If MOSIP logs are not seen, check if all fields here have quotes (except numbers):
