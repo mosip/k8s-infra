@@ -9,22 +9,22 @@ Kibana connects to Elasticsearch. Make sure you have a domain like `kibana.sandb
 ```
 
 ## Instal Rancher FluentD system
-* Install `logging` from `Apps and marketplace` within the Rancher UI.
+* Install Logging from Apps and marketplace within the Rancher UI.
 
 ## Configure Rancher FluentD
-To collect logs from MOSIP services create `ClusterOutputs` as belows:
-* Select `Logging` from `Cluster Explorer`.
-* Select `ClusterOutputs` from `Logging` screen and create one with below mentioned configuration:
+To collect logs from MOSIP services create _ClusterOutputs_ as belows:
+* Select _Logging_ from Cluster Explorer.
+* Select _ClusterOutputs_ from _Logging_ screen and create one with below mentioned configuration:
     *  Name: eg. elasticsearch.
     *  Description: small description.
-    *  select `Elasticsearch` as Output.
-    *  update the `Target` as below and save the same.
+    *  select _Elasticsearch_ as Output.
+    *  update the _Target_ as below and save the same.
       * _Output_: `Elasticsearch`, 
       * _Target_: `http`
       * _Host_: `elasticsearch-master` 
       * _Port_: `9200`.
 
-* Update properties of Elasticsearch index in `ClusterOuputs` --> `Output Buffer` --> Edit YAML.
+* Update properties of Elasticsearch index in _ClusterOuputs_ --> _Output Buffer_ --> Edit YAML.
 ```
 elasticsearch:
     buffer:
@@ -39,26 +39,26 @@ elasticsearch:
 flush_interval: 10s
 flush_mode: interval
 ```
-* Select `ClusterFlows` from `Logging` screen and create one with below mentioned configuration: 
+* Select _ClusterFlows_ from _Logging_ screen and create one with below mentioned configuration: 
     * Name: eg. elasticflow
     * Description: small description
-    * select `Filters` and replace the contents with the contents of [filter.yaml](./filter.yaml)
-    * select `Outputs` as the name of the `ClusterOutputs` and save the same.
+    * select _Filters_ and replace the contents with the contents of [filter.yaml](./filter.yaml)
+    * select _Outputs_ as the name of the _ClusterOutputs_ and save the same.
 
 TODO: Issues: Elasticsearch and Kibana pod logs are not getting recorded. Further, setting up Cluster Flow for pods specified by pod labels doesn't seem to work. Needs investigation.
 
 ## Elasticsearch Indices
-Daywise indices with the name `logstash*` are created once the above dashboards are imported. The `logstash_format: true` setting above enables the same.
+Day wise indices with the name `logstash*` are created once the above dashboards are imported. The `logstash_format: true` setting above enables the same.
 
 ## Filters
 Note the filters applied in `filters.yaml`. You may update the same for your install if required. 
 
 ## Dashboards
 * Open Kibana console `https://<hostname in kibana_values.yaml>//`
-* Under Stack Management --> Saved Objects, import all dashboards under `dashbords/` folder in order of file names. 
+* Under _Stack Management_ --> _Saved Objects_, import all dashboards under `dashbords/` folder in order of file names. 
 
 ## Traceid
-You can click the `traceId` field to see the full log trace related to the particular `traceId`. The dashboard `02-error-only-logs.ndjson` contains field map for the same.  To setup such links manually, provide the following url in the given viewof Saved Objects --> logstash --> traceId 
+You can click the `traceId` field to see the full log trace related to the particular `traceId`. The dashboard `02-error-only-logs.ndjson` contains field map for the same.  To setup such links manually, provide the following URL in the given viewof _Saved Objects_ --> _logstash_ --> _traceId_
 
 ![](../docs/_images/traceid-kibana-setting.png)
  
