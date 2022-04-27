@@ -19,10 +19,10 @@ To collect logs from MOSIP services create _ClusterOutputs_ as belows:
     *  Description: small description.
     *  select _Elasticsearch_ as Output.
     *  update the _Target_ as below and save the same.
-      * _Output_: `Elasticsearch`, 
-      * _Target_: `http`
-      * _Host_: `elasticsearch-master` 
-      * _Port_: `9200`.
+        * _Output_: `Elasticsearch`, 
+        * _Target_: `http`
+        * _Host_: `elasticsearch-master` 
+        * _Port_: `9200`.
 
 * Update properties of Elasticsearch index in _ClusterOuputs_ --> _Output Buffer_ --> Edit YAML.
 ```
@@ -51,14 +51,14 @@ TODO: Issues: Elasticsearch and Kibana pod logs are not getting recorded. Furthe
 Day wise indices with the name `logstash*` are created once the above dashboards are imported. The `logstash_format: true` setting above enables the same.
 
 ## Filters
-Note the filters applied in `filters.yaml`. You may update the same for your install if required. 
+Note the filters applied in [`filters.yaml`](filters.yaml). You may update the same for your install if required. 
 
 ## Dashboards
 * Open Kibana console `https://<hostname in kibana_values.yaml>//`
-* Under _Stack Management_ --> _Saved Objects_, import all dashboards under `dashbords/` folder in order of file names. 
+* Under _Stack Management_ --> _Saved Objects_, import all dashboards under [`./dashboards`](./dashboards) folder in order of file names. 
 
-## Traceid
-You can click the `traceId` field to see the full log trace related to the particular `traceId`. The dashboard `02-error-only-logs.ndjson` contains field map for the same.  To setup such links manually, provide the following URL in the given viewof _Saved Objects_ --> _logstash_ --> _traceId_
+## TraceId
+You can click the `traceId` field to see the full log trace related to the particular `traceId`. The dashboard `02-error-only-logs.ndjson` contains field map for the same.  To setup such links manually, provide the following URL in the given view of _Saved Objects_ --> _logstash_ --> _traceId_.
 
 ![](../docs/_images/traceid-kibana-setting.png)
  
