@@ -24,7 +24,7 @@ To collect logs from MOSIP services create `ClusterOutputs` as belows:
       * _Host_: `elasticsearch-master` 
       * _Port_: `9200`.
 
-* Update propertes of Elasticsearch index in `ClusterOuputs` --> `Output Buffer` --> Edit YAML.
+* Update properties of Elasticsearch index in `ClusterOuputs` --> `Output Buffer` --> Edit YAML.
 ```
 elasticsearch:
     buffer:
@@ -47,7 +47,7 @@ flush_mode: interval
 
 TODO: Issues: Elasticsearch and Kibana pod logs are not getting recorded. Further, setting up Cluster Flow for pods specified by pod labels doesn't seem to work. Needs investigation.
 
-## Indices
+## Elasticsearch Indices
 Daywise indices with the name `logstash*` are created once the above dashboards are imported. The `logstash_format: true` setting above enables the same.
 
 ## Filters
