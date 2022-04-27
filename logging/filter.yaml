@@ -1,3 +1,4 @@
+# Parse the message json from MOSIP modules to individual paramaters
 - record_modifier:
     replaces:
       - expression: /"/
@@ -9,10 +10,13 @@
       type: json
     replace_invalid_sequence: true
     reserve_data: true
+
+# Filter all actuator health logs as we don't really need them later.
 - grep:
     exclude:
       - key: log
         pattern: /actuator\/health/
+
 # TODO: The below pattern in for unwanted errors from Activemq. We must fix this in Activemq config.
 - grep:
     exclude:
