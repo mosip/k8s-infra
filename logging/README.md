@@ -51,7 +51,7 @@ TODO: Issues: Elasticsearch and Kibana pod logs are not getting recorded. Furthe
 Day wise indices with the name `logstash*` are created once the above dashboards are imported. The `logstash_format: true` setting above enables the same.
 
 ## Filters
-Note the filters applied in `filters.yaml`. You may update the same for your install if required. 
+Note the filters applied in [`filters.yaml`](filters.yaml). You may update the same for your install if required. 
 
 ## Dashboards
 * Open Kibana console `https://<hostname in kibana_values.yaml>//`
