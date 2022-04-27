@@ -57,7 +57,7 @@ Note the filters applied in [`filters.yaml`](filters.yaml). You may update the s
 * Open Kibana console `https://<hostname in kibana_values.yaml>//`
 * Under _Stack Management_ --> _Saved Objects_, import all dashboards under [`./dashboards`](./dashboards) folder in order of file names. 
 
-## Traceid
+## TraceId
 You can click the `traceId` field to see the full log trace related to the particular `traceId`. The dashboard `02-error-only-logs.ndjson` contains field map for the same.  To setup such links manually, provide the following URL in the given viewof _Saved Objects_ --> _logstash_ --> _traceId_
 
 ![](../docs/_images/traceid-kibana-setting.png)
