@@ -10,10 +10,10 @@ This is a guide to set up Kubernetes cluster on Virtual Machines using [RKE](htt
 - [Hardware, network, certificate requirements](./requirements.md).
 - [Rancher](../../rancher).
 - Command line utilities:
-  - `kubectl`
-  - `helm`
-  - `rke`
-  - `istioctl`
+  - kubectl
+  - helm
+  - rke (rke version >= v1.3.9)
+  - istioctl (istioctl version: 1.13.2)
 - Helm repos:
   ```sh
   helm repo add bitnami https://charts.bitnami.com/bitnami
