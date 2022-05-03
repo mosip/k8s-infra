@@ -24,6 +24,8 @@ To collect logs from MOSIP services create _ClusterOutputs_ as belows:
         * _Host_: `elasticsearch-master` 
         * _Port_: `9200`.
 
+    IMPORTANT: The created cluster does not appear (is not active) until you connect it in the steps below.
+    
 * Update properties of Elasticsearch index in _ClusterOuputs_ --> _Output Buffer_ --> Edit YAML.
 ```
 elasticsearch:
