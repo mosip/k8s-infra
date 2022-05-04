@@ -63,8 +63,11 @@ Day wise indices with the name `logstash*` are created once the above dashboards
 Note the filters applied in [`filters.yaml`](filters.yaml). You may update the same for your install if required. 
 
 ## Dashboards
+### Load
 * Open Kibana console `https://<hostname in kibana_values.yaml>//`
 * Under _Stack Management_ --> _Saved Objects_, import all dashboards under [`./dashboards`](./dashboards) folder in order of file names. 
+### View
+* _Discover_ --> _Open_ --> Select the dashboard
 
 ## TraceId
 You can click the `traceId` field to see the full log trace related to the particular `traceId`. The dashboard `02-error-only-logs.ndjson` contains field map for the same.  To setup such links manually, provide the following URL in the given view of _Saved Objects_ --> _logstash_ --> _traceId_.
