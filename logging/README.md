@@ -28,7 +28,7 @@ To collect logs from MOSIP services create _ClusterOutputs_ as belows:
     
     ![](../docs/_images/clusteroutput.png)
     
-* Update properties of Elasticsearch index in _ClusterOuputs_ --> _Output Buffer_ --> Edit YAML.
+* Update properties of Elasticsearch index in _ClusterOuputs_ --> _Output Buffer_ --> _Edit YAML_.
 ```
 elasticsearch:
     buffer:
