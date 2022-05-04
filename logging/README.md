@@ -41,6 +41,7 @@ elasticsearch:
 flush_interval: 10s
 flush_mode: interval
 ```
+* Click on _Save_.
 * Select _ClusterFlows_ from _Logging_ screen and create one with below mentioned configuration: 
     * Name: eg. elasticflow
     * Description: small description
