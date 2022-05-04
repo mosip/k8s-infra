@@ -47,10 +47,10 @@ flush_mode: interval
     
 * Click on _Save_.
 * Select _ClusterFlows_ from _Logging_ screen and create one with below mentioned configuration: 
-    * Name: eg. elasticflow
-    * Description: small description
-    * select _Filters_ and replace the contents with the contents of [filter.yaml](./filter.yaml)
-    * select _Outputs_ as the name of the _ClusterOutputs_ and save the same.
+    * Name: Eg. `mosip-logs`
+    * Description: Short description
+    * Select _Filters_ and replace the contents with the contents of [filter.yaml](./filter.yaml)
+    * Select _Outputs_ as the name of the _ClusterOutputs_ and save the same.
     ![](../docs/_images/clusterflow-outputs.png)
     ![](../docs/_images/clusterflow-filter.png)
     
