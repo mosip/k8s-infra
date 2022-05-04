@@ -26,6 +26,8 @@ To collect logs from MOSIP services create _ClusterOutputs_ as belows:
     * Click on _Create_.
     * IMPORTANT: The created cluster output may not appear (is not active) until you connect it in the steps below. (Perhaps some bug in Rancher UI).
     
+    ![](../docs/_images/clusteroutput.png)
+    
 * Update properties of Elasticsearch index in _ClusterOuputs_ --> _Output Buffer_ --> Edit YAML.
 ```
 elasticsearch:
@@ -41,13 +43,17 @@ elasticsearch:
 flush_interval: 10s
 flush_mode: interval
 ```
+![](../docs/_images/clusteroutput-properties.png)
+    
 * Click on _Save_.
 * Select _ClusterFlows_ from _Logging_ screen and create one with below mentioned configuration: 
     * Name: eg. elasticflow
     * Description: small description
     * select _Filters_ and replace the contents with the contents of [filter.yaml](./filter.yaml)
     * select _Outputs_ as the name of the _ClusterOutputs_ and save the same.
-
+    ![](../docs/_images/clusterflow-outputs.png)
+    ![](../docs/_images/clusterflow-filter.png)
+    
 TODO: Issues: Elasticsearch and Kibana pod logs are not getting recorded. Further, setting up Cluster Flow for pods specified by pod labels doesn't seem to work. Needs investigation.
 
 ## Elasticsearch Indices
