@@ -23,8 +23,8 @@ To collect logs from MOSIP services create _ClusterOutputs_ as belows:
         * _Target_: `http`
         * _Host_: `elasticsearch-master` 
         * _Port_: `9200`.
-
-    IMPORTANT: The created cluster does not appear (is not active) until you connect it in the steps below.
+    * Click on _Create_.
+    * IMPORTANT: The created cluster output may not appear (is not active) until you connect it in the steps below. (Perhaps some bug in Rancher UI).
     
 * Update properties of Elasticsearch index in _ClusterOuputs_ --> _Output Buffer_ --> Edit YAML.
 ```
@@ -79,7 +79,7 @@ You may delete older logs.
 ## Troubleshooting
 * If MOSIP logs are not seen, check if all fields here have quotes (except numbers):
 Log pattern in [mosip-config](https://github.com/mosip/mosip-config/blob/develop3-v3/application-default.properties) property `server.tomcat.accesslog.pattern`.
-* To check latest record in Elasticsearch index, login to ES shell (using Rancher or `kubectl exec`):
+* To check latest record in Elasticsearch index, login to any of Elasticsearch Master pod's shell (using Rancher or `kubectl exec`):
     ```sh
     curl -X POST -H 'Content-Type: application/json' -d '{ "query": { "match_all": {} }, "size": 1, "sort": [ { "@timestamp": { "order": "desc" } } ] }' http://localhost:9200/<index-name>/_search
     ```
