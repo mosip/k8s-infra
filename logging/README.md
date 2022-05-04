@@ -63,7 +63,7 @@ To see day wise logs indices created in Elasticsearch login to one of the Master
 ```
 curl http://localhost:9200/_cat/indices | grep logstash
 ```
-You may delete older logs.
+**Cleanup**: You may archive or delete older logs.
 
 ## Filters
 Note the filters applied in [`filters.yaml`](filters.yaml). You may update the same for your install if required. 
