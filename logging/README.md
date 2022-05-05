@@ -45,7 +45,7 @@ flush_mode: interval
 ```
 ![](../docs/_images/clusteroutput-properties.png)
     
-* Click on _Save_.
+* Click on _Create_.
 * Select _ClusterFlows_ from _Logging_ screen and create one with below mentioned configuration: 
     * Name: Eg. `mosip-logs`
     * Description: Short description
