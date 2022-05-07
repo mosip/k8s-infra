@@ -16,7 +16,7 @@ helm repo add bitnami https://charts.bitnami.com/bitnami
 helm repo update
 
 echo Installing Bitnami Elasticsearch and Kibana
-helm -n $NS install elasticsearch bitnami/elasticsearch -f es_values.yaml --wait
+helm -n $NS install elasticsearch bitnami/elasticsearch -f es_values.yaml --version 17.9.25 --wait
 
 KIBANA_HOST=$(kubectl get cm global -o jsonpath={.data.mosip-kibana-host})
 KIBANA_NAME=elasticsearch-kibana
