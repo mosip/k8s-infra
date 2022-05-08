@@ -153,7 +153,7 @@ kubectl apply -f https://rancher.e2e.mosip.net/v3/import/pdmkx6b4xxtpcd699gzwdtt
   ```
   kubectl get svc -n istio-system
   ```
-## Nginx + Wireguard 
+## Nginx
 * Install [Nginx Reverse Proxy](./nginx/) on a separate machine/VM, that proxies traffic to the above Ingress Gateways.
 
 ## DNS mapping
