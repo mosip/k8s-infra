@@ -69,16 +69,33 @@
         port: 8472
         proto: udp
 
-    - community.general.ufw:
+    - name: "Allow tcp 10250:10252" 
+      community.general.ufw:
         rule: allow
         port: 10250:10252   
         proto: tcp
 
-    - community.general.ufw:
+    - name: "Allow tcp 6443" 
+      community.general.ufw:
         rule: allow
         port: 6443
         proto: tcp
-    
+
+    ## Ports for cluster monitoring
+    # Node exporter 
+    - name: "Allow tcp 9796" 
+      community.general.ufw:
+        rule: allow
+        port: 9796
+        proto: tcp
+
+    # Nginx ingress controller (not sure if this is required)
+    - name: "Allow tcp 10254" 
+      community.general.ufw:
+        rule: allow
+        port: 10254
+        proto: tcp
+ 
     - community.general.ufw:
         state: enabled
 
