@@ -24,7 +24,7 @@
 
   <img src="../../docs/_images/longhorn-2.png" width="500">
 
-Here the value "5" means 5% of CPU allocated on the node has been assigned to **each** `instance-manager` pod in `longhorn-system` namespace. This value should be ok for sandbox and pilot but may have to increased to default "12" for production. The value can also be updated on Longhorn UI after installation.
+Here the value "5" means 5% of total availalbe node CPU is allocated to **each** `instance-manager` pod in `longhorn-system` namespace. This value should be ok for sandbox and pilot but may have to increased to default "12" for production. The value can also be updated on Longhorn UI after installation.
 
   <img src="../../docs/_images/longhorn-3.png" width="500">
 
