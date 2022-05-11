@@ -19,7 +19,8 @@
     guaranteedEngineManagerCPU: 5
     guaranteedReplicaManagerCPU: 5
     ```
-  <img src="../../docs/_images/longhorn-l.png" width="500">
+ 
+  <img src="../../docs/_images/longhorn-1.png" width="500">
 
   <img src="../../docs/_images/longhorn-2.png" width="500">
 
