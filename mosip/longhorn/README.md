@@ -13,18 +13,19 @@
 * In Helm options of Longhorn, set the replicas for stroage class appropriately. For sandbox, replica of 1 would suffice otherwise storage consumption will be very high. For production, keep the default count.
 
  <img src="../../docs/_images/storage-class-replicas.png" width="500">
+ 
 * Set the following parameters under _Edit YAML_ of Helm install: 
-```
-guaranteedEngineManagerCPU: 5
-guaranteedReplicaManagerCPU: 5
-```
+    ```
+    guaranteedEngineManagerCPU: 5
+    guaranteedReplicaManagerCPU: 5
+    ```
   <img src="../../docs/_images/longhorn-l.png" width="500">
 
   <img src="../../docs/_images/longhorn-2.png" width="500">
 
 Here the value "5" means 5% of CPU allocated on the node has been assigned to **each** `instance-manager` pod in `longhorn-system` namespace. This value should be ok for sandbox and pilot but may have to increased to default "12" for production. The value can also be updated on Longhorn UI after installation.
 
-  <img src="../../docs/_images/longhorn-2.png" width="500">
+  <img src="../../docs/_images/longhorn-3.png" width="500">
 
 * For cloud-native install disable default storage class flag. This will ensure that cloud providers' storage class shall be used as default. 
 	```
