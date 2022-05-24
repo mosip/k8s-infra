@@ -28,4 +28,5 @@ data:
   mosip-postgres-host: postgres.sandbox.xyz.net
   mosip-pmp-host: pmp.sandbox.xyz.net
   mosip-onboarder-host: onboarder.sandbox.xyz.net
+  mosip-resident-host: resident.iam.sandbox.xyz.net
   is_glowroot_env: absent
