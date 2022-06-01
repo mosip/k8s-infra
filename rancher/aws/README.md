@@ -3,7 +3,7 @@
 ## Prerequisites
 * AWS account and credentials with permissions to create EKS cluster.
 * AWS credentials in `~/.aws/` folder as given [here](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-files.html).
-* [Wireguard setup](../../docs/wireguard-bastion.md).
+* [Wireguard setup](https://docs.mosip.io/1.2.0/deployment/sandbox-deployment/wireguard-bastion).
 * Copy of `~/.kube/config` file with another name. _(IMPORTANT. As in this process your existing `~/.kube/config` file will be overridden)_.
 * [`eksctl`](https://docs.aws.amazon.com/eks/latest/userguide/eksctl.html) utility.
 * `kubectl` utility installed.
@@ -15,7 +15,7 @@
 |Purpose|vCPUs|RAM|Storage|AWS Instance Type|Number of Nodes|
 |---|:---:|:---:|:---:|:---:|---:|
 |Cluster nodes | 2 | 8 GB | 32 GB | t3.large |2|
-|[Wireguard bastion host](../../docs/wireguard-bastion.md)| 2 | 4 GB | 8 GB | t2.medium |1|
+|[Wireguard bastion host](https://docs.mosip.io/1.2.0/deployment/sandbox-deployment/wireguard-bastion)| 2 | 4 GB | 8 GB | t2.medium |1|
 
 * Certificates:
     * Depending upon the above hostnames, atleast one wildcard SSL certificate will be required. For example; `*.org.net`.
