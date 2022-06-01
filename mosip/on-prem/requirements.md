@@ -41,6 +41,7 @@ The following DNS mappings will be required.
 | mosip-postgres-host | postgres.sandbox.xyz.net | Internal ip |
 | mosip-pmp-host | pmp.sandbox.xyz.net | Internal ip |
 | mosip-onboarder-host | onboarder.sandbox.xyz.net | Internal ip |
+| mosip-resident-host | resident.sandbox.xyz.net | Public ip of nginx node |
 
 Note: The above table is just a placeholder for hostnames, the actual name itself varies from organisation to organisation.  A sample hostname list is given at [global_configmap.yaml.sample](../global_configmap.yaml.sample) <br/>
 Note: Only proceed to DNS mapping after the ingressgateways are installed and the nginx reverse proxy is setup.
