@@ -68,4 +68,4 @@ Create the following domain names:
 1. Rancher: `rancher.xyz.net` 
 2. Keycloak: `iam.xyz.net`  
 
-Point the above to **internal** ip address of the NLB. This assumes that you have a [Wireguard Bastion Host](../../docs/wireguard-bastion.md) has been installed. On AWS this is done on Route 53 console. 
+Point the above to **internal** ip address of the NLB. This assumes that you have a [Wireguard Bastion Host](https://docs.mosip.io/1.2.0/deployment/sandbox-deployment/wireguard-bastion) has been installed. On AWS this is done on Route 53 console. 
