@@ -17,6 +17,15 @@ To load a new dashboards to Grafana, sign in with user and password from `ranche
 
 To see JVM stats you may import chart number `14430` in Grafana dashboard.
 
+Important dashboards:
+|Grafana dashboard|Description|
+|---|---|
+|Rancher/Cluster (Nodes)|Consolidated view of all nodes|
+|Rancher/Node|View of each node|
+|Kubernetes/Pesistent Volumes|Storage consumption per PV|
+|Kubernetes/Compute Resources/Workload|Resources per deployment/statefulset|
+|Kubernetes/Compute Resources/Cluster|Resources namespace wise|
+
 ## JVM stats 
 MOSIP pods make JVM stats availalbe for Prometheus to scrape the pods. The typical endpoint looks like
 `<base url>/actuator/prometheus`. The scrapping is enabled via module Helm chart (see `metrics` section of `values.yaml`).
