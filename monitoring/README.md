@@ -16,3 +16,15 @@ All MOSIP modules have been configured to let Prometheus scrape metrics.
 To load a new dashboards to Grafana, sign in with user and password from `rancher-monitoring-grafana` in `cattle-monitoring-system` namespace of Rancher cluster.
 
 To see JVM stats you may import chart number `14430` in Grafana dashboard.
+
+## JVM stats 
+MOSIP pods make JVM stats availalbe for Prometheus to scrape the pods. The typical endpoint looks like
+`<base url>/actuator/prometheus`. The scrapping is enabled via module Helm chart (see `metrics` section of `values.yaml`).
+
+A sample of metrics that is pulled by Prometheus is given in [`pod-jvm-scraped-metrics-sample.txt`](./pod-jvm-scraped-metrics-sample.txt)
+
+## Inodes
+To see free inodes on a particular node, login to the node an run 
+```
+df -ih
+```
