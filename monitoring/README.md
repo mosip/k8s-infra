@@ -15,9 +15,7 @@ All MOSIP modules have been configured to let Prometheus scrape metrics.
 ## Grafana
 To load a new dashboards to Grafana, sign in with user and password from `rancher-monitoring-grafana` in `cattle-monitoring-system` namespace of Rancher cluster.
 
-To see JVM stats you may import chart number `14430` in Grafana dashboard.
-
-Important dashboards:
+Important default dashboards:
 |Grafana dashboard|Description|
 |---|---|
 |Rancher/Cluster (Nodes)|Consolidated view of all nodes|
@@ -25,6 +23,8 @@ Important dashboards:
 |Kubernetes/Pesistent Volumes|Storage consumption per PV|
 |Kubernetes/Compute Resources/Workload|Resources per deployment/statefulset|
 |Kubernetes/Compute Resources/Cluster|Resources namespace wise|
+
+To see JVM stats you may import chart number `14430` in Grafana dashboard.
 
 ## JVM stats 
 MOSIP pods make JVM stats availalbe for Prometheus to scrape the pods. The typical endpoint looks like
