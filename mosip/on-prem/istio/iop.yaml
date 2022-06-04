@@ -2,7 +2,7 @@ apiVersion: install.istio.io/v1alpha1
 kind: IstioOperator
 metadata:
   namespace: istio-system
-  name: istio-operator-my
+  name: istio-operators-mosip
 spec:
   profile: default
   # This is done to merge multiple slashes in http URLs, otherwise, MOSIP APIs may not work
@@ -40,7 +40,7 @@ spec:
     ingressGateways:
       ## Public access to external ingress gateway is disabled by default. Enable it in production.
       - name: istio-ingressgateway
-        enabled: false
+        enabled: true
         k8s:
           service:
             type: NodePort
