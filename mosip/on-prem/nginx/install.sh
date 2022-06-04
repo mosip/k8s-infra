@@ -10,20 +10,20 @@
   fi &&
   if [ -z "$cluster_nginx_public_ip" ]; then
     echo -en "=====>\nThis nginx's public ip will have to be DNS-mapped to all public domains from you global_configmap.yaml. Ex: api.sandbox.xyz.net, prereg.sandbox.xyz.net, etc.\nThe above mentioned nginx's public ip might be different from this nginx machine's public interface ip, if you have provisioned public ip seperately that might be forwarding traffic to this interface ip.\n"
-    echo -en "Give the public interface ip of this node here. Run \`ip a\` to get all the interfaces : "
+    echo -en "Give the public interface ip of this node here. Run \`ip a\` to get all the interfaces, In case not exposing api's to public give private ip only. : "
     read cluster_nginx_public_ip
   fi &&
   if [ -z "$cluster_public_domains" ]; then
-    echo -en "=====>\nGive list of (comma seperated) publicly exposing domain names (without any whitespaces). Ex: api.sandbox.xyx.net, prereg.sandbox.xyz.net etc : "
+    echo -en "=====>\nGive list of (comma seperated) publicly exposing domain names (without any whitespaces). Ex: api.sandbox.xyx.net, prereg.sandbox.xyz.net, resident.sandbox.xyz.net, etc : "
     read cluster_public_domains
   fi &&
   if [ -z "$cluster_nginx_certs" ]; then
-    echo -en "=====>\nGive path for SSL Certificate (fullchain.pem) for sandbox.xyz.net (without any whitespaces) : "
+    echo -en "=====>\nGive path for SSL Certificate (fullchain.pem) for sandbox.xyz.net (without any whitespaces) : Ex: /etc//letsencrypt/live/sandbox.xyz.net/fullchain.pem"
     read cluster_nginx_certs
     cluster_nginx_certs=$(sed 's/\//\\\//g' <<< $cluster_nginx_certs)
   fi &&
   if [ -z "$cluster_nginx_cert_key" ]; then
-    echo -en "=====>\nGive path for SSL Certificate Key (privkey.pem) for sandbox.xyz.net (without any whitespaces) : "
+    echo -en "=====>\nGive path for SSL Certificate Key (privkey.pem) for sandbox.xyz.net (without any whitespaces): Ex: /etc/letsencrypt/live/sandbox.xyz.net/privkey.pem : "
     read cluster_nginx_cert_key
     cluster_nginx_cert_key=$(sed 's/\//\\\//g' <<< $cluster_nginx_cert_key)
   fi &&
