@@ -18,3 +18,9 @@ sudo certbot certonly --agree-tos --manual --preferred-challenges=dns -d *.sandb
     ```
   * Press enter in the `certbot` prompt to proceed.
 * Certificates are created in `/etc/letsencrypt` on your machine.
+
+
+# SSL Certificate renewal
+  * remove live direcotory ``` sudo rm -fr /etc/letsencrypt/live ```
+  * ``` sudo certbot certonly --agree-tos --manual --preferred-challenges=dns -d *.sandbox.xyz.net -d sandbox.xyz.net ```
+  * Update cert location ```sudo cp -r /etc/letsencrypt/live/sandbox.xyz.net-0001 /etc/letsencrypt/live/sandbox.xyz.net ```
