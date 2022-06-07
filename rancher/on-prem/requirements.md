@@ -3,7 +3,7 @@
 Listed below are hardware, network and certificate requirements to setup a Rancher Kuberntes cluster.
 
 ## Hardware requirements
-|Purpose|vCPUs|RAM|Storage| N Virtual Machines|
+|Purpose|vCPUs|RAM|Storage (SSD) | N Virtual Machines|
 |---|:---:|:---:|:---:|---:|
 |Cluster nodes | 2 | 8 GB | 32 GB | 2|
 |Wireguard bastion host| 2 | 1 GB | 8 GB |1|
