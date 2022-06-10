@@ -18,3 +18,6 @@ This is not part of regular installation. Perform this step only while removing 
 ```
 ./delete.sh
 ```
+
+## Install Kiali 
+* Install `Kiali` using operator as given [here](https://kiali.io/docs/installation/installation-guide/install-with-helm/#install-with-operator)
