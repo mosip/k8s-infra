@@ -20,4 +20,20 @@ This is not part of regular installation. Perform this step only while removing 
 ```
 
 ## Install Kiali 
-* Install `Kiali` using operator as given [here](https://kiali.io/docs/installation/installation-guide/install-with-helm/#install-with-operator)
+Add kiali repo
+```
+helm repo add kiali https://kiali.org/helm-charts
+```
+Install
+```
+helm install \
+    --set clusterRoleCreator=true \
+    --set external_services.prometheus.url="http://prometheus-operated.cattle-monitoring-system:9090"     \
+    --set external_services.prometheus.custom_metrics_url="http://rancher-monitoring-prometheus.cattle-monitoring-system.svc:9090"
+    --set external_services.grafana.in_cluster_url="http://rancher-monitoring-grafana.cattle-monitoring-system.svc:80"
+    --set external_services.grafana.url="http://rancher-monitoring-grafana.cattle-monitoring-system.svc:80"
+    --set auth.strategy=anonymous \
+    --namespace istio-system \
+    kiali-server \
+    kiali/kiali-server
+```
