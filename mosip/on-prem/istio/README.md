@@ -29,9 +29,9 @@ Install
 helm install \
     --set clusterRoleCreator=true \
     --set external_services.prometheus.url="http://prometheus-operated.cattle-monitoring-system:9090"     \
-    --set external_services.prometheus.custom_metrics_url="http://rancher-monitoring-prometheus.cattle-monitoring-system.svc:9090"
-    --set external_services.grafana.in_cluster_url="http://rancher-monitoring-grafana.cattle-monitoring-system.svc:80"
-    --set external_services.grafana.url="http://rancher-monitoring-grafana.cattle-monitoring-system.svc:80"
+    --set external_services.prometheus.custom_metrics_url="http://rancher-monitoring-prometheus.cattle-monitoring-system.svc:9090" \
+    --set external_services.grafana.in_cluster_url="http://rancher-monitoring-grafana.cattle-monitoring-system.svc:80" \
+    --set external_services.grafana.url="http://rancher-monitoring-grafana.cattle-monitoring-system.svc:80" \
     --set auth.strategy=anonymous \
     --namespace istio-system \
     kiali-server \
