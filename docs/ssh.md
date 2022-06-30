@@ -11,5 +11,5 @@ ssh-copy-id <remote-user>@<remote-ip>
 ```
 * SSH into the node to check password-less SSH: 
 ```
-ssh -i ~./ssh/<your private key> <remote-user>@<remote-ip>
+ssh -i ~/.ssh/<your private key> <remote-user>@<remote-ip>
 ```
