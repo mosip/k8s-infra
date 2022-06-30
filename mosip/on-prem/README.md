@@ -133,7 +133,7 @@ kubectl apply -f global_configmap.yaml
 * Login as admin in Rancher console
 * Select `Import Existing` for cluster addition.
 * Select the `Generic` as cluster type to add.
-* Fill the `Cluster Name` field and select `Create`.
+* Fill the `Cluster Name` field with unique cluster name and select `Create`.
 * You will get the kubecl commands to be executed in the kubernetes cluster
 ```
 eg.
