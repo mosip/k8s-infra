@@ -114,7 +114,7 @@ cp  $HOME/.kube/<cluster_name>_config  $HOME/.kube/config
 ```
 * Alternatively, set `KUBECOFIG` env variable:
 ```
-KUBECONFIG="$HOME/.kube/<cluster_name>_config
+KUBECONFIG=$HOME/.kube/<cluster_name>_config
 ```
 * Test
 ```
