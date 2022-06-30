@@ -91,6 +91,10 @@ ansible-playbook -i hosts.ini docker.yaml
     ingress:
       provider: none
     ```
+* Add the name of the kubernetes cluster in `cluster.yml`:
+    ```
+    cluster_name: sandbox-name
+    ```
 * [Sample config file](sample.cluster.yml) is provider in this folder.
 
 * For production deplopyments edit the `cluster.yml`, according to this [RKE Cluster Hardening Guide](../../docs/rke-cluster-hardening.md).
