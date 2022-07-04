@@ -20,7 +20,7 @@ ansible-playbook -i hosts.ini wireguard.yaml
 - Assign peer1 to yourself and set your Wireguard client before working on the cluster.
 
 ## Ports
-* Open ports on each of the nodes.
+* Open ports on each of the nodes. Update ``vpc_ip`` variable in ``ports.yaml`` to allow access on the VPC IP.
 ```
 ansible-playbook -i hosts.ini ports.yaml
 ```
