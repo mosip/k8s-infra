@@ -6,9 +6,9 @@
 echo Operator init
 istioctl operator init
 
-echo Create ingress gateways and load balancers
+echo Create ingress gateways, load balancers and istio monitoring
 kubectl apply -f iop.yaml
-
+kubectl apply -f istio-monitoring/
 echo Wait for all resources to come up
 sleep 10
 kubectl -n istio-system rollout status deploy istiod
