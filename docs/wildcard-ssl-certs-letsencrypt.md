@@ -24,4 +24,5 @@ sudo certbot certonly --agree-tos --manual --preferred-challenges=dns -d *.sandb
 To renew the certificates follow below mentioned steps:
   * backup live direcotory ``` sudo mv /etc/letsencrypt/live /etc/letsencrypt/live-{expiry_date} ```
   * ``` sudo certbot certonly --agree-tos --manual --preferred-challenges=dns -d *.sandbox.xyz.net -d sandbox.xyz.net ```
-  * Update cert location ```sudo cp -r /etc/letsencrypt/live/sandbox.xyz.net-0001 /etc/letsencrypt/live/sandbox.xyz.net ```
+  * Update cert location ```sudo mv /etc/letsencrypt/live/sandbox.xyz.net-0001 /etc/letsencrypt/live/sandbox.xyz.net ```
+  * restart the nginx service there `sudo systemctl restart nginx`.
