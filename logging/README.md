@@ -8,44 +8,16 @@ Kibana connects to Elasticsearch. Make sure you have a domain like `kibana.sandb
 ./install.sh
 ```
 
-## Instal Rancher FluentD system
+## Install Rancher FluentD system
 * Install Logging from Apps and marketplace within the Rancher UI.
 
 ## Configure Rancher FluentD
 To collect logs from MOSIP services create _ClusterOutputs_ as belows:
 * Select _Logging_ from Cluster Explorer.
-* Select _ClusterOutputs_ from _Logging_ screen and create one with below mentioned configuration:
-    *  Name: eg. elasticsearch.
-    *  Description: small description.
-    *  select _Elasticsearch_ as Output.
-    *  update the _Target_ as below and save the same.
-        * _Output_: `Elasticsearch`, 
-        * _Target_: `http`
-        * _Host_: `elasticsearch-master` 
-        * _Port_: `9200`.
-    * Click on _Create_.
-    * IMPORTANT: The created cluster output may not appear (is not active) until you connect it in the steps below. (Perhaps some bug in Rancher UI).
-    
-    ![](../docs/_images/clusteroutput.png)
-    
-* Update properties of Elasticsearch index in _ClusterOuputs_ --> _Output Buffer_ --> _Edit YAML_.
+* Use the following command to create `elasticsearch` _ClusterOutput_.
 ```
-elasticsearch:
-    buffer:
-      flush_interval: 10s
-      flush_mode: interval
-    host: elasticsearch-master
-    logstash_format: true
-    port: 9200
-    scheme: http
-    ssl_verify: true
-    ssl_version: TLSv1_2
-flush_interval: 10s
-flush_mode: interval
+kubectl apply -f clusteroutput_elasticsearch.yaml
 ```
-![](../docs/_images/clusteroutput-properties.png)
-    
-* Click on _Create_.
 * Select _ClusterFlows_ from _Logging_ screen and create one with below mentioned configuration: 
     * Name: Eg. `mosip-logs`
     * Description: Short description
