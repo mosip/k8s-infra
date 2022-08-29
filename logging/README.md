@@ -11,20 +11,21 @@ Kibana connects to Elasticsearch. Make sure you have a domain like `kibana.sandb
 ## Install Rancher FluentD system
 * Install Logging from Apps and marketplace within the Rancher UI.
 
+## Add _Index Lifecycle Policy_ and  _Index Template_ to Elasticsearch
+```sh
+./elasticsearch-ilm-script.sh
+```
 ## Configure Rancher FluentD
 To collect logs from MOSIP services create _ClusterOutputs_ as belows:
 * Select _Logging_ from Cluster Explorer.
 * Use the following command to create `elasticsearch` _ClusterOutput_.
 ```
-kubectl apply -f clusteroutput_elasticsearch.yaml
+kubectl apply -f clusteroutput-elasticsearch.yaml
 ```
-* Select _ClusterFlows_ from _Logging_ screen and create one with below mentioned configuration: 
-    * Name: Eg. `mosip-logs`
-    * Description: Short description
-    * Select _Filters_ and replace the contents with the contents of [filter.yaml](./filter.yaml)
-    * Select _Outputs_ as the name of the _ClusterOutputs_ and save the same.
-    ![](../docs/_images/clusterflow-outputs.png)
-    ![](../docs/_images/clusterflow-filter.png)
+* Use the following command to create `mosip-logs` _ClusterFlow_.
+```
+kubectl apply -f clusterflow-elasticsearch.yaml
+```
     
 TODO: Issues: Elasticsearch and Kibana pod logs are not getting recorded. Further, setting up Cluster Flow for pods specified by pod labels doesn't seem to work. Needs investigation.
 
@@ -38,7 +39,7 @@ curl http://localhost:9200/_cat/indices | grep logstash
 **Cleanup**: You may archive or delete older logs.
 
 ## Filters
-Note the filters applied in [`filters.yaml`](filters.yaml). You may update the same for your install if required. 
+Note the filters applied in [clusterflow-elasticsearch.yaml](clusterflow-elasticsearch.yaml). You may update the same for your install if required. 
 
 ## Dashboards
 ### Load
