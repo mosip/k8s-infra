@@ -20,5 +20,5 @@ helm repo add bitnami https://charts.bitnami.com/bitnami
 helm repo update
 
 echo Installing
-helm -n $NS install keycloak bitnami/keycloak --version "4.3.0" -f values.yaml --set ingress.hostname=$1
+helm -n $NS install keycloak bitnami/keycloak --version "7.1.18" -f values.yaml --set ingress.hostname=$1
 
