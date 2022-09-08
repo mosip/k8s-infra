@@ -56,8 +56,53 @@ Refer [here](keycloak/README.md) for installation of Keycloak.
   * Give member name exactly as `username` in Keycloak
   * Assign appropriate role like Cluster Owner, Cluster Viewer etc.
   * You may create new role with fine grained acccess control.
+  
+## Troubleshooting guide
+
+Issue (1):Issue related to rkeup
+[controlPlane] Failed to bring up Control Plane: [Failed to verify healthcheck: Failed to check https://localhost:6443/healthz for service
+
+ERROR:
+      ssh connection failed
+      failed to bring up the controlPlane
+
+ROOT CAUSE:
+      Local host is not pointed correctly
+      curl https://localhost:6443/healthz
+      Could not resolve host: localhost
+
+SOLUTION:
+      We have to add localhost in to the /etc/hosts/
+      127.0.0.1 localhost
+      
+Issue (2):Issue related to ingress-nginx.yaml
+
+ERROR:
+      Resource already exists and unable to continue with deployment
+
+ROOTCAUSE:
+      ingress-nginx is deployed with the rancher cluster deployment
+			 
+SOLUTION:
+      After ingress provider:none We removed all lines till cluster name
+      
+Issue (3):Issue to rancher dashboard
+
+ERROR:
+      failed calling webhook at the time rancher ui installation
+
+ROOT CAUSE:
+      At the time of login to the dashboard unexpectedly changed random password and forgot to save the password,when i logout with the rancher not able       to login
+
+SOLUTION:
+      kubectl delete mutatingwebhookconfigurations.admissionregistration.k8s.io --ignore-not-found=true rancher.cattle.io
+      mutatingwebhookconfiguration.admissionregistration.k8s.io "rancher.cattle.io" deleted (after using this command able to access rancher ui but not         able to login)
+ 
+      https://rancher.com/docs/rancher/v2.5/en/faq/technical/
+      Use this document to generate a new password
 
 ## Certificates expiry
+
 In case you see certificate expiry message while adding users, on **local** cluster run these commands:
 
 https://rancher.com/docs/rancher/v2.6/en/troubleshooting/expired-webhook-certificates/
