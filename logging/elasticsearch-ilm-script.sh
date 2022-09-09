@@ -5,7 +5,7 @@ kubectl exec -it elasticsearch-master-0 -n cattle-logging-system -- curl -XPUT "
   "policy": {
     "phases": {
       "delete": {
-        "min_age": "5d",
+        "min_age": "3d",
         "actions": {
           "delete": {}
         }
