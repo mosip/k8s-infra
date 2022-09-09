@@ -43,10 +43,17 @@ Note the filters applied in [clusterflow-elasticsearch.yaml](clusterflow-elastic
 
 ## Dashboards
 ### Load
-* Open Kibana console `https://<hostname in kibana_values.yaml>//`
-* Under _Stack Management_ --> _Saved Objects_, import all dashboards under [`./dashboards`](./dashboards) folder in order of file names. 
+* Run the following to load all dashboards in the [`./dashboards`](./dashboards) folder to Kibana.
+```sh
+./load_kibana_dashboards.sh ./dashboards <cluster-kube-config-file>
+```
 ### View
-* _Discover_ --> _Open_ --> Select the dashboard
+* _Kibana_ --> _Menu_ (on top left) --> _Dashboard_ --> Select the dashboard
+### Delete
+* Run the following to delete all dashboards in the [`./dashboards`](./dashboards) folder from Kibana.
+```sh
+./delete_kibana_dashboards.sh ./dashboards <cluster-kube-config-file>
+```
 
 ## TraceId
 You can click the `traceId` field to see the full log trace related to the particular `traceId`. The dashboard `02-error-only-logs.ndjson` contains field map for the same.  To setup such links manually, provide the following URL in the given view of _Saved Objects_ --> _logstash_ --> _traceId_.
