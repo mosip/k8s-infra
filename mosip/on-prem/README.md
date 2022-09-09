@@ -55,7 +55,7 @@ ansible-playbook -i hosts.ini docker.yaml
     ```
     rke config
     ```
-    *  _controlplane, etcd, worker_: At least one of each. For high availability specify _controlplane_, _etc_ on at least two nodes. All notes may be _worker_.
+    *  _controlplane, etcd, worker_: Specify _controlplane_, _etc_ on at least **three** nodes. All nodes may be _worker_.
     * Use default _canal_ networking model
     * Keep the _Pod Security Policies_ disabled.
     * Sample configuration options:
