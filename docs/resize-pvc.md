@@ -22,18 +22,12 @@ To resize existing PVC storage, follow the below procedure:
        - ReadWriteOnce
        resources:
          requests:
-           storage: 8Gi
+           storage: 128Gi   ##### update the storage capacity
        storageClassName: longhorn
        volumeMode: Filesystem
        volumeName: pvc-ccd5a77e-287d-41e2-af39-b63230a9a577
-    status:
-       accessModes:
-       - ReadWriteOnce
-       capacity:
-         storage: 128Gi      ##### update the storage capacity
-       phase: Bound
    ```
-3. Check if the same is reflected on longhorn UI 
+3. Check if the same is reflected on longhorn UI
    ![resize-pvc-1.png](_images/resize-pvc-1.png)
 4. Set `resource` replicas to one (1).
    ```
