@@ -2,17 +2,44 @@
 
 ## Resize
 To resize existing PVC storage, follow the below procedure:
-1. Set `resource` replicas to zero (0).
+1. Set Variables for resource.
    ```
-   kubectl -n resourceNameSpace scale --replicas=0 resourceObjectName resourceName
+   NS=<namespace>
+   RESOURCE=<resourceName>           ## deployment / statefulset etc
+   RESOURCE_NAME=<resourceName>      ## deployment name / statefulset name
    ```
-   eg.:
+   eg: 
    ```
-   kubectl -n minio scale --replicas=0 deploy minio
+   NS=minio
+   RESOURCE=deployment
+   RESOURCE_NAME=minio
    ```
-2. Resize `PVC` storage.
+2. Set `resource` replicas to zero (0).
    ```
-   kubectl -n resourceNameSpace edit pvc pvcName
+   kubectl -n $NS scale --replicas=0 $RESOURCE $RESOURCE_NAME
+   ```
+3. Get PV name from PVC
+   ```
+   PV_NAME=$( kubectl -n $NS get pvc $RESOURCE_NAME | awk 'NR>1{print $3}' )
+   ```
+4. Resize PV size `spec.capacity.storage`
+   ```
+   kubectl -n $NS edit pv $PV_NAME
+   ```
+   ```
+    ...
+    spec:
+      accessModes:
+      - ReadWriteOnce
+      capacity:
+        storage: 100Gi      ####  Resize PV storage
+      claimRef:
+        apiVersion: v1
+        kind: PersistentVolumeClaim
+   ```
+5. Resize `PVC` storage.
+   ```
+   kubectl -n $NS edit pvc $RESOURCE_NAME 
    ```
    eg.: resize minio PVC to 128GB. <br>To resize minio pvc to 128GB, we need to update capacity storage under `status` section.
    ```
@@ -22,26 +49,14 @@ To resize existing PVC storage, follow the below procedure:
        - ReadWriteOnce
        resources:
          requests:
-           storage: 8Gi
+           storage: 100Gi         ##### resize PVC storage
        storageClassName: longhorn
-       volumeMode: Filesystem
-       volumeName: pvc-ccd5a77e-287d-41e2-af39-b63230a9a577
-    status:
-       accessModes:
-       - ReadWriteOnce
-       capacity:
-         storage: 128Gi      ##### update the storage capacity
-       phase: Bound
    ```
-3. Check if the same is reflected on longhorn UI 
+6. Check if the same is reflected on longhorn UI 
    ![resize-pvc-1.png](_images/resize-pvc-1.png)
-4. Set `resource` replicas to one (1).
+7. Set `resource` replicas to one (1).
    ```
-   kubectl -n resourceNameSpace scale --replicas=1 resourceObjectName resourceName
-   ```
-   eg.:
-   ```
-   kubectl -n minio scale --replicas=1 deploy minio
+   kubectl -n $NS scale --replicas=1 $RESOURCE $RESOURCE_NAME
    ```
 ## Troubleshooting
 In case the system is less on storage and pv gets into the resizing state due to less available storage then follow the below mentioned steps:
