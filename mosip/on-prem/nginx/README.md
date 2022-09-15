@@ -6,6 +6,8 @@
 * The traffic is directed to NodePort of respective Ingress gateways (Istio). 
 * The Nginx runs on a separate node that has access to public Internet and connects to services via nodeport.
 
+![](../../../docs/_images/on-prem-nginx-wiring.png)
+
 ## Prerequisites
 * [Ansible](https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html).
 * Provision one VM for Nginx, or multiple VMs for high avaiability like Nginx Plus.
