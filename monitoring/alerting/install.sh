@@ -2,7 +2,7 @@
 # Patch notification alerts 
 
 echo Patching alert manager secrets 
-kubectl patch secret alertmanager-rancher-monitoring-alertmanager -n cattle-monitoring-system  --patch="{\"data\": { \"alertmanager.yaml\": \"$(cat ./alertmanager.yaml |base64)\" }}"
+kubectl patch secret alertmanager-rancher-monitoring-alertmanager -n cattle-monitoring-system  --patch="{\"data\": { \"alertmanager.yaml\": \"$(cat ./alertmanager.yaml |base64 |tr -d '\n' )\" }}"
 echo Regenerating secrets
 kubectl delete secret alertmanager-rancher-monitoring-alertmanager-generated -n cattle-monitoring-system
 echo Adding cluster name
