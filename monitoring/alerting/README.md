@@ -4,7 +4,7 @@ Alerting is part of cluster monitoring, where alert notifications are sent to th
 
 ## Prerequisite
 
-Prometheus, Grafana, and alert manager tools are needed to set up alert notifications. [Install monitoring](../monitoring/README.md).
+Prometheus, Grafana, and alert manager tools are needed to set up alert notifications. [Install monitoring](../README.md).
 
 
 ## Slack alerts notification
