@@ -10,7 +10,7 @@
 
 ## Longhorn
 * Install using Rancher UI as given [here](https://longhorn.io/docs/latest/deploy/install/install-with-rancher/).
-* In Helm options of Longhorn, set the replicas for stroage class appropriately. For sandbox, replica of 1 would suffice otherwise storage consumption will be very high. For production, keep the default count.
+* In Helm options of Longhorn, set the replicas for stroage class appropriately. For sandbox, replica of 2 would suffice otherwise storage consumption will be very high. For production, keep the default count.
 
  <img src="../../docs/_images/storage-class-replicas.png" width="500">
  
