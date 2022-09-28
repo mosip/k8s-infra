@@ -14,7 +14,7 @@
     read cluster_nginx_public_ip
   fi &&
   if [ -z "$cluster_public_domains" ]; then
-    echo -en "=====>\nGive list of (comma seperated) publicly exposing domain names (without any whitespaces). Ex: api.sandbox.xyx.net, prereg.sandbox.xyz.net, resident.sandbox.xyz.net, etc : "
+    echo -en "=====>\nGive list of (comma seperated) publicly exposing domain names (without any whitespaces). Ex: api.sandbox.xyx.net, prereg.sandbox.xyz.net, resident.sandbox.xyz.net, idp.sandbox.xyz.net etc : "
     read cluster_public_domains
   fi &&
   if [ -z "$cluster_nginx_certs" ]; then
