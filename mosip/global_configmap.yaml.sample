@@ -30,4 +30,5 @@ data:
   mosip-onboarder-host: onboarder.sandbox.xyz.net
   mosip-resident-host: resident.sandbox.xyz.net
   mosip-compliance-host: compliance.sandbox.xyz.net
+  mosip-idp-host: idp.sandbox.xyz.net
   is_glowroot_env: absent
