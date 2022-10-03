@@ -1,5 +1,6 @@
 #!/bin/bash
 # Read the user input
+# Script is used to upload the letsencrypt certificate from client to host machine
 
 read -p "Enter the ip of remote node: " ip
 read -p "Enter the user of remote node: " remote_user
