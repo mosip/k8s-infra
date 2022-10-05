@@ -1,0 +1,27 @@
+# Directories to be removed as part of RKE cluster deletion are listed here:
+# https://rancher.com/docs/rke/latest/en/managing-clusters/#removing-kubernetes-components-from-nodes
+# Usage: ansible-playbooks -i hosts.ini rke-components-delete.yaml
+- hosts: cluster
+  become: true
+  tasks:
+    - name: Ansible delete /etc/kubernetes/ssl directory.
+      file:
+        path: /etc/kubernetes/ssl
+        state: absent
+    - name: Ansible delete /var/lib/etcd directory
+      file:
+        path: /var/lib/etcd
+        state: absent
+    - name: Ansible delete /etc/cni directory
+      file:
+        path: /etc/cni
+        state: absent
+    - name: Ansible delete directory /opt/cni
+      file:
+        path: /opt/cni
+        state: absent
+    - name: Ansible delete directory /var/run/calico
+      file:
+        path: /var/run/calico     
+        state: absent
+
