@@ -153,3 +153,4 @@ Below contains some of the RKE cluster related operations in brief:
   _This step is only required if your cluster certificates are expired and the same needs to be rotated._
   Note: Whenever you’re trying to rotate certificates, the `cluster.yml` that was used to deploy the Kubernetes cluster is required. You can reference a different location for this file by using the --config option. In case you dont have the `cluster.yml` follow above steps to recover it.
   * Follow the [instruction](https://rancher.com/docs/rke/latest/en/cert-mgmt/#certificate-rotation) to rotate the certificate on need basis.
+  __Note:__ Please do check the version info in the provided Rancher docs.
