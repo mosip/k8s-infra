@@ -8,10 +8,9 @@ Rancher is used to manage multiple kubernetes clusters for the organisation. You
 
 ## Utililties
 * Install following command line utilities:
-    * `kubectl`
-    * `helm`
-    * `rke`
-    * `istioctl`
+    * kubectl
+    * helm
+    * istioctl (istioctl version: 1.15.0)
 * Add Helm repos:
     ```sh
     helm repo add bitnami https://charts.bitnami.com/bitnami
