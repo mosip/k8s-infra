@@ -11,7 +11,7 @@
   cd ../utils/
   ```
   ```
-  ./download-certs.sh
+  ./backup-certs.sh
   ```
 * The Letsencrypt zip file will be copied to the current working directory on your local machine.
 
@@ -25,6 +25,6 @@
   cd ../utils/
   ```
   ```
-  ./upload-certs.sh
+  ./restore-certs.sh
   ```
 * The Letsencrypt zip file will be restored to the remote node `/etc/letsecrypt`.
