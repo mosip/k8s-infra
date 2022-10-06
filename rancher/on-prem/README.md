@@ -3,6 +3,7 @@
 ## Prerequisites
 * [Ansible](https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html).
 * [Hardware, network, certificate requirements](./requirements.md).
+* rke (rke version: v1.3.10)
 
 ## Virtual machines
 * Set up VMs.
@@ -71,6 +72,10 @@ ansible-playbook -i hosts.ini docker.yaml
     [+] Cluster DNS Service IP [10.43.0.10]:
     [+] Add addon manifest URLs or YAML files [no]:
     ```
+* While opting for roles for different nodes follow below points:
+  * In case of odd no of total nodes of cluster opt for (n+1/2) nodes with Control plane, etcd host and worker host role and rest of the nodes with Worker host and etcd host role.
+  * In case of even no of total nodes of cluster opt for (n/2) nodes with Control Plane, etcd host and worker host role and rest of the node with Worker host and etcd host role.
+
 * Remove the default Ingress install by editing `cluster.yaml`:
     ```
     ingress:
@@ -93,7 +98,7 @@ cp  $HOME/.kube/<cluster_name>_config  $HOME/.kube/config
 ```
 * Alternatively, set `KUBECOFIG` env variable:
 ```
-KUBECONFIG="$HOME/.kube/<cluster_name>_config
+export KUBECONFIG="$HOME/.kube/<cluster_name>_config
 ```
 * Test
 ```
@@ -114,12 +119,38 @@ helm install \
   -f ingress-nginx.values.yaml
 ```
 
-## Reverse proxy (Nginx) + Wireguard bastion host
+## Nginx Reverse Proxy server
 * Install [Nginx reverse proxy](./nginx/) that proxies into ingresscontroller on a seperate node.
 * Note that TLS termination is done on Nginx which means traffic from Nginx to cluster is HTTP (not HTTPS). A [Wireguard mesh](https://github.com/mosip/mosip-infra/tree/develop/deployment/v3/utils/wireguard-mesh) may be installed to ensure encrypted traffic.  
 
-##  Adding new nodes to cluster
-_This step is only required if you have to add more nodes to an existing cluster._
-* Copy the ssh keys, setup Docker and open ports as given above.
-* Edit the `cluster.yml` file and add extra nodes with their IPs and roles.
-* Run `rke up --update-only` to bring up the changes to the cluster.
+## RKE Cluster tools:
+Below contains some of the RKE cluster related operations in brief:
+* Adding/Removing nodes to cluster
+  _This step is only required if you have to add/delete nodes to an existing cluster._
+  * Copy the ssh keys, setup Docker and open ports as given above.
+  * Edit the `cluster.yml` file and add extra nodes with their IPs and roles.
+  * Run `rke up --update-only` to bring up the changes to the cluster.
+* Removing the whole RKE cluster:
+  _This step is only required if you knowingly want to delete existing complete cluster and its dependent binaries._
+  * From the folder cotaining `cluster.yml`, `cluster-rke.state`, `kube-config-cluster.yml` files created while cluster creation, run the below>
+    ```
+    rke remove
+    ```
+  * Remove the cluster components and  binaries from all the nodes using `rke-recovery.sh`
+    ```
+    cd utils
+    ansible-playbook -i hosts.ini ../../utils/rke-components-delete.yaml
+    ```
+* Recovering the original `cluster.rkestate` file and `cluster.yml` file created during cluster intialisation.
+  _This step is only required if you have lost the `cluster.rkestate` and cluster.yaml file for a RKE cluster._
+  * Set the kubeconfig file pointing to respective RKE cluster using any of the way mentioneed in cluster creation section above.
+  * run the below script to recover the `cluster.yml` and rkestate.yml
+  ```
+  ./../../utils/rke-recovery.sh
+  ```
+  * ``cluster.yml`` and `cluster.rkestate` will be created in the same directory, do preserve the same for further use.
+* RKE cluster certificate rotation:
+  _This step is only required if your cluster certificates are expired and the same needs to be rotated._
+  Note: Whenever you’re trying to rotate certificates, the `cluster.yml` that was used to deploy the Kubernetes cluster is required. You can reference a different location for this file by using the --config option. In case you dont have the `cluster.yml` follow above steps to recover it.
+  * Follow the [instruction](https://rancher.com/docs/rke/latest/en/cert-mgmt/#certificate-rotation) to rotate the certificate on need basis.
+  __Note:__ Please do check the version info in the provided Rancher docs.
