@@ -10,6 +10,7 @@ Kibana connects to Elasticsearch. Make sure you have a domain like `kibana.sandb
 
 ## Install Rancher FluentD system
 * Install Logging from Apps and marketplace within the Rancher UI.
+* Select Chart Version `100.1.3+up3.17.7` from Rancher console -> _Apps & Marketplaces_.
 
 ## Add _Index Lifecycle Policy_ and  _Index Template_ to Elasticsearch
 ```sh
