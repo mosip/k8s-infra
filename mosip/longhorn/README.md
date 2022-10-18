@@ -10,6 +10,7 @@
 
 ## Longhorn
 * Install using Rancher UI as given [here](https://longhorn.io/docs/latest/deploy/install/install-with-rancher/).
+* Select Chart Version `100.2.2+up1.3.1` from Rancher console -> _Apps & Marketplaces_.
 * In Helm options of Longhorn, set the replicas for stroage class appropriately. For sandbox, replica of 2 would suffice otherwise storage consumption will be very high. For production, keep the default count.
 
  <img src="../../docs/_images/storage-class-replicas.png" width="500">
