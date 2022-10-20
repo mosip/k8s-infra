@@ -7,6 +7,8 @@ spec:
   profile: default
   # This is done to merge multiple slashes in http URLs, otherwise, MOSIP APIs may not work
   meshConfig:
+    accessLogFile: /dev/stdout
+    accessLogFormat:
     pathNormalization:
       normalization: MERGE_SLASHES
     defaultConfig:
