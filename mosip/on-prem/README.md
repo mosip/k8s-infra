@@ -193,7 +193,7 @@ Below contains some of the RKE cluster related operations in brief:
   * Set the kubeconfig file pointing to respective RKE cluster using any of the way mentioneed in cluster creation section above.
   * run the below script to recover the `cluster.yml` and rkestate.yml
   ```
-  ./../../utils/rke-recovery.sh
+  ./../../utils/rke-recovery.sh [kubeconfig]
   ```
   * ``cluster.yml`` and `cluster.rkestate` will be created in the same directory, do preserve the same for further use.
 * RKE cluster certificate rotation:
