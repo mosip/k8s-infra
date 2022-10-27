@@ -15,7 +15,7 @@
 
  <img src="../../docs/_images/storage-class-replicas.png" width="500">
  
-1. Set the following parameters under _Edit YAML_ of Helm install: 
+4. Set the following parameters under _Edit YAML_ of Helm install: 
     ```
     guaranteedEngineManagerCPU: 5
     guaranteedReplicaManagerCPU: 5
@@ -29,12 +29,12 @@ Here the value "5" means 5% of total availalbe node CPU is allocated to **each**
 
   <img src="../../docs/_images/longhorn-3.png" width="500">
 
-1. For cloud-native install disable default storage class flag. This will ensure that cloud providers' storage class shall be used as default. 
+5. For cloud-native install disable default storage class flag. This will ensure that cloud providers' storage class shall be used as default. 
 	```
 	$ kubectl patch storageclass longhorn -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"false"}}}'
 	```
-1. Access Longhorn dashboard from Rancher.
-1. Review the "Reserved" space shown on Longhorn dashboard. This much disk space is not used by Longhorn. If the node storage is not used for any other purpose than MOSIP functionality, you may reduced the reserved space on every node by going to Node tab --> menu for each node on the right --> Edit node and disk --> Storage Reserved.
+6. Access Longhorn dashboard from Rancher.
+7. Review the "Reserved" space shown on Longhorn dashboard. This much disk space is not used by Longhorn. If the node storage is not used for any other purpose than MOSIP functionality, you may reduced the reserved space on every node by going to Node tab --> menu for each node on the right --> Edit node and disk --> Storage Reserved.
 
 ## Backup
 For some basic tests and, how to setup an AWS S3 backupstore in Longhorn, refer [docs/longhorn-backupstore-and-tests.md](../../docs/longhorn-backupstore-and-tests.md).
