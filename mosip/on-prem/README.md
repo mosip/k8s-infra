@@ -172,6 +172,8 @@ kubectl apply -f https://rancher.e2e.mosip.net/v3/import/pdmkx6b4xxtpcd699gzwdtt
 
 ## RKE Cluster tools:
 Below contains some of the RKE cluster related operations in brief:
+
+Note: Before adding/removing nodes make sure that ```rke version``` should be same as the ```rke cluster version```
 * Adding/Removing nodes to cluster
   _This step is only required if you have to add/delete nodes to an existing cluster._
   * Copy the ssh keys, setup Docker and open ports as given above.
