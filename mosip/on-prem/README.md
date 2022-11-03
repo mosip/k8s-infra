@@ -172,6 +172,9 @@ kubectl apply -f https://rancher.e2e.mosip.net/v3/import/pdmkx6b4xxtpcd699gzwdtt
 
 ## RKE Cluster tools:
 Below contains some of the RKE cluster related operations in brief:
+
+Note: Before adding/removing nodes make sure that ```rke version``` should be same as you have installed during initial cluster creation as mentioned in the Pre-requisites. 
+
 * Adding/Removing nodes to cluster
   _This step is only required if you have to add/delete nodes to an existing cluster._
   * Copy the ssh keys, setup Docker and open ports as given above.
@@ -179,7 +182,7 @@ Below contains some of the RKE cluster related operations in brief:
   * Run `rke up --update-only` to bring up the changes to the cluster.
 * Removing the whole RKE cluster:
   _This step is only required if you knowingly want to delete existing complete cluster and its dependent binaries._
-  * From the folder cotaining `cluster.yml`, `cluster-rke.state`, `kube-config-cluster.yml` files created while cluster creation, run the below>
+  * From the folder containing `cluster.yml`, `cluster-rke.state`, `kube-config-cluster.yml` files created while cluster creation, run the below>
     ```
     rke remove
     ```
