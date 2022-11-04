@@ -1,0 +1,19 @@
+---
+- name: To check Localhost mapping in all nodes
+  hosts: cluster
+  become: yes
+  gather_facts: yes
+  tasks:
+    - name: Read hosts file content
+      shell:
+        cmd: cat /etc/hosts
+      register: hosts_content
+    - set_fact:
+        my_var: "{{ hosts_content.stdout | regex_search('\\s*(.*)127.0.0.1\\s*localhost\\s*') }}"
+    - name: Print
+      debug:
+        var: my_var
+    - name: Print if not found
+      fail:
+       msg: Localhost mapping does not exist.
+      when: my_var == ""
