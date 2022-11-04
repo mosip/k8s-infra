@@ -43,7 +43,18 @@ ansible-playbook -i hosts.ini ports.yaml
 ```
 ansible-playbook -i hosts.ini swap.yaml
 ```
+## Localhost Mapping
+Below contains some of the information about localhost mapping in brief:
 
+we faced an issue with nodal instances where we were getting issues as localhost mapping was not present in hosts file of the system.
+Reason: This is because of localhost mapping i,e ```127.0.0.1    localhost``` might not being present within ```/etc/hosts``` file of the system.
+           
+Note: Because of the above issue for us to go and check manually in all the nodes of cluster it is vey tedious and time consuming task so we have written a ansible script and made it automation task.
+
+* To check localhost mapping is present in all cluster nodes.
+```
+ansible-playbook -i hosts.ini env-check.yaml
+```
 ## Docker
 Install docker on all nodes.
 ```
