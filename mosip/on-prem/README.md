@@ -55,6 +55,9 @@ Note: Because of the above issue for us to go and check manually in all the node
 ```
 ansible-playbook -i hosts.ini env-check.yaml
 ```
+* To view the ansible script or make any changes.
+  File_name: "env-check.yaml"
+  
 ## Docker
 Install docker on all nodes.
 ```
