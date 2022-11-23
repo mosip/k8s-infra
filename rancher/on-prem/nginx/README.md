@@ -11,11 +11,7 @@ This document describes how to install and setup Nginx reverse proxy that direct
 * SSL certificate as given in [SSL Certificates with Letsencrypt](../../../docs/wildcard-ssl-certs-letsencrypt.md). The SSL certificate and key pair to be copied into this machine. The script will prompt for the path to these. 
 
 ## Installation
-### Nginx + Wireguard
-```
-WG_DIR=<aboslute-path-of-wg-dir> sudo ./install.sh +wg
-```
-### Only Nginx
+### Nginx
 ```sh
  sudo ./install.sh
 ```
