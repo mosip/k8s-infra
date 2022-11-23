@@ -43,21 +43,11 @@ ansible-playbook -i hosts.ini ports.yaml
 ```
 ansible-playbook -i hosts.ini swap.yaml
 ```
-## Mapping Localhost
-Below is some information about localhost mapping in brief:
-
-An issue with the nodal instances was observed as localhost mapping was not present in the hosts file of the system.
-Issue: Localhost mapping i.e. 127.0.0.1 localhost might not being present within /etc/hosts file of the system.
-           
-Resolution: An ansible script was written and the task was automated to reduce the effort of checking all the nodes of the cluster. This was extremely tedious and time consuming manually.
-
-To check localhost mapping is present in all cluster nodes
+## Environment Check
+To Perform Environment check on all the cluster nodes
 ```
 ansible-playbook -i hosts.ini env-check.yaml
 ```
-To view the ansible script or make any changes
-  File_name: "env-check.yaml"
-  
 ## Docker
 Install docker on all nodes.
 ```
@@ -218,3 +208,11 @@ Note: Before adding/removing nodes make sure that ```rke version``` should be sa
   Note: Whenever you’re trying to rotate certificates, the `cluster.yml` that was used to deploy the Kubernetes cluster is required. You can reference a different location for this file by using the --config option. In case you dont have the `cluster.yml` follow above steps to recover it.
   * Follow the [instruction](https://rancher.com/docs/rke/latest/en/cert-mgmt/#certificate-rotation) to rotate the certificate on need basis.
   __Note:__ Please do check the persion in the Rancher docs.
+
+## Troubleshooting
+* **Environmennt check issue**: If an issue arises as localhost mapping is not present in the hosts file of the system then it could be due to `localhost not being       mapped to 127.0.0.1` within `/etc/hosts` file of the system.
+
+  Resolution: An ansible script has been written and the task is automated to reduce the effort of checking all the nodes of the cluster. This was extremely tedious     and time consuming manually and if an error arises as `localhost mapping not present` after running the script then we need to map the localhost to 127.0.0.1 within   `/etc/hosts` file of one or all the nodes of the cluster.
+
+  To view the ansible script or make any changes 
+  File_name: "env-check.yaml"
