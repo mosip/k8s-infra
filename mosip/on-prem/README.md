@@ -216,3 +216,8 @@ Note: Before adding/removing nodes make sure that ```rke version``` should be sa
 
   To view the ansible script or make any changes 
   File_name: "env-check.yaml"
+
+* **Node Addition Issue**: while adding or removing nodes if you are observing the below-mentioned issues it's better to recreate the nodes to proceed further.
+``cannot proceed with upgrade of controlplane since 3 host(s) cannot be reached prior to upgrade
+retrying of unary invoker failed
+rpc error: code = Unavailable desc = etcdserver: unhealthy cluster``
