@@ -10,5 +10,5 @@ spec:
   rules:
   - to:
     - operation:
-        paths: ["*/swagger-ui.html"]
+        paths: ["*/swagger-ui.html", "*/swagger-ui/index.html"]
 
