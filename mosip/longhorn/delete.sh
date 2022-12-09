@@ -9,7 +9,7 @@ fi
 NS=longhorn-system
 
 while true; do
-    read -p "Are you sure you want to delete apitestrig helm charts?(Y/n) " yn
+    read -p "Are you sure you want to delete longhorn helm charts?(Y/n) " yn
     if [ $yn = "Y" ]
       then
         echo Removing longhorn
