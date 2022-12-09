@@ -17,7 +17,7 @@
    defaultSettings.defaultReplicaCount=1
    ```
 1. The value "5" means 5% of the total available node CPU is allocated to **each** `instance-manager` pod in the `longhorn-system` namespace.
-   This value should be ok for sandbox and pilot but may have to increase to default "12" for production.
+   This value should be fine for sandbox and pilot but you may have to increase the default to "12" for production.
    The value can be updated on Longhorn UI after installation.
    ```
    guaranteedEngineManagerCPU: 5
@@ -33,8 +33,8 @@
    kubectl patch storageclass longhorn -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"false"}}}'
    ```
 1. Access the Longhorn dashboard from Rancher.
-1. Review the "Reserved" space shown on the Longhorn dashboard. 
-   If the node storage is not used for any other purpose than MOSIP functionality, you may reduce the reserved space on every node by going to the Node tab --> menu for each node on the right --> Edit node and disk --> Storage Reserved.
+1. Review the `Reserved` space shown on the Longhorn dashboard.
+   If the node storage is not used for any other purpose other than MOSIP functionality, you may reduce the reserved space on every node by going to the Node tab --> menu for each node on the right --> Edit node and disk --> Storage Reserved.
 
 ## Backup
 For some basic tests and, how to setup an AWS S3 backupstore in Longhorn, refer [docs/longhorn-backupstore-and-tests.md](../../docs/longhorn-backupstore-and-tests.md).
