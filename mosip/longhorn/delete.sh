@@ -9,6 +9,8 @@ fi
 NS=longhorn-system
 
 while true; do
+    echo "$(tput setaf 3 )[ WARNING ] Services using longhorn as a storage class will lose their data.";
+    echo "Back up the data and uninstall the required services, then you can proceed with the uninstallation."$(tput sgr0);
     read -p "Are you sure you want to delete longhorn helm charts?(Y/n) " yn
     if [ $yn = "Y" ]
       then
