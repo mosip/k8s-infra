@@ -51,6 +51,7 @@ Refer [here](keycloak/README.md) for installation of Keycloak.
 
 ## RBAC
 * For users in Keycloak assign roles in Rancher - **cluster** and **project** roles. Under `default` project add all the namespaces. Then, to a non-admin user you may provide Read-Only role (under projects).
+* If you want to create custom roles, you can follow the steps given [here](../docs/create-custom-role.md).
 * Add a member to cluster/project in Rancher:
   * Give member name exactly as `username` in Keycloak
   * Assign appropriate role like Cluster Owner, Cluster Viewer etc.
