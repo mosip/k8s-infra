@@ -5,17 +5,9 @@ This document describes how to install and setup Nginx reverse proxy that direct
 
 ## Prerequisites
 * Ubuntu (or Debian based OS).
-* Command line utilities:
-  * `ip`.
-  * `docker`(only for wireguard bastion setup).
 * SSL certificate as given in [SSL Certificates with Letsencrypt](../../../docs/wildcard-ssl-certs-letsencrypt.md). The SSL certificate and key pair to be copied into this machine. The script will prompt for the path to these. 
 
-## Installation
-### Nginx + Wireguard
-```
-WG_DIR=<aboslute-path-of-wg-dir> sudo ./install.sh +wg
-```
-### Only Nginx
+## Install
 ```sh
  sudo ./install.sh
 ```
@@ -25,14 +17,8 @@ WG_DIR=<aboslute-path-of-wg-dir> sudo ./install.sh +wg
 ```
 sudo systemctl status nginx
 ```
-* If you have installed Wireguard, check `WG_DIR` folder. It should contain two folders `wgbaseconf` & `wgconf`:
-  * `wgbaseconf` contains public,private key pairs for all peers.
-  * `wgconf` contains the actual peer conf files.
-  * As a good practice, before sharing the wireguard peer conf file, create a file `assigned.txt` and where you maintain the list of assignments.
 
 ## Uninstall
 ```
 sudo apt purge nginx nginx-common
-docker rm -f wireguard
-sudo rm -rf wgbaseconf wgconf
 ```

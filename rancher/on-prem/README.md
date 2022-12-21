@@ -17,7 +17,7 @@ _If you already have a Wireguard bastion host then you may skip this step._
 ```
 ansible-playbook -i hosts.ini wireguard.yaml
 ```
-* Install [Wireguard bastion](https://docs.mosip.io/1.2.0/deployment/sandbox-deployment/wireguard-bastion) with enough number of peers.
+* Install [Wireguard bastion](https://docs.mosip.io/1.2.0/deployment/wireguard/wireguard-bastion) with enough number of peers.
 - Assign peer1 to yourself and set your Wireguard client before working on the cluster.
 
 ## Ports
@@ -81,7 +81,7 @@ ansible-playbook -i hosts.ini docker.yaml
     ingress:
       provider: none
     ```
-* For production deplopyments edit the `cluster.yml`, according to this [RKE Cluster Hardening Guide](./rke-cluster-hardening.md)
+* For production deplopyments edit the `cluster.yml`, according to this [RKE Cluster Hardening Guide](../../docs/rke-cluster-hardening.md)
 
 * Bring up the cluster:
 ```
