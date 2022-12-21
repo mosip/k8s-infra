@@ -81,7 +81,7 @@ ansible-playbook -i hosts.ini docker.yaml
     ingress:
       provider: none
     ```
-* For production deplopyments edit the `cluster.yml`, according to this [RKE Cluster Hardening Guide](./rke-cluster-hardening.md)
+* For production deplopyments edit the `cluster.yml`, according to this [RKE Cluster Hardening Guide](../../docs/rke-cluster-hardening.md)
 
 * Bring up the cluster:
 ```
