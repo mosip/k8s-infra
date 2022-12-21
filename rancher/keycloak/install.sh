@@ -17,6 +17,7 @@ echo Creating namespace
 kubectl create ns keycloak
 
 helm repo add bitnami https://charts.bitnami.com/bitnami
+helm repo add mosip https://mosip.github.io/mosip-helm
 helm repo update
 
 echo Installing
