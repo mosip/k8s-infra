@@ -20,7 +20,7 @@
   * `bash`
   * `sed`
 * Nginx machine details are updated in `../hosts.ini`.
-* Make sure wireguard is up and running as per [Wireguard instalation guide](https://docs.mosip.io/1.2.0/deployment/sandbox-deployment/wireguard-bastion).
+* Make sure wireguard is up and running as per [Wireguard instalation guide](https://docs.mosip.io/1.2.0/deployment/wireguard/wireguard-bastion).
 
 ## Installation
 * Enable firewall with required ports:
