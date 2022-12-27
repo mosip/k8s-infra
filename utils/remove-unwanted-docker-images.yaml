@@ -1,0 +1,32 @@
+---
+- name: To remove unwanted docker images in all nodes to clear up space
+  hosts: cluster
+  become: yes
+  gather_facts: yes
+  tasks:
+    - name: Disk usage of node before removing unwanted docker images
+      shell: 'df -h /'
+      register: node_disk_usage_before_deletion
+    - debug:
+        var: node_disk_usage_before_deletion.stdout_lines
+
+    - name: Show docker disk usage before resource removal
+      shell: 'docker system df'
+      register: docker_disk_usage_before_resource_removal
+    - debug:
+        var: docker_disk_usage_before_resource_removal.stdout_lines
+
+    - name: Remove unused containers, networks, images (both dangling and unused) and build cache
+      command: docker system prune -a -f
+
+    - name: Show docker disk usage after resource removal
+      shell: 'docker system df'
+      register: docker_disk_usage_after_resource_removal
+    - debug:
+        var: docker_disk_usage_after_resource_removal.stdout_lines
+
+    - name: Disk usage of node after removing unwanted docker images
+      shell: 'df -h /'
+      register: node_disk_usage_after_deletion
+    - debug:
+        var: node_disk_usage_after_deletion.stdout_lines
