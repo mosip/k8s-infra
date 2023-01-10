@@ -44,10 +44,10 @@ echo "Building cluster.rkestate..."
 kubectl -n kube-system get configmap full-cluster-state -o json | jq -r .data.\"full-cluster-state\" | jq -r . > cluster.rkestate
 
 echo "Retrieve kube_config_cluster.yml file"
-read -p "Please provide internal IP of kubernetes master node " IP_ADDR
+read -p "Please provide internal IP of node with control plane role" IP_ADDR
 
 if [ -z $IP_ADDR ]; then
-  echo "IP address of kubernetes master node not provided; EXITING;";
+  echo "IP address of node with control plane role not provided; EXITING;";
   exit 1;
 fi
 
