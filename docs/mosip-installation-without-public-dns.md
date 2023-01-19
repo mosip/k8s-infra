@@ -2,20 +2,18 @@
 
 ## Prerequisites
 * [openssl](https://www.openssl.org/)
-* Chrome browser
-* windows system
 
 ## Nginx setup
 * Generate self-signed certificate for domain `*.sandbox.xyz.net`.
     * Update the below variables based on requirements.
       ```
-      VALIDITY=730
-      COUNTRY=IN
-      STATE=KAR
-      LOCATION=BLR
-      ORG=MOSIP
-      ORG_UNIT=MOSIP
-      COMMON_NAME=*.sandbox.xyz.net
+      $ export VALIDITY=730
+      $ export COUNTRY=IN
+      $ export STATE=KAR
+      $ export LOCATION=BLR
+      $ export ORG=MOSIP
+      $ export ORG_UNIT=MOSIP
+      $ export COMMON_NAME=*.sandbox.xyz.net
       ```
     * Generate a self-signed certificate.
       ```
@@ -25,38 +23,32 @@
       --subj "/C=$COUNTRY/ST=$STATE/L=$LOCATION/O=ORG/OU=$ORG_UNIT/CN=$COMMON_NAME/"
       ```
 
-* Pass self-signed `/etc/ssl/certs/nginx-selfsigned.crt` to `fullchain.pem` and 
-  self-signed `/etc/ssl/private/nginx-selfsigned.key` to `privkey.pem`, while running nginx `install.sh` script.
-  ```
-  $ ./install.sh
-  ....
-  ....
-  =====>
-  Give path for SSL Certificate (fullchain.pem) for sandbox.xyz.net (without any whitespaces) : Ex: /etc//letsencrypt/live/sandbox.xyz.net/fullchain.pem :  /etc/ssl/certs/nginx-selfsigned.crt
-  =====>
-  Give path for SSL Certificate Key (privkey.pem) for sandbox.xyz.net (without any whitespaces): Ex: /etc/letsencrypt/live/sandbox.xyz.net/privkey.pem : /etc/ssl/private/nginx-selfsigned.key
-  ```
+* Use below mentioned details when prompted in install scripts:
+    1. fullChain path: `/etc/ssl/certs/nginx-selfsigned.crt`.
+    1. privKey path: `/etc/ssl/private/nginx-selfsigned.key`.
 
 * Add the below section in the http block in the `/etc/nginx/nginx.conf` file. Update `<IAM_DOMAIN>`, `<cluster-nginx-internal-ip>` and restart the nginx service.
   ```
-    server{
-       listen <cluster-nginx-internal-ip>:80;
-       server_name <IAM_DOMAIN>;
-       location /auth/realms/mosip/protocol/openid-connect/certs {
-            proxy_pass                      http://myInternalIngressUpstream;
-            proxy_http_version              1.1;
-            proxy_set_header                Upgrade $http_upgrade;
-            proxy_set_header                Connection "upgrade";
-            proxy_set_header                Host $host;
-            proxy_set_header                Referer $http_referer;
-            proxy_set_header                X-Real-IP $remote_addr;
-            proxy_set_header                X-Forwarded-For $proxy_add_x_forwarded_for;
-            proxy_set_header                X-Forwarded-Proto $scheme;
-            proxy_pass_request_headers      on;
-            proxy_set_header  Strict-Transport-Security "max-age=0;";
-       }
-      location / { return 301 https://iam.soil.mosip.net; }
-    }
+  http{
+      server{
+         listen <cluster-nginx-internal-ip>:80;
+         server_name <IAM_DOMAIN>;
+         location /auth/realms/mosip/protocol/openid-connect/certs {
+              proxy_pass                      http://myInternalIngressUpstream;
+              proxy_http_version              1.1;
+              proxy_set_header                Upgrade $http_upgrade;
+              proxy_set_header                Connection "upgrade";
+              proxy_set_header                Host $host;
+              proxy_set_header                Referer $http_referer;
+              proxy_set_header                X-Real-IP $remote_addr;
+              proxy_set_header                X-Forwarded-For $proxy_add_x_forwarded_for;
+              proxy_set_header                X-Forwarded-Proto $scheme;
+              proxy_pass_request_headers      on;
+              proxy_set_header  Strict-Transport-Security "max-age=0;";
+         }
+         location / { return 301 https://iam.soil.mosip.net; }
+      }
+  }
   ```
 
 ## K8S coredns setup
@@ -82,22 +74,24 @@
 ## Local setup
 
 ### DNS setup
-* Map IP address and domain names in the `hosts` file for DNS setup.
+* Map IP address and domain names to set up DNS in the respective `hosts` file. <br>
+  For example: `/etc/hosts` files for Linux machines.
   ```
    <PUBLIC_IP>    api.sandbox.xyz.net resident.sandbox.xyz.net idp.sandbox.xyz.net prereg.sandbox.xyz.net
    <INTERNAL_IP>  sandbox.xyz.net api-internal.sandbox.xyz.net activemq.sandbox.xyz.net kibana.sandbox.xyz.net regclient.sandbox.xyz.net admin.sandbox.xyz.net minio.sandbox.xyz.net iam.sandbox.xyz.net kafka.sandbox.xyz.net postgres.sandbox.xyz.net pmp.sandbox.xyz.net onboarder.sandbox.xyz.net smtp.sandbox.xyz.net
   ```
-* Visit `https://sandbox.xyz.net/` on Chrome browser to test DNS working.
+* Visit `https://sandbox.xyz.net/` on any browser to test DNS working.
 
 ### Browser setup
 * Delete `hsts` security policies for listed domains.
-    * open Chrome browser `chrome://net-internals/#hsts`.
+    * open `hsts` setting in any browser example: `chrome://net-internals/#hsts`.
     * Provide domain name `iam.sandbox.xyz.net`and click on `delete`.
       ![mosip-without-dns-2.png](_images/mosip-without-dns-2.png)
     * Repeat the same for other domains.
 
 ### Reg-client setup
 * Download & unzip reg-client.
+* Make sure to have a `Windows` machine.
 * Export self-signed certificate from browser to the reg-client directory with name `_.sandbox.xyz.net.cer`.
   ![mosip-without-dns-3.png](_images/mosip-without-dns-3.png)
 * Add self-signed certificate to cacerts keystore.
@@ -113,3 +107,4 @@
       ```
       mosip.hostname=sandbox.mosip.net
       ```
+      ![mosip-without-dns-4.png](_images/mosip-without-dns-4.png)
