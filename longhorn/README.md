@@ -38,3 +38,8 @@
 
 ## Backup
 For some basic tests and, how to setup an AWS S3 backupstore in Longhorn, refer [docs/longhorn-backupstore-and-tests.md](../../docs/longhorn-backupstore-and-tests.md).
+
+## Update multipath.conf file by running below script after installation of longhorn, so it will add a section to avoid multipath PVC issues in the environment. 
+   ```
+   ansible-playbook -i hosts.ini multipath-conf.yaml
+   ```
