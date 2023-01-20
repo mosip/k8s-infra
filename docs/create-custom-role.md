@@ -23,12 +23,14 @@
 1. Set `Cluster Creator Default` to `No` and Set `Locked` to `No`.
 1. Select the `Grant Resources` option ---> click on `Add Resource`.
    1. Select below mentioned `verbs`, `resources`, and `API Groups`.
-      |Verbs|Resource|Non-Resource URLs|API Groups|
-      |---|:---:|:---:|:---:|---:|---:|
-      | get, list, watch | * | | |
-      | delete | pods | | |
-      | get, list, watch | * | | networking.istio.io |
-      | get, list, watch | * | | security.istio.io |
+
+      | Verbs            | Resource | Non-Resource URLs | API Groups          |
+      |----------|-------------------|---------------------|---------------------|
+      | get, list, watch | *        |                   |                     |
+      | delete           | pods     |                   |                     |
+      | get, list, watch | *        |                   | networking.istio.io |
+      | get, list, watch | *        |                   | security.istio.io   |
+
 1. Inherit below mentioned roles, Select `Inherit From` option ---> click on `Add Resource` to add a new resource ---> Select Role.
    ```
    View Ingress
