@@ -32,5 +32,8 @@
       dest: /etc/docker
       mode: '0644'
 
-  - name: Start docker service
-    command: systemctl start docker
+  - name: restart containerd
+    command: systemctl restart containerd    
+
+  - name: Restart docker service
+    command: systemctl restart docker
