@@ -31,5 +31,6 @@ data:
   mosip-resident-host: resident.sandbox.xyz.net
   mosip-compliance-host: compliance.sandbox.xyz.net
   mosip-idp-host: idp.sandbox.xyz.net
+  mosip-esignet-host: esignet.xyz.net
   mosip-smtp-host: smtp.sandbox.xyz.net
   is_glowroot_env: absent
