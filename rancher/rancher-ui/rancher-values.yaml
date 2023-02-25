@@ -1,4 +1,4 @@
-hostname: rancher.e2e.mosip.net
+hostname: rancher.mosip.net
 
 ingress:
   enabled: true
