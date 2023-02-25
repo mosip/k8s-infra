@@ -21,9 +21,6 @@ route:
       alertname: etcdHighNumberOfFailedGRPCRequests
     receiver: 'null'
   - match:
-      namespace: cattle-monitoring-system
-    receiver: 'null'
-  - match:
       statefulset: activemq-activemq-artemis-slave
     receiver: 'null'
   - match:
