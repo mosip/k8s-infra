@@ -17,9 +17,9 @@ while true; do
         echo Removing longhorn
         helm -n $NS delete longhorn
         echo Removing iscsi
-        kubectl delete -n $NS -f https://raw.githubusercontent.com/longhorn/longhorn/v1.2.3/deploy/prerequisite/longhorn-iscsi-installation.yaml
+        kubectl delete -n $NS -f https://raw.githubusercontent.com/longhorn/longhorn/v1.4.1/deploy/prerequisite/longhorn-iscsi-installation.yaml
         echo Removing nfsv4 client
-        kubectl delete -n $NS -f https://raw.githubusercontent.com/longhorn/longhorn/v1.2.3/deploy/prerequisite/longhorn-nfs-installation.yaml
+        kubectl delete -n $NS -f https://raw.githubusercontent.com/longhorn/longhorn/v1.4.1/deploy/prerequisite/longhorn-nfs-installation.yaml
         break
       else
         break
