@@ -27,7 +27,6 @@ data:
   mosip-iam-external-host: iam.sandbox.xyz.net
   mosip-postgres-host: postgres.sandbox.xyz.net
   mosip-pmp-host: pmp.sandbox.xyz.net
-  mosip-onboarder-host: onboarder.sandbox.xyz.net
   mosip-resident-host: resident.sandbox.xyz.net
   mosip-compliance-host: compliance.sandbox.xyz.net
   mosip-esignet-host: esignet.sandbox.xyz.net
