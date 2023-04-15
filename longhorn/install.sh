@@ -7,7 +7,7 @@ if [ $# -ge 1 ] ; then
 fi
 
 NS=longhorn-system
-CHART_VERSION=1.4.1
+CHART_VERSION=1.2.3
 
 echo "Adding Longhorn helm repo"
 helm repo add longhorn https://charts.longhorn.io
