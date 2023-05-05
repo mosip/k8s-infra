@@ -103,6 +103,13 @@ ansible-playbook -i hosts.ini docker.yaml
     ```
     cluster_name: sandbox-name
     ```
+  * Add this ETCD backup_config section under services in `cluster.yml` to enable recurring snapshots for ETCD:  
+      ```
+      backup_config: 
+        interval_hours: 12
+        retention: 6
+      ```
+
 * [Sample config file](sample.cluster.yml) is provider in this folder.
 
 * For production deplopyments edit the `cluster.yml`, according to this [RKE Cluster Hardening Guide](../../docs/rke-cluster-hardening.md).
@@ -208,6 +215,22 @@ Note: Before adding/removing nodes make sure that ```rke version``` should be sa
   Note: Whenever you’re trying to rotate certificates, the `cluster.yml` that was used to deploy the Kubernetes cluster is required. You can reference a different location for this file by using the --config option. In case you dont have the `cluster.yml` follow above steps to recover it.
   * Follow the [instruction](https://rancher.com/docs/rke/latest/en/cert-mgmt/#certificate-rotation) to rotate the certificate on need basis.
   __Note:__ Please do check the persion in the Rancher docs.
+
+## ETCD Backup
+   Below are the links to take ETCD backup and recreate the cluster with the same configuration in case of any disaster happened to the existing cluster.
+   * The below document will tell how to take a `one-time-snapshots` from all the nodes.
+     `https://rancher.com/docs/rke/latest/en/etcd-snapshots/one-time-snapshots/`
+
+   * The below document will tell how to take a `recurring-snapshots` from all the nodes.
+     `https://rancher.com/docs/rke/latest/en/etcd-snapshots/recurring-snapshots/`
+
+   * The below document will tell how to do`restoring-from-backup` for all the nodes. 
+     `https://rancher.com/docs/rke/latest/en/etcd-snapshots/restoring-from-backup/`
+      Note: Before doing restoring cluster from backup the older node should be commented out in the cluster.yaml file and add new node details and make sure pre-requisites like docker installation and ports enable should be done in the newly added node.
+
+   * The below document will tell how to take a `example-scenarios` for ETCD backup.
+     `https://rancher.com/docs/rke/latest/en/etcd-snapshots/example-scenarios/`
+
 
 ## Troubleshooting
 * **Environmennt check issue**: If an issue arises as localhost mapping is not present in the hosts file of the system then it could be due to `localhost not being       mapped to 127.0.0.1` within `/etc/hosts` file of the system.
