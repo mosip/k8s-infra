@@ -1,7 +1,8 @@
 # MOSIP installation without public DNS
 
 ## Nginx node setup
-### Follow the below steps before installing nginx
+
+#### Steps prior to Nginx installation
 * Install docker on nginx node.
     * Follow the below steps to install docker on Ubuntu OS. If you prefer to install Docker on an operating system other than Ubuntu, you can refer to the instructions provided [here](https://docs.docker.com/engine/install/#server).
       ```
@@ -28,12 +29,12 @@
       mosipdev/openssl:latest 
       ```
 
-### Follow the below steps while installing nginx
+#### Steps while installing nginx
 * Use below mentioned details when prompted in nginx install scripts:
     1. fullChain path: `/etc/ssl/certs/nginx-selfsigned.crt`.
     1. privKey path: `/etc/ssl/private/nginx-selfsigned.key`.
 
-### Follow the below steps after installing nginx
+#### Steps after installing Nginx
 * Add the below section in the http block in the `/etc/nginx/nginx.conf` file. Update `iam.sandbox.xyz.net`, `<cluster-nginx-internal-ip>` in below block.
   ```
   http{
@@ -57,8 +58,8 @@
       }
   }
   ```
-  **Note:** We enable http access for IAM because MOSIP's keymanager expects to have valid ssl certificates.
-            Please ensure to use this **only for development purposes**, and it is not recommended to use it in **production environments**.
+  **Note:** HTTP access is enabled for IAM because MOSIP's keymanager expects to have valid SSL certificates.
+            Ensure to use this **only for development purposes**, and it is not recommended to use it in **production environments**.
 
 * Restart nginx service.
   ```
@@ -91,7 +92,7 @@
   ```
   example:
   ![mosip-without-dns-1.png](_images/mosip-without-dns-1.png)
-* Check whether the DNS changes are correctly update in coredns configmap.
+* Check whether the DNS changes are correctly updated in coredns configmap.
   ```
   kubectl -n kube-system get cm coredns -o yaml
   ```
@@ -106,18 +107,18 @@
   ```
 
 ## Update config properties below starting deployment
-* Add/Update the below property in `application-default.properties` and comment on the below property in the `*-default.properties` file in the config repo.
+* Add/ Update the below property in `application-default.properties` and comment on the below property in the `*-default.properties` file in the config repo.
   ```
   mosip.iam.certs_endpoint=http://${keycloak.external.host}/auth/realms/mosip/protocol/openid-connect/certs
   ```
-* Add/Update the below property in the `esignet-default.properties` file in the config repo.
+* Add/ Update the below property in the `esignet-default.properties` file in the config repo.
   ```
   spring.security.oauth2.resourceserver.jwt.jwk-set-uri=http://${keycloak.external.host}/auth/realms/mosip/protocol/openid-connect/certs
   ```
 
-## Steps to follow while deployment
-* While install few modules, installation script prompts if you have public domain and valid ssl certificates on the server.
-  Opt option `n` as we are using self-singed certificates.
+## Deployment steps
+* While installing a few modules, installation script prompts to check if you have public domain and valid SSL certificates on the server.
+  Opt option `n` as we are using self-signed certificates.
   For example:
   ```
   $ ./install.sh
