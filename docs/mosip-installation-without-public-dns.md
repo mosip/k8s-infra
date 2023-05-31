@@ -29,7 +29,7 @@
       mosipdev/openssl:latest 
       ```
 
-#### Steps while installing nginx
+#### Steps while installing Nginx
 * Use below mentioned details when prompted in nginx install scripts:
     1. fullChain path: `/etc/ssl/certs/nginx-selfsigned.crt`.
     1. privKey path: `/etc/ssl/private/nginx-selfsigned.key`.
