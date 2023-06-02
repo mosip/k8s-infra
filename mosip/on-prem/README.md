@@ -158,7 +158,7 @@ kubectl apply -f https://rancher.e2e.mosip.net/v3/import/pdmkx6b4xxtpcd699gzwdtt
 * Your cluster is now added to the rancher management server.
 
 ## Longhorn
-* Install [Longhorn](../longhorn/README.md) for persistent storage.
+* Install [Longhorn](../../longhorn/README.md) for persistent storage.
 
 ## Istio for service discovery and Ingress
 * `cd /istio/`
