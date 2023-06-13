@@ -75,8 +75,29 @@ http {
         <cluster-nodeport-internal-of-all-nodes>
     }
 
+    upstream myMinioIngressUpstream {
+        <cluster-nodeport-minio-of-all-nodes>
+    }
+
     ssl_certificate <cluster-ssl-certificate>;
     ssl_certificate_key <cluster-ssl-certificate-key>;
+
+    server{
+        listen <cluster-nginx-internal-ip>:9000 ssl;
+
+        location / {
+            proxy_pass                      http://myMinioIngressUpstream;
+            proxy_http_version              1.1;
+            proxy_set_header                Upgrade $http_upgrade;
+            proxy_set_header                Connection "upgrade";
+            proxy_set_header                Host $host;
+            proxy_set_header                Referer $http_referer;
+            proxy_set_header                X-Real-IP $remote_addr;
+            proxy_set_header                X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header                X-Forwarded-Proto $scheme;
+            proxy_pass_request_headers      on;
+        }
+    }
 
     server{
         listen <cluster-nginx-internal-ip>:443 ssl default;
