@@ -83,7 +83,7 @@ http {
     ssl_certificate_key <cluster-ssl-certificate-key>;
 
     server{
-        listen <cluster-nginx-internal-ip>:443 ssl;
+        listen <cluster-nginx-internal-ip>:9000 ssl;
 
         location / {
             proxy_pass                      http://myMinioIngressUpstream;
