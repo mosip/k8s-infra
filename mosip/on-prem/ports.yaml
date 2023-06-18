@@ -95,6 +95,12 @@
         rule: allow
         port: 10254
         proto: tcp
+
+    - name: "Allow tcp 30900 for MINIO"
+      community.general.ufw:
+        rule: allow
+        port: 30900
+        proto: tcp
  
     - community.general.ufw:
         state: enabled
