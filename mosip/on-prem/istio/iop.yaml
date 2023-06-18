@@ -86,3 +86,8 @@ spec:
               nodePort: 31432
               name: postgres
               protocol: TCP
+            - port: 9000
+              targetPort: 9000
+              nodePort: 30900
+              name: minio
+              protocol: TCP
