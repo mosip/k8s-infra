@@ -103,6 +103,13 @@ ansible-playbook -i hosts.ini docker.yaml
     ```
     cluster_name: sandbox-name
     ```
+  * Add this ETCD backup_config section under services in `cluster.yml` to enable recurring snapshots for ETCD:  
+      ```
+      backup_config: 
+        interval_hours: 12
+        retention: 6
+      ```
+
 * [Sample config file](sample.cluster.yml) is provider in this folder.
 
 * For production deplopyments edit the `cluster.yml`, according to this [RKE Cluster Hardening Guide](../../docs/rke-cluster-hardening.md).
@@ -151,7 +158,7 @@ kubectl apply -f https://rancher.e2e.mosip.net/v3/import/pdmkx6b4xxtpcd699gzwdtt
 * Your cluster is now added to the rancher management server.
 
 ## Longhorn
-* Install [Longhorn](../longhorn/README.md) for persistent storage.
+* Install [Longhorn](../../longhorn/README.md) for persistent storage.
 
 ## Istio for service discovery and Ingress
 * `cd /istio/`
@@ -179,13 +186,21 @@ Below contains some of the RKE cluster related operations in brief:
 
 Note: Before adding/removing nodes make sure that ```rke version``` should be same as you have installed during initial cluster creation as mentioned in the Pre-requisites. 
 
-* Adding/Removing nodes to cluster
-  _This step is only required if you have to add/delete nodes to an existing cluster._
+* __Adding nodes to cluster:__
+  _Note: This step is required only if you have to add nodes to an existing cluster._
   * Copy the ssh keys, setup Docker and open ports as given above.
   * Edit the `cluster.yml` file and add extra nodes with their IPs and roles.
   * Run `rke up --update-only` to bring up the changes to the cluster.
-* Removing the whole RKE cluster:
-  _This step is only required if you knowingly want to delete existing complete cluster and its dependent binaries._
+* __Removing nodes from cluster:__
+  _This step is required only if you have to delete nodes from an existing cluster._
+  * Cordon the node `kubectl cordon <node-name>`.
+  * Drain the node `kubectl drain <node-name> --ignore-daemonsets --delete-emptydir-data`.
+  * In case you are using Longhorn as storage class, navigate to `Node` section in Longhorn UI, edit the specific Node `Node-name` ->`Scheduling (false )` --> `Eviction request (true)` --> `Save`.
+  * Wait till all the volumes are moved to another node.
+  * Remove the node via `kubectl delete node <node-name>`.
+
+* __Removing the whole RKE cluster:__
+  _Note: This step is required only if you knowingly want to delete existing complete cluster and its dependent binaries._
   * From the folder containing `cluster.yml`, `cluster-rke.state`, `kube-config-cluster.yml` files created while cluster creation, run the below>
     ```
     rke remove
@@ -208,6 +223,22 @@ Note: Before adding/removing nodes make sure that ```rke version``` should be sa
   Note: Whenever you’re trying to rotate certificates, the `cluster.yml` that was used to deploy the Kubernetes cluster is required. You can reference a different location for this file by using the --config option. In case you dont have the `cluster.yml` follow above steps to recover it.
   * Follow the [instruction](https://rancher.com/docs/rke/latest/en/cert-mgmt/#certificate-rotation) to rotate the certificate on need basis.
   __Note:__ Please do check the persion in the Rancher docs.
+
+## ETCD Backup
+   Below are the links to take ETCD backup and recreate the cluster with the same configuration in case of any disaster happened to the existing cluster.
+   * The below document will tell how to take a `one-time-snapshots` from all the nodes.
+     `https://rancher.com/docs/rke/latest/en/etcd-snapshots/one-time-snapshots/`
+
+   * The below document will tell how to take a `recurring-snapshots` from all the nodes.
+     `https://rancher.com/docs/rke/latest/en/etcd-snapshots/recurring-snapshots/`
+
+   * The below document will tell how to do`restoring-from-backup` for all the nodes. 
+     `https://rancher.com/docs/rke/latest/en/etcd-snapshots/restoring-from-backup/`
+      Note: Before doing restoring cluster from backup the older node should be commented out in the cluster.yaml file and add new node details and make sure pre-requisites like docker installation and ports enable should be done in the newly added node.
+
+   * The below document will tell how to take a `example-scenarios` for ETCD backup.
+     `https://rancher.com/docs/rke/latest/en/etcd-snapshots/example-scenarios/`
+
 
 ## Troubleshooting
 * **Environmennt check issue**: If an issue arises as localhost mapping is not present in the hosts file of the system then it could be due to `localhost not being       mapped to 127.0.0.1` within `/etc/hosts` file of the system.
