@@ -52,6 +52,13 @@
     read to_replace
     cluster_ingress_postgres_nodeport=${to_replace:-$cluster_ingress_postgres_nodeport}
   fi &&
+  if [ -z "$cluster_ingress_minio_nodeport" ]; then
+    unset to_replace
+    cluster_ingress_minio_nodeport="30900"
+    echo -en "=====>\nGive nodeport of minio port of the mosip cluster internal ingressgateway (without any whitespaces) (default is 30900) : "
+    read to_replace
+    cluster_ingress_minio_nodeport=${to_replace:-$cluster_ingress_minio_nodeport}
+  fi &&
   if [ -z "$cluster_ingress_activemq_nodeport" ]; then
     unset to_replace
     cluster_ingress_activemq_nodeport="31616"
@@ -74,6 +81,10 @@
   for ip in $(sed "s/,/\n/g" <<< $cluster_node_ips); do
     upstream_server_postgres="${upstream_server_postgres}server ${ip}:${cluster_ingress_postgres_nodeport};\n\t\t"
   done &&
+  upstream_server_minio="" &&
+  for ip in $(sed "s/,/\n/g" <<< $cluster_node_ips); do
+    upstream_server_minio="${upstream_server_minio}server ${ip}:${cluster_ingress_minio_nodeport};\n\t\t"
+  done &&
   upstream_server_activemq="" &&
   for ip in $(sed "s/,/\n/g" <<< $cluster_node_ips); do
     upstream_server_activemq="${upstream_server_activemq}server ${ip}:${cluster_ingress_activemq_nodeport};\n\t\t"
@@ -89,6 +100,7 @@
   sed -i "s/<cluster-ssl-certificate-key>/$cluster_nginx_cert_key/g" /etc/nginx/nginx.conf &&
   sed -i "s/<cluster-nginx-internal-ip>/$cluster_nginx_internal_ip/g" /etc/nginx/nginx.conf &&
   sed -i "s/<cluster-nginx-public-ip>/$cluster_nginx_public_ip/g" /etc/nginx/nginx.conf &&
+  sed -i "s/<cluster-nodeport-minio-of-all-nodes>/$upstream_server_minio/g" /etc/nginx/nginx.conf &&
   sed -i "s/<cluster-nodeport-postgres-of-all-nodes>/$upstream_server_postgres/g" /etc/nginx/nginx.conf &&
   sed -i "s/<cluster-nodeport-activemq-of-all-nodes>/$upstream_server_activemq/g" /etc/nginx/nginx.conf &&
   sed -i "s/<cluster-public-domain-names>/$upstream_public_domain_names/g" /etc/nginx/nginx.conf &&
