@@ -200,7 +200,7 @@ Note: Before adding/removing nodes make sure that ```rke version``` should be sa
   * Edit the `cluster.yml` file and remove the specific node entry from nodes list.
     > **Note:** 
     >  1. When adding a new node, please append the corresponding details to the end of the existing nodal information. Avoid inserting the nodal details amidst the current nodes, ensuring the preservation of the established order.
-    >  2. If there is a need to substitute node3 with node8, it is advisable to introduce a new node labeled as node8 through the implementation of the `rke up` command. After the addition of the new node, the removal of the original node can be executed.
+    >  2. If there is a need to substitute one node with another, it is advisable to introduce a new node first using `rke up` command. After the addition of the new node, the removal of the older node can be executed.
   * Execute the command `rke up` to remove the node from the cluster.
 
 * __Removing the whole RKE cluster:__
