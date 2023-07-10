@@ -190,14 +190,18 @@ Note: Before adding/removing nodes make sure that ```rke version``` should be sa
   _Note: This step is required only if you have to add nodes to an existing cluster._
   * Copy the ssh keys, setup Docker and open ports as given above.
   * Edit the `cluster.yml` file and add extra nodes with their IPs and roles.
-  * Run `rke up --update-only` to bring up the changes to the cluster.
+  * Execute the command `rke up` to add new node to the cluster.
 * __Removing nodes from cluster:__
   _This step is required only if you have to delete nodes from an existing cluster._
   * Cordon the node `kubectl cordon <node-name>`.
   * Drain the node `kubectl drain <node-name> --ignore-daemonsets --delete-emptydir-data`.
   * In case you are using Longhorn as storage class, navigate to `Node` section in Longhorn UI, edit the specific Node `Node-name` ->`Scheduling (false )` --> `Eviction request (true)` --> `Save`.
   * Wait till all the volumes are moved to another node.
-  * Remove the node via `kubectl delete node <node-name>`.
+  * Edit the `cluster.yml` file and remove the specific node entry from nodes list.
+    > **Note:** 
+    >  1. When adding a new node, please append the corresponding details to the end of the existing nodal information. Avoid inserting the nodal details amidst the current nodes, ensuring the preservation of the established order.
+    >  2. If there is a need to substitute one node with another, it is advisable to introduce a new node first using `rke up` command. After the addition of the new node, the removal of the older node can be executed.
+  * Execute the command `rke up` to remove the node from the cluster.
 
 * __Removing the whole RKE cluster:__
   _Note: This step is required only if you knowingly want to delete existing complete cluster and its dependent binaries._
