@@ -44,6 +44,9 @@ ansible-playbook -i hosts.ini ports.yaml
 ansible-playbook -i hosts.ini swap.yaml
 ```
 ## Environment Check and setup
+
+## NOTE: Not recommended for production or pilot
+
 1. Performs a check to ensure that the localhost mapping is present on all nodes.
 2. To remove cache and unused docker images on all the cluster nodes.
 ```
