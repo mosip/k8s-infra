@@ -44,9 +44,9 @@ ansible-playbook -i hosts.ini ports.yaml
 ansible-playbook -i hosts.ini swap.yaml
 ```
 ## Environment Check
-To Perform Environment check on all the cluster nodes
+To Perform Environment check, remove cache and unused docker images on all the cluster nodes
 ```
-ansible-playbook -i hosts.ini env-check.yaml
+ansible-playbook -i hosts.ini env-check-setup.yaml
 ```
 ## Docker
 Install docker on all nodes.
