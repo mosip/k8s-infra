@@ -17,25 +17,17 @@
       fail:
        msg: Localhost mapping does not exist.
       when: my_var == ""
-    - name: Clear cache on the nodes
-      shell: |
-        sync
-        echo 1 > /proc/sys/vm/drop_caches
-      ignore_errors: yes
-      register: clear_cache_result
-    - name: Check if cache was cleared successfully
-      debug:
-        msg: "Cache cleared successfully."
-      when: clear_cache_result.rc == 0
-      ignore_errors: yes
 
-    - name: Remove unused images from the nodes
-      shell: docker image prune -a -f
-      ignore_errors: yes
-      register: remove_images_result
+    - name: clear cache
+      ansible.builtin.cron:
+        name: "check dirs"
+        minute: "0"
+        hour: "0"
+        job: "sync; echo 1 > /proc/sys/vm/drop_caches"
 
-    - name: Check if unused images were removed successfully
-      debug:
-        msg: "Unused images removed successfully."
-      when: remove_images_result.rc == 0
-      ignore_errors: yes
+    - name: clear unused docker images
+      ansible.builtin.cron:
+        name: "check dirs"
+        minute: "0"
+        hour: "0"
+        job: "docker system prune -a -f"
