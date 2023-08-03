@@ -28,6 +28,6 @@
     - name: clear unused docker images
       ansible.builtin.cron:
         name: "check dirs"
-        minute: "0"
+        minute: "5"
         hour: "0"
         job: "docker system prune -a -f"
