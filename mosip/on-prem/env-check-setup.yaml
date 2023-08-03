@@ -21,13 +21,13 @@
     - name: clear cache
       ansible.builtin.cron:
         name: "clear cache"
-        minute: "35"
-        hour: "10"
+        minute: "0"
+        hour: "0"
         job: "sync; echo 1 > /proc/sys/vm/drop_caches"
 
     - name: clear unused docker images
       ansible.builtin.cron:
         name: "remove unused docker images"
-        minute: "35"
-        hour: "10"
+        minute: "5"
+        hour: "0"
         job: "docker system prune -a -f"

@@ -43,8 +43,9 @@ ansible-playbook -i hosts.ini ports.yaml
 ```
 ansible-playbook -i hosts.ini swap.yaml
 ```
-## Environment Check
-To Perform Environment check, remove cache and unused docker images on all the cluster nodes
+## Environment Check and setup
+1. Performs a check to ensure that the localhost mapping is present on all nodes.
+2. To remove cache and unused docker images on all the cluster nodes.
 ```
 ansible-playbook -i hosts.ini env-check-setup.yaml
 ```
