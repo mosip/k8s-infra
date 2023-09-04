@@ -247,7 +247,40 @@ Note: Before adding/removing nodes make sure that ```rke version``` should be sa
    * The below document will tell how to take a `example-scenarios` for ETCD backup.
      `https://rancher.com/docs/rke/latest/en/etcd-snapshots/example-scenarios/`
 
+### **Uploading etcd Backup to MinIO**
 
+**Prerequisites**
+
+**Backup Files** 
+
+* Ensure you have a backup of your etcd data. This backup might be in the form of data directories or snapshot files.
+
+**MinIO Installation** 
+
+MinIO should be installed and running. You'll need the following details:
+
+* MinIO Server URL
+* Access Key
+* Secret Key
+* Bucket Name
+
+**MinIO Client (mc)**
+
+* Install and configure the mc (MinIO Client) tool on the machine where you have the backup files. 
+* To install the MinIO client, follow the procedure from [here](https://docs.min.io/docs/minio-client-complete-guide.html) and configure it with your MinIO access credentials.
+
+**Configure MinIO Client (mc)**
+
+Configure mc with the credentials of your MinIO server using the following command.
+```agsl
+mc config host add myminio http://minio-server-url ACCESS_KEY SECRET_KEY
+```
+**Upload Backup to MinIO**
+
+Use the following 'mc cp' command to upload your backup to MinIO.
+```agsl
+mc cp /path/to/backup-folder myminio/bucket-name/destination-folder
+```
 ## Troubleshooting
 * **Environmennt check issue**: If an issue arises as localhost mapping is not present in the hosts file of the system then it could be due to `localhost not being       mapped to 127.0.0.1` within `/etc/hosts` file of the system.
 
