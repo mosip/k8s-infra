@@ -24,7 +24,17 @@ Rancher is used to manage multiple kubernetes clusters for the organisation. You
 * Install Rancher using Helm. For more details see [Rancher-ui guide](rancher-ui/README.md).
 
 ## Persistent storage
-On Cloud hosted cluster, like AWS, built-in persistent storage options are available. Like AWS's EBS.  However, on an on-prem cluster, a persistent storage provider needs to be installed. Install Longhorn for persistence using [this](../mosip/longhorn).
+On Cloud hosted cluster, like AWS, built-in persistent storage options are available. Like AWS's EBS.  
+However, on an on-prem cluster, a persistent storage provider needs to be installed.
+
+The following storage classes can be used:
+
+* [Vsphere storage class](https://github.com/vmware-archive/vsphere-storage-for-kubernetes): If you are already using VMware virtual machines, you can proceed with the vSphere storage class.
+* [NFS client provisioner storage class](../mosip/nfs).
+* [ceph-csi](TODO Implementation in progress)
+* [Longhorn](../mosip/longhorn)
+
+MOSIP is moving with Longhorn as its storage class
 
 ## Keycloak
 Refer [here](keycloak/README.md) for installation of Keycloak.
