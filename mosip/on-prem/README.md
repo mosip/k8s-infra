@@ -164,7 +164,7 @@ kubectl apply -f https://rancher.e2e.mosip.net/v3/import/pdmkx6b4xxtpcd699gzwdtt
 ## The following storage classes can be used:
 
 * [Vsphere storage class](https://github.com/vmware-archive/vsphere-storage-for-kubernetes): If you are already using VMware virtual machines, you can proceed with the vSphere storage class.
-* [NFS client provisioner storage class](../nfs/README.md).
+* [NFS client provisioner storage class](../../nfs/README.md).
 * [ceph-csi](TODO Implementation in progress)
 * [Longhorn](../../longhorn/README.md)
 

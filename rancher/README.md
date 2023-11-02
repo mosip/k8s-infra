@@ -30,9 +30,9 @@ However, on an on-prem cluster, a persistent storage provider needs to be instal
 The following storage classes can be used:
 
 * [Vsphere storage class](https://github.com/vmware-archive/vsphere-storage-for-kubernetes): If you are already using VMware virtual machines, you can proceed with the vSphere storage class.
-* [NFS client provisioner storage class](../mosip/nfs).
+* [NFS client provisioner storage class](../nfs).
 * [ceph-csi](TODO Implementation in progress)
-* [Longhorn](../mosip/longhorn)
+* [Longhorn](../longhorn)
 
 MOSIP is moving with Longhorn as its storage class
 
