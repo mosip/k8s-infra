@@ -59,6 +59,9 @@ kubectl apply -f sc.yaml
 ```
 * If the PV gets deleted (say cluster was retarted), then you will have to define a PV connecting to this instance of storage (you will need volume ID etc). TODO: how to do this?
 
+### LongHorn
+Install [LongHorn](../longhorn/README.md).
+
 ### Volume expansion
 If a particular PVC is running short of storage, follow these steps for EKS (AWS) storage.
 1. Find out the name of PV corresponding to the PVC from Rancher.
