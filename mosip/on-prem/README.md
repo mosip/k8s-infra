@@ -168,7 +168,7 @@ kubectl apply -f https://rancher.e2e.mosip.net/v3/import/pdmkx6b4xxtpcd699gzwdtt
 * [ceph-csi](TODO Implementation in progress)
 * [Longhorn](../../longhorn/README.md)
 
-MOSIP is implementing `Longhorn` as its storage class solution for improved data management.
+For time being considering Longhorn as a storage class.
 
 ## Istio for service discovery and Ingress
 * `cd /istio/`

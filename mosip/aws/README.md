@@ -59,15 +59,6 @@ kubectl apply -f sc.yaml
 ```
 * If the PV gets deleted (say cluster was retarted), then you will have to define a PV connecting to this instance of storage (you will need volume ID etc). TODO: how to do this?
 
-## The following storage classes can be used:
-
-* [Vsphere storage class](https://github.com/vmware-archive/vsphere-storage-for-kubernetes): If you are already using VMware virtual machines, you can proceed with the vSphere storage class.
-* [NFS client provisioner storage class](../../nfs/README.md)
-* [ceph-csi](TODO Implementation in progress)
-* [Longhorn](../../longhorn/README.md)
-
-MOSIP is implementing `Longhorn` as its storage class solution for improved data management.
-
 ### Volume expansion
 If a particular PVC is running short of storage, follow these steps for EKS (AWS) storage.
 1. Find out the name of PV corresponding to the PVC from Rancher.

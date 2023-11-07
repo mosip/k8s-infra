@@ -34,7 +34,7 @@ The following storage classes can be used:
 * [ceph-csi](TODO Implementation in progress)
 * [Longhorn](../longhorn)
 
-MOSIP is moving with Longhorn as its storage class
+For time being considering Longhorn as a storage class.
 
 ## Keycloak
 Refer [here](keycloak/README.md) for installation of Keycloak.
