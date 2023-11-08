@@ -168,7 +168,7 @@ The following storage classes can be used:
 * [ceph-csi](TODO Implementation in progress)
 * [Longhorn](../../longhorn/README.md)
 
-For time being considering Longhorn as a storage class.
+For time being, we are considering Longhorn as a storage class.
 
 ## Istio for service discovery and Ingress
 * `cd /istio/`

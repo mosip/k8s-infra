@@ -34,7 +34,7 @@ The following storage classes can be used:
 * [ceph-csi](TODO Implementation in progress)
 * [Longhorn](../longhorn)
 
-For time being considering Longhorn as a storage class.
+For time being, we are considering Longhorn as a storage class.
 
 ## Keycloak
 Refer [here](keycloak/README.md) for installation of Keycloak.
