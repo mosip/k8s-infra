@@ -80,9 +80,9 @@
 1. Select the `Grant Resources` option ---> click on `Add Resource`.
     1. Select below mentioned `verbs`, `resources`, and `API Groups`.
 
-       | Verbs            | Resource | Non-Resource URLs | API Groups          |
-             |----------|-------------------|---------------------|---------------------|
-       | delete           | pods     |                   |                     |
+       | Verbs            | Resource | Non-Resource URLs | API Groups         |
+       |----------|-------------------|---------------------|---------------------|
+       | delete           | pods     |                   |                    |
       
 
 1. Inherit below mentioned roles, Select `Inherit From` option ---> click on `Add Resource` to add a new resource ---> Select Role.
@@ -111,8 +111,8 @@
 1. Select the `Grant Resources` option ---> click on `Add Resource`.
     1. Select below mentioned `verbs`, `resources`, and `API Groups`.
 
-| Verbs            | Resource | Non-Resource URLs | API Groups |
-             |----------|-----------------|------------|---------------------|
+       | Verbs            | Resource | Non-Resource URLs | API Groups |
+       |----------|-------------------|---------------------|---------------------| 
        | create, delete, get, list, watch, patch, update | Gateways |                 | *          |
        | create, delete, get, list, watch, patch, update | Virtualservices |                 | *          |
    
