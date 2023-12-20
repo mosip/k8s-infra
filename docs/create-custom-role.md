@@ -61,7 +61,6 @@
    View Nodes
    View Services
    View Config Maps
-   View Secrets
    View Service Accounts
    View Cluster Catalogs
    View Cluster Members
@@ -94,7 +93,6 @@
    View Nodes
    View Services
    View Config Maps
-   View Secrets
    View Service Accounts
    View Cluster Catalogs
    Project Monitoring View Role
@@ -133,7 +131,6 @@
    View Nodes
    View Services
    View Config Maps
-   View Secrets
    View Service Accounts
    View Cluster Catalogs
    Project Monitoring View Role
