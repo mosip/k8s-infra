@@ -1,0 +1,33 @@
+---
+- name: To check Localhost mapping in all nodes
+  hosts: cluster
+  become: yes
+  gather_facts: yes
+  tasks:
+    - name: Read hosts file content
+      shell:
+        cmd: cat /etc/hosts
+      register: hosts_content
+    - set_fact:
+        my_var: "{{ hosts_content.stdout | regex_search('\\s*(.*)127.0.0.1\\s*localhost\\s*') }}"
+    - name: Print
+      debug:
+        var: my_var
+    - name: Print if not found
+      fail:
+       msg: Localhost mapping does not exist.
+      when: my_var == ""
+
+    - name: clear cache
+      ansible.builtin.cron:
+        name: "clear cache"
+        minute: "0"
+        hour: "0"
+        job: "sync; echo 1 > /proc/sys/vm/drop_caches"
+
+    - name: clear unused docker images
+      ansible.builtin.cron:
+        name: "remove unused docker images"
+        minute: "5"
+        hour: "0"
+        job: "docker system prune -a -f"
