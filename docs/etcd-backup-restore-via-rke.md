@@ -1,6 +1,6 @@
 # ETCD Backup And Restore vis RKE
 
-## ETCD Introduction
+## Introduction
 
 * The state of a Kubernetes cluster is maintained in [etcd](https://kubernetes.io/docs/concepts/overview/components/#etcd). 
   The etcd nodes run the etcd database.
