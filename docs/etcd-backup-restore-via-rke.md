@@ -10,7 +10,7 @@
 
 ## Backup
 
-* To capture the current state of the Kubernetes (k8s) cluster, execute the following command after updating the name of the snapshot with a unique identifier (i.e., `<ETCD-SNAPSHOT-NAME>`).
+* To capture the current state of the Kubernetes (k8s) cluster, execute the following command after updating the name of the snapshot with a unique identifier (i.e., `<etcd-snapshot-name>`).
     * Ensure that the directory from which the command is executed contains the following files
       * `cluster.rkestate`
       * `cluster.yml`
@@ -18,7 +18,7 @@
     * Update the SSH pem key location in the `cluster.yml` file.
     * Verify that the Kubernetes cluster nodes are accessible from the location where the command will be executed.
     ```
-    rke etcd snapshot-save --config cluster.yml --name <ETCD-SNAPSHOT-NAME>
+    rke etcd snapshot-save --config cluster.yml --name <etcd-snapshot-name>
     ```
     Example:
     ```
@@ -69,16 +69,16 @@
 
 ## Restore
 
-* To restore the state of the Kubernetes (k8s) cluster from a ETCD snapshot, execute the following command after updating the name of the snapshot (i.e., `<ETCD-SNAPSHOT-NAME>`).
+* To restore the state of the Kubernetes (k8s) cluster from a etcd snapshot, execute the following command after updating the name of the snapshot (i.e., `<etcd-snapshot-name>`).
   * Ensure that the directory from which the command is executed contains the following files
     * `cluster.rkestate`
     * `cluster.yml`
     * `kube_config_cluster.yml`
-    * `ETCD snapshot file` : you can get it from one of cluster nodes under `/opt/rke/etcd-snapshots/` location.
+    * `etcd snapshot file` : you can get it from one of cluster nodes under `/opt/rke/etcd-snapshots/` location.
   * Update the SSH pem key location in the `cluster.yml` file.
   * Verify that the Kubernetes cluster nodes are accessible from the location where the command will be executed.
   ```
-  rke etcd snapshot-restore --config cluster.yml --name <ETCD-SNAPSHOT-NAME>
+  rke etcd snapshot-restore --config cluster.yml --name <etcd-snapshot-name>
   ```
   Example:
   ```
@@ -92,6 +92,6 @@
   I0201 21:09:42.691615   14481 request.go:665] Waited for 1.043236434s due to client-side throttling, not priority and fairness, request: DELETE:https://172.31.6.129:6443/api/v1/namespaces/kube-system/pods/coredns-8578b6dbdd-776g5?timeout=30s
   INFO[0268] Finished restoring snapshot [soil-2024-02-01T20:23:31Z_etcd.zip] on all etcd host
   ```
-  * Once the restore operation successfully executed, Check the status of nodes, & pods of k8s cluster.
+  * Once the restore operation is successfully executed, check the status of nodes and pods of k8s cluster.
     ![etcd-backup-restore-1.png](_images/etcd-backup-restore-1.png)
   
