@@ -29,6 +29,11 @@
         dest: "{{ internal_ip }}"
 
     - community.general.ufw:
+        rule: allow
+        port: 9000
+        proto: tcp
+
+    - community.general.ufw:
         state: enabled
 
 
