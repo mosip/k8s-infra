@@ -32,4 +32,6 @@ data:
   mosip-esignet-host: esignet.sandbox.xyz.net
   mosip-smtp-host: smtp.sandbox.xyz.net
   mosip-singup-host: signup.sandbox.xyz.net
+  mosip-injiweb-host: injiweb.sandbox.xyz.net
+  mosip-injiverify-host: injiverify.sandbox.xyz.net
   is_glowroot_env: absent
