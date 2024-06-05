@@ -36,5 +36,4 @@ data:
   mosip-signup-host: signup.sandbox.xyz.net
   mosip-injiweb-host: injiweb.sandbox.xyz.net
   mosip-injiverify-host: injiverify.sandbox.xyz.net
-  mosip-injicertify-host: injicertify.sandbox.xyz.net
   is_glowroot_env: absent
