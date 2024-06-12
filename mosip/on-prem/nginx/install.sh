@@ -20,12 +20,10 @@
   if [ -z "$cluster_nginx_certs" ]; then
     echo -en "=====>\nGive path for SSL Certificate (fullchain.pem) for sandbox.xyz.net (without any whitespaces) : Ex: /etc//letsencrypt/live/sandbox.xyz.net/fullchain.pem"
     read cluster_nginx_certs
-    cluster_nginx_certs=$(sed 's/\//\\\//g' <<< $cluster_nginx_certs)
   fi &&
   if [ -z "$cluster_nginx_cert_key" ]; then
     echo -en "=====>\nGive path for SSL Certificate Key (privkey.pem) for sandbox.xyz.net (without any whitespaces): Ex: /etc/letsencrypt/live/sandbox.xyz.net/privkey.pem : "
     read cluster_nginx_cert_key
-    cluster_nginx_cert_key=$(sed 's/\//\\\//g' <<< $cluster_nginx_cert_key)
   fi &&
   if [ -z "$cluster_node_ips" ]; then
     echo -en "=====>\nGive list of (comma seperated) ips of all nodes in the mosip cluster (without any whitespaces) : "
@@ -96,8 +94,8 @@
   cp nginx.conf.sample /etc/nginx/nginx.conf &&
   sed -i "s/<cluster-nodeport-public-of-all-nodes>/$upstream_server_public/g" /etc/nginx/nginx.conf &&
   sed -i "s/<cluster-nodeport-internal-of-all-nodes>/$upstream_server_internal/g" /etc/nginx/nginx.conf &&
-  sed -i "s/<cluster-ssl-certificate>/$cluster_nginx_certs/g" /etc/nginx/nginx.conf &&
-  sed -i "s/<cluster-ssl-certificate-key>/$cluster_nginx_cert_key/g" /etc/nginx/nginx.conf &&
+  sed -i "s|<cluster-ssl-certificate>|$cluster_nginx_certs|g" /etc/nginx/nginx.conf &&
+  sed -i "s|<cluster-ssl-certificate-key>|$cluster_nginx_cert_key|g" /etc/nginx/nginx.conf &&
   sed -i "s/<cluster-nginx-internal-ip>/$cluster_nginx_internal_ip/g" /etc/nginx/nginx.conf &&
   sed -i "s/<cluster-nginx-public-ip>/$cluster_nginx_public_ip/g" /etc/nginx/nginx.conf &&
   sed -i "s/<cluster-nodeport-minio-of-all-nodes>/$upstream_server_minio/g" /etc/nginx/nginx.conf &&
