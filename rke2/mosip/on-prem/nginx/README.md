@@ -43,24 +43,3 @@ sudo systemctl status nginx
 ```
 sudo apt purge nginx nginx-common
 ```
-## Troubleshooting
-
-### Issue with `ngx_stream_module` on Ubuntu Server 24.04
-
-When deploying Nginx on Ubuntu Server 24.04, you may encounter an error related to `ngx_stream_module.so`, as shown below:
-
-```bash
-sudo nginx -t
-2024/05/27 10:23:47 [emerg] 5702#5702: dlopen() "/usr/share/nginx/modules/ngx_stream_module.so" failed (/usr/share/nginx/modules/ngx_stream_module.so: cannot open shared object file: No such file or directory) in /etc/nginx/nginx.conf:5
-nginx: configuration file /etc/nginx/nginx.conf test failed
-
-## Resolution
-
-To resolve the `ngx_stream_module` issue on Ubuntu Server 24.04, follow these steps:
-
-### Install `nginx-extras` package
-
-If the `ngx_stream_module` is not included in your current Nginx installation, install it by installing the `nginx-extras` package:
-
-```bash
-sudo apt-get install nginx-extras

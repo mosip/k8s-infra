@@ -9,10 +9,10 @@ fi
 
 NS=nfs
 while true; do
-    read -p "Are you sure you want to delete nfs-client-provisioner helm chart?(Y/n) " yn
+    read -p "Are you sure you want to delete nfs-csi helm chart?(Y/n) " yn
     if [ $yn = "Y" ]
       then
-        helm -n $NS delete nfs-client-provisioner
+        helm -n $NS delete nfs-csi
         break
       else
         break
