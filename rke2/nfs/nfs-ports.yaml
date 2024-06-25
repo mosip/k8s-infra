@@ -1,0 +1,17 @@
+- hosts: nfs
+  become: true
+  gather_facts: true
+
+  tasks:
+    - community.general.ufw:
+        rule: allow
+        name: OpenSSH
+
+    - community.general.ufw:
+        rule: allow
+        port: '2049'
+        proto: tcp
+
+    - community.general.ufw:
+        state: enabled
+
