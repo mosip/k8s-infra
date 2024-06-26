@@ -101,27 +101,27 @@ This section assumes an NFS server has already been set up. Install the NFS clie
     ```
     - Provide the `<NFS Node Internal IP>` and `<NFS server path>` parameters appropriately.
 
-###UNINSTALLATION:
+## UNINSTALLATION:
 
 ## WARNING
 Uninstalling RKE2 deletes the cluster data and all of the scripts.
 
-### Linux Uninstall
+## Linux Uninstall
 Depending on the method used to install RKE2, the uninstallation process varies.
 
-#### RPM Method
+## RPM Method
 To uninstall RKE2 installed via the RPM method from your system, simply run the commands corresponding to the version of RKE2 you have installed, either as the root user or through sudo. This will shut down the RKE2 process, remove the RKE2 RPMs, and clean up files used by RKE2.
 
 ```sh
 /usr/bin/rke2-uninstall.sh
 ```
-####Tarball Method
+## Tarball Method
 To uninstall RKE2 installed via the Tarball method from your system, simply run the command below. This will terminate the process, remove the RKE2 binary, and clean up files used by RKE2.
 
 ```SH
 /usr/local/bin/rke2-uninstall.sh
 ```
-###Windows Uninstall
+## Windows Uninstall
 To uninstall the RKE2 Windows Agent installed via the tarball method from your system, simply run the command below. This will shut down all RKE2 Windows processes, remove the RKE2 Windows binary, and clean up the files used by RKE2.
 
 ```sh
