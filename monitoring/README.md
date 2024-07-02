@@ -9,8 +9,13 @@ Prometheus and Graphana tools are used to monitor the cluster. Install as given 
     <img src="../docs/_images/ingress-disable.png" width="300">
 4. Provide Persistent Volume Claims (PVC) for Prometheus and Grafana:
    - In the edit option choose Prometheus and enable the check box for pvc, please refer below images to configure the PVCs for Prometheus and Grafana. Ensure you have storage classes defined for the PVCs.
-    <img src="../docs/_images/prometheus.png" width="300">
-    <img src="../docs/_images/Grafana.png" width="300">
+    <div>
+        <img src="../docs/_images/prometheus.png" width="600">
+    </div>
+    <div>
+        <img src="../docs/_images/Grafana.png" width="600">
+    </div>
+
 
 5. Click on 'Install'.
 
