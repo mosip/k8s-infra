@@ -7,7 +7,7 @@ Prometheus and Graphana tools are used to monitor the cluster. Install as given 
 3. In Helm options, open the YAML file and disable Nginx Ingress. 
 
     <img src="../docs/_images/ingress-disable.png" width="300">
-4. Provide Persistent Volume Claims (PVC) for Prometheus and Grafana:
+4. Provide Persistent Volume Claims (PVC) for Prometheus and Grafana incase needed:
    - In the edit option choose Prometheus and enable the check box for pvc, please refer below images to configure the PVCs for Prometheus and Grafana. Ensure you have storage classes defined for the PVCs.
     <div>
         <img src="../docs/_images/prometheus.png" width="800">
