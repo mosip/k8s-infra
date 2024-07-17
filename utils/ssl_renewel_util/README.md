@@ -1,5 +1,5 @@
 # SSL Certificate Renewal Script for Aws
-Note: If you are not using Route 53 from Aws as your Dns provider then this script won't work. You'll have to manually renewel the certificates, In case if you are using any other Dns provider then check if certbot supports any dns plugin for your Dns provider and then just update the certbot command within the script then the `renew_ssl_certs` script should work fine.
+Note: If you are not using Route 53 from Aws as your Dns provider then this script won't work. You'll have to manually renew the certificates, In case if you are using any other Dns provider then check if certbot supports any dns plugin for your Dns provider and then just update the certbot command within the script then the `renew_ssl_certs` script should work fine.
 
 This script is used for the renew of SSL certificates using Let's Encrypt's `certbot`. It moves old certificates to a backup directory with an expiry date and renew the ssl certificates and Update cert directory name.
 
@@ -12,7 +12,7 @@ This script is used for the renew of SSL certificates using Let's Encrypt's `cer
 
 ## Installation
 
-1. **Install Certbot**: Follow the instructions [here](https://certbot.eff.org/instructions) to install `certbot` for your nginx server and operating system.
+1. **Install Certbot**: Follow the instructions [here](https://certbot.eff.org/instructions) to install `certbot` for your nginx server.
 2. **Configure AWS Route 53**: Ensure your domain's DNS is managed by AWS Route 53 and that you have the necessary permissions to perform DNS validation.
     ```sh
     aws configure
@@ -32,11 +32,11 @@ Run the script with the necessary permissions:
 sudo ./renew_ssl_certs.sh 
 ```
 
-In Order to Automate the renewal of SSL certificates we have created another script which exicutes the `renew_ssl_certs` script on the date of expiry using a cron.
+In Order to Automate the renewal of SSL certificates we have created another script which exicutes the `renew_ssl_certs` script on 7 days before the date of expiry using a cron without any manual intervention.
 
 # Schedule Certs Renew Cron Script
 
-This script schedules a cron job to run a specified script (`renew_ssl_certs.sh`) at 6am on a user-defined expiry date.
+This script schedules a cron job to run a specified script (`renew_ssl_certs.sh`) at 12am on 7 days before the expiry date.
 
 ## Prerequisites
 
@@ -48,9 +48,9 @@ This script schedules a cron job to run a specified script (`renew_ssl_certs.sh`
 
 The script performs the following steps:
 
-1. Prompts the user to enter an domain name for which we are trying to renewal the certificates.
+1. Fetches the domain name from the existing ssl certs for which we are trying to renew the certificates.
 2. The script fetches the expiry date and Converts the provided expiry date to the appropriate format for scheduling a cron job.
-3. Schedules a cron job to run `renew_ssl_certs.sh` at 6am on the specified expiry date.
+3. Schedules a cron job to run `renew_ssl_certs.sh` at 12am on 7 days before the expiry date.
 4. Displays a confirmation message once the job is scheduled in the log file.
 
 ## Usage
