@@ -22,7 +22,7 @@ This is not part of regular installation. Perform this step only while removing 
 ## Install Kiali 
 Download Istio 1.22.0:
 ```
-curl -L https://istio.io/downloadIstio | ISTIO_VERSION=1.22. TARGET_ARCH=x86_64 sh -
+curl -L https://istio.io/downloadIstio | ISTIO_VERSION=1.22.0 TARGET_ARCH=x86_64 sh -
 ```
 Navigate to the Istio package directory:
 ```
