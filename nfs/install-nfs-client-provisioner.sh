@@ -31,7 +31,7 @@ fi
 echo "Installing NFS client provisioner"
 helm install nfs-client-provisioner -n $NS  \
 --set image.repository=gcr.io/k8s-staging-sig-storage/nfs-subdir-external-provisioner  \
---set image.tag=v4.0.0 \
+--set image.tag=v4.7.0 \
 --set nfs.server="$NFS_SERVER" \
 --set nfs.path="$NFS_PATH" \
 --wait \
