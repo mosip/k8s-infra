@@ -8,12 +8,13 @@ if [ $# -ge 1 ] ; then
 fi
 
 NS=nfs
+CHART_VERSION=v4.7.0
 
 echo Create $NS namespace
 kubectl create ns $NS
 
 echo Add helm stable repo
-helm repo add stable https://charts.helm.sh/stable
+helm repo add csi-driver-nfs https://raw.githubusercontent.com/kubernetes-csi/csi-driver-nfs/master/charts
 helm repo update
 
 read -p "Please provide NFS SERVER: " NFS_SERVER
@@ -29,10 +30,8 @@ if [ -z "$NFS_PATH" ]; then
 fi
 
 echo "Installing NFS client provisioner"
-helm install nfs-client-provisioner -n $NS  \
---set image.repository=gcr.io/k8s-staging-sig-storage/nfs-subdir-external-provisioner  \
---set image.tag=v4.7.0 \
---set nfs.server="$NFS_SERVER" \
---set nfs.path="$NFS_PATH" \
---wait \
-stable/nfs-client-provisioner
+helm install csi-driver-nfs -n $NS csi-driver-nfs/csi-driver-nfs \
+-f values.yaml \
+--set storageClass.parameters.server="$NFS_SERVER" \
+--set storageClass.parameters.share="$NFS_PATH" \
+--version $CHART_VERSION
