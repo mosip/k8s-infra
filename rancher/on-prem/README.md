@@ -3,7 +3,7 @@
 ## Prerequisites
 * [Ansible](https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html).
 * [Hardware, network, certificate requirements](./requirements.md).
-* rke (rke version: v1.3.10)
+* rke (rke version: v1.5.7)
 
 ## Virtual machines
 * Set up VMs.
