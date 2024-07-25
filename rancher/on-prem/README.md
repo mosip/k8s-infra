@@ -114,7 +114,7 @@ helm repo update
 helm install \                                                                                                             
   ingress-nginx ingress-nginx/ingress-nginx \
   --namespace ingress-nginx \
-  --version 4.0.18 \
+  --version 4.10.0 \
   --create-namespace  \
   -f ingress-nginx.values.yaml
 ```
