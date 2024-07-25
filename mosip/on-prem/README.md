@@ -12,7 +12,7 @@ This is a guide to set up Kubernetes cluster on Virtual Machines using [RKE](htt
 - Command line utilities:
   - kubectl
   - helm
-  - rke (rke version: v1.3.10)
+  - rke (rke version: v1.5.7)
   - istioctl (istioctl version: v1.22.0)
 - Helm repos:
   ```sh
