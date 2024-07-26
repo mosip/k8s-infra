@@ -3,7 +3,7 @@
 ## Install
 Prometheus and Graphana tools are used to monitor the cluster. Install as given below: 
 1. Select 'Monitoring' App from  Rancher console -> _Apps & Marketplaces_.
-2. Select Chart Version `100.1.3+up19.0.3` from dropdown in Rancher console -> _Apps & Marketplaces_.
+2. Select Chart Version `v103.1.0+up45.31.1` from dropdown in Rancher console -> _Apps & Marketplaces_.
 3. In Helm options, open the YAML file and disable Nginx Ingress. 
 
     <img src="../docs/_images/ingress-disable.png" width="300">
