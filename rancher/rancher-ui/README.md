@@ -7,7 +7,8 @@ Install rancher using Helm, update ```hostname``` in ```rancher-values.yaml``` a
     helm install rancher rancher-latest/rancher \
       --namespace cattle-system \
       --create-namespace \
-      -f rancher-values.yaml
+      -f rancher-values.yaml \
+      --version=2.8.3
     ```
 
 ## Login
