@@ -20,20 +20,16 @@ This is not part of regular installation. Perform this step only while removing 
 ```
 
 ## Install Kiali 
-Add kiali repo
+Download Istio 1.22.0:
 ```
-helm repo add kiali https://kiali.org/helm-charts
+curl -L https://istio.io/downloadIstio | ISTIO_VERSION=1.22.0 TARGET_ARCH=x86_64 sh -
 ```
-Install
+Navigate to the Istio package directory:
 ```
-helm install \
-    --set clusterRoleCreator=true \
-    --set external_services.prometheus.url="http://prometheus-operated.cattle-monitoring-system:9090"     \
-    --set external_services.prometheus.custom_metrics_url="http://rancher-monitoring-prometheus.cattle-monitoring-system.svc:9090" \
-    --set external_services.grafana.in_cluster_url="http://rancher-monitoring-grafana.cattle-monitoring-system.svc:80" \
-    --set external_services.grafana.url="http://rancher-monitoring-grafana.cattle-monitoring-system.svc:80" \
-    --set auth.strategy=anonymous \
-    --namespace istio-system \
-    kiali-server \
-    kiali/kiali-server
+cd istio-1.22.0
+```
+Install Kiali and Prometheus using the sample addons:
+```
+kubectl apply -f samples/addons/kiali.yaml
+kubectl apply -f samples/addons/prometheus.yaml
 ```

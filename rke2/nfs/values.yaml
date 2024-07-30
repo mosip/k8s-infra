@@ -1,0 +1,15 @@
+storageClass:
+  create: true
+  name: nfs-csi
+  parameters:
+    server:
+    share:
+    subDir: '${pvc.metadata.namespace}-${pvc.metadata.name}-${pv.metadata.name}'
+    mountPermissions: "0777"
+#     csi.storage.k8s.io/provisioner-secret is only needed for providing mountOptions in DeleteVolume
+#     csi.storage.k8s.io/provisioner-secret-name: "mount-options"
+#     csi.storage.k8s.io/provisioner-secret-namespace: "default"
+  reclaimPolicy: Retain
+  volumeBindingMode: Immediate
+  mountOptions:
+    - nfsvers=4.1
