@@ -32,8 +32,6 @@ additionalLoggingSources:
     stripUnderscores: false
 affinity: {}
 annotations: {}
-rancher-logging-crd:
-  enabled: true
 debug: false
 disablePvc: true
 env: []

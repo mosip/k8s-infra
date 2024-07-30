@@ -27,6 +27,10 @@ function installing_logging() {
   echo Install istio addons
   helm -n $NS install istio-addons chart/istio-addons --set kibanaHost=$KIBANA_HOST --set installName=$KIBANA_NAME
 
+  echo Installing crds for logging operator
+  for file in crds/*.yaml; do
+    kubectl apply -f "$file"
+  done
   echo Installing logging operator
   helm -n $NS install logging mosip/logging -f values.yaml
   echo Installed logging operator

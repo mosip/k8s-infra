@@ -16,6 +16,8 @@ function installing_monitoring() {
   helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
   helm repo update
 
+  echo Installing Crds for Monitoring
+  helm -n $NS install rancher-monitoring-crd mosip/rancher-monitoring-crd
   echo Installing Monitoring
   helm -n $NS install rancher-monitoring mosip/monitoring -f values.yaml
   echo Installed monitoring

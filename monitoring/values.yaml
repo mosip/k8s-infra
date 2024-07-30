@@ -843,8 +843,6 @@ nameOverride: rancher-monitoring
 namespaceOverride: cattle-monitoring-system
 nodeExporter:
   enabled: true
-rancher-monitoring-crd:
-  enabled: true
 prometheus:
   additionalPodMonitors: []
   additionalRulesForClusterRole: []
