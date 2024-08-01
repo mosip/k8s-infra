@@ -12,8 +12,8 @@ This is a guide to set up Kubernetes cluster on Virtual Machines using [RKE](htt
 - Command line utilities:
   - kubectl
   - helm
-  - rke (rke version: v1.3.10)
-  - istioctl (istioctl version: v1.15.0)
+  - rke (rke version: v1.5.7)
+  - istioctl (istioctl version: v1.22.0)
 - Helm repos:
   ```sh
   helm repo add bitnami https://charts.bitnami.com/bitnami
