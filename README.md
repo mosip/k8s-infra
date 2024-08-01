@@ -26,5 +26,3 @@ Following install sequence is recommended:
 * [Monitoring](monitoring/README.md)
 * [Alerting](monitoring/alerting/README.md)
 * [Logging](logging/README.md)
-
-
