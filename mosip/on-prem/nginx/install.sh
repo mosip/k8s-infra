@@ -66,7 +66,7 @@
   fi &&
 
 # Configuring and installing nginx
-  apt install -y nginx &&
+  apt install -y nginx nginx-extras &&
   upstream_server_internal="" &&
   for ip in $(sed "s/,/\n/g" <<< $cluster_node_ips); do
     upstream_server_internal="${upstream_server_internal}server ${ip}:${cluster_ingress_internal_nodeport};\n\t\t"
@@ -102,5 +102,5 @@
   sed -i "s/<cluster-nodeport-postgres-of-all-nodes>/$upstream_server_postgres/g" /etc/nginx/nginx.conf &&
   sed -i "s/<cluster-nodeport-activemq-of-all-nodes>/$upstream_server_activemq/g" /etc/nginx/nginx.conf &&
   sed -i "s/<cluster-public-domain-names>/$upstream_public_domain_names/g" /etc/nginx/nginx.conf &&
-  systemctl restart nginx &&
+  systemctl restart nginx && systemctl enable nginx &&
   echo "Nginx installed succesfully."
