@@ -15,7 +15,7 @@
   * Specifies secret that contains the SSL certificate and private key, and the Ingress controller will use it to terminate the SSL connection.
 ## Supported Ingress
 * [ingress-nginx](https://kubernetes.github.io/ingress-nginx/)
-* [istio-mesh](https://kubernetes.github.io/ingress-nginx/)
+* [istio-mesh](https://istio.io/latest/about/service-mesh/)
 ### Setup ingress-nginx
 Detailed steps to setup ingress-nginx is mentioned [here](./ingress-nginx/README.md)
 ### istio-mesh

@@ -51,4 +51,4 @@
     * Fully integrates with cloud provider features, such as auto-scaling and health checks.
     * Automatically provides a single external IP address or DNS name for the Ingress.
 * Deploy istio-mesh as [NodePort](./nodeport/README.md).
-* Deploy istio-mesh as [loadbalancer](./loafbalancer/README.md).
+* Deploy istio-mesh as [loadbalancer](./loadbalancer/README.md).

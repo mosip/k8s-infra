@@ -69,7 +69,7 @@
       peer1 : peername
       peer2 : peername
       ```
-  * Use ls cmd to see the list of peers.
+  * Use `ls` command to see the list of peers.
   * Move to selected peer directory, and add mentioned changes in `peer.conf`:
     ```
     cd peer1
