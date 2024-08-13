@@ -1,0 +1,15 @@
+token: configure-some-token-here
+node-name: <node name>
+node-ip: <node internal ip>
+node-label: 
+  - shouldInstallIstioIngress=true
+  - rke2-upgrade=true
+disable:
+  - rke2-ingress-nginx
+kubelet-arg:
+  - --allowed-unsafe-sysctls=net.ipv4.conf.all.src_valid_mark,net.ipv4.ip_forward
+  - eviction-hard=memory.available<500Mi,nodefs.available<10%,nodefs.inodesFree<5%
+  - eviction-soft=memory.available<1Gi,nodefs.available<15%,nodefs.inodesFree<10%
+  - eviction-soft-grace-period=memory.available=1m,nodefs.available=1m,nodefs.inodesFree=1m
+  - eviction-max-pod-grace-period=120
+  - eviction-minimum-reclaim=memory.available=0Mi,nodefs.available=500Mi,imagefs.available=2Gi

@@ -1,0 +1,101 @@
+- hosts: servers
+  become: true
+  tasks:
+    - name: Allow OpenSSH
+      community.general.ufw:
+        rule: allow
+        name: OpenSSH
+
+    - name: Allow HTTP
+      community.general.ufw:
+        rule: allow
+        port: 80
+        proto: tcp
+
+    - name: Allow HTTPS
+      community.general.ufw:
+        rule: allow
+        port: 443
+        proto: tcp
+
+    - name: Allow port 2381
+      community.general.ufw:
+        rule: allow
+        port: 2381
+        proto: tcp
+
+    - name: Allow port 2379
+      community.general.ufw:
+        rule: allow
+        port: 2379
+        proto: tcp
+
+    - name: Allow port 2380
+      community.general.ufw:
+        rule: allow
+        port: 2380
+        proto: tcp
+
+    - name: Allow Kubelet API
+      community.general.ufw:
+        rule: allow
+        port: 10250   
+        proto: tcp
+
+    - name: Allow port 9345
+      community.general.ufw:
+        rule: allow
+        port: 9345
+        proto: tcp
+
+    - name: Allow Kubernetes API Server
+      community.general.ufw:
+        rule: allow
+        port: 6443   
+        proto: tcp
+
+    - name: Allow NodePort range
+      community.general.ufw:
+        rule: allow
+        port: "30000:32767"
+        proto: tcp
+
+    - name: Allow VXLAN overlay
+      community.general.ufw:
+        rule: allow
+        port: 8472
+        proto: udp
+
+    - name: Enable UFW
+      community.general.ufw:
+        state: enabled
+
+- hosts: agents
+  become: true
+  tasks:
+    - name: Allow OpenSSH
+      community.general.ufw:
+        rule: allow
+        name: OpenSSH
+
+    - name: Allow HTTP
+      community.general.ufw:
+        rule: allow
+        port: 80
+        proto: tcp
+
+    - name: Allow HTTPS
+      community.general.ufw:
+        rule: allow
+        port: 443
+        proto: tcp
+
+    - name: Allow Kubelet API
+      community.general.ufw:
+        rule: allow
+        port: 10250
+        proto: tcp
+
+    - name: Enable UFW
+      community.general.ufw:
+        state: enabled
