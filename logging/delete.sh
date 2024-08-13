@@ -16,6 +16,9 @@ function deleting_logging() {
           helm -n $NS delete elasticsearch
           helm -n $NS delete istio-addons
           helm -n $NS delete logging
+          for file in crds/*.yaml; do
+            kubectl delete -f "$file"
+          done
           break
         else
           break

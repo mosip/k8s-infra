@@ -10,7 +10,7 @@ Kibana connects to Elasticsearch. Make sure you have a domain like `kibana.sandb
 Note: Before running the `install.sh` script please make sure the `values.yaml` is updated. 
 
 ## Install logging operator. 
-There are two ways to install monitoring app as given below:
+There are two ways to install logging operator as given below:
 
 ### Using Helm charts:
 
