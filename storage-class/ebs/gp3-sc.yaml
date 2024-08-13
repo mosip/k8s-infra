@@ -1,0 +1,15 @@
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: gp3-retain
+  annotations:
+    storageclass.kubernetes.io/is-default-class: "false"
+provisioner: kubernetes.io/aws-ebs
+parameters:
+  type: gp3
+  fsType: ext4
+  iopsPerGB: "3"           # Optional: gp3-specific, specifies IOPS per GiB provisioned (default 3 IOPS/GiB)
+  throughput: "125"        # Optional: gp3-specific, specifies throughput in MiB/s (default 125 MiB/s)
+reclaimPolicy: Delete
+volumeBindingMode: WaitForFirstConsumer
+allowVolumeExpansion: true

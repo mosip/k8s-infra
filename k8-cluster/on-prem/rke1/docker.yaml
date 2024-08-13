@@ -1,11 +1,11 @@
 # Install docker
-- hosts: wireguard
+- hosts: cluster wireguard
   become: true
   tasks:
   - name: Install docker.io for Debian
     when: ansible_os_family == "Debian"
     apt:
-      name: "docker.io"
+      name: "docker.io=20.10.*"
       state: present
       update_cache: yes
 
@@ -32,5 +32,8 @@
       dest: /etc/docker
       mode: '0644'
 
-  - name: Start docker service
-    command: systemctl start docker
+  - name: restart containerd
+    command: systemctl restart containerd    
+
+  - name: Restart docker service
+    command: systemctl restart docker
