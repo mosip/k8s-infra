@@ -36,7 +36,7 @@
   ```
   kubectl get all -n ingress-nginx
   ```
-### Deploy as Loadbalancer (AWS NLB)
+### Deploy as Loadbalancer NLB in AWS
 * Add helm repo and update the same:
   ```
   helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
