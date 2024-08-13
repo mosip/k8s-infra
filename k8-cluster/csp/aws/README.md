@@ -15,6 +15,7 @@
 * Save `~/.kube/config` file with another name. 
   * **IMPORTANT NOTE* :  As part of EKS cluster creation steps your existing kubeconfig (`~/.kube/config`) file will be overridden.
 * Save `.pem` file from AWS console and store it in `~/.ssh/` folder. (Generate a new one if you do not have this key file).
+## EKS cluster setup
 * Copy `default.cluster.config.sample` as `my-cluster.cluster.config`.
   * Note:
     * For Observation cluster creation use `observation.cluster.config.sample`.

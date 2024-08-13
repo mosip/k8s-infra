@@ -3,13 +3,13 @@ This guide uses RKE2 to set up a Kubernetes (K8s) cluster.
 ## Introduction
 The following guide uses [RKE2](https://docs.rke2.io/) to set up the Kubernetes (K8s) cluster.
 ## Pre-requisites
-1. Check usage and resource required for compute nodes in k8 cluster. For higher availability [check](https://docs.rke2.io/install/ha). 
-1. Make sure VM's/machines to be used for k8 cluster are able to communicate over defined [ports](https://docs.rke2.io/install/requirements#networking)
-1. The following tools are installed on all the VM's/machines and the client machine.
-```ufw , wget , curl , kubectl , istioctl , helm , jq```
+* Check usage and resource required for compute nodes in k8 cluster. For higher availability [check](https://docs.rke2.io/install/ha). 
+* Make sure VM's/machines to be used for k8 cluster are able to communicate over defined [ports](https://docs.rke2.io/install/requirements#networking)
+* The following tools are installed on all the VM's/machines and the client machine.
+  ```ufw , wget , curl , kubectl , istioctl , helm , jq```
 ## Firewall Setup
 Set up firewall rules on each of the VM's/machines. The following uses ufw to setup firewall.
-* ufw commands to be executed on each of the VM's/machines:
+* `ufw` commands to be executed on each of the VM's/machines:
   * SSH into each node VM/machine super user or change to superuser.
   * Run the following command for each rule in the following table
     ```
@@ -49,7 +49,7 @@ Set up firewall rules on each of the VM's/machines. The following uses ufw to se
   |TCP|443|RKE2 server and agent nodes|External traffic (if any apart fron nginx/loadbalancer)|
   |TCP|10250|RKE2 server and agent nodes|kubelet metrics|
 * Ansible script to be used for opening ports via `ufw` on all VM's/machines.
-  * Configure Wireguard conf and connect to the wireguard tunnel.
+  * Configure `Wireguard conf` and establish wireguard tunnel with Wireguard Bastion server.
   * Install [Ansible](https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html) on your personel computer or machine used to perform deployment.
   * Create a copy of `hosts.ini.sample` as `hosts.ini`.
   * Update `hosts.ini` with proper details of all the VM's/machines.
