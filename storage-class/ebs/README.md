@@ -23,6 +23,7 @@
       * ```kubectl
         kubectl apply -f gp2-sc.yaml
         ```
+    * Note in case need gp2 in retain mode use `gp2-sc-retain.yaml`.
   * gp3:
     * Newer generation of General Purpose SSDs, offering better performance and cost efficiency compared to gp2.
     * Allows to provision performance independent of storage capacity, offering up to 16,000 IOPS and 1,000 MiB/s throughput.
