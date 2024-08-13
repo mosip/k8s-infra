@@ -22,7 +22,6 @@ Note:
 * Using helm charts will deploy `102.0.3+up3.17.10` version of logging operator.
 
 ### Using Rancher-ui:
-
 * Install Logging operator from Apps and marketplace within the Rancher UI.
 * Select Chart Version `102.0.3+up3.17.10` from Rancher console -> _Apps & Marketplaces_.
 

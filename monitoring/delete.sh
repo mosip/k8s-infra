@@ -12,6 +12,7 @@ function deleting_monitoring() {
       read -p "Are you sure you want to delete monitoring helm charts? Y/n ?" yn
       if [ $yn = "Y" ]
         then
+          helm -n $NS delete rancher-monitoring-crd
           helm -n $NS delete rancher-monitoring
           break
         else
