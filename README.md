@@ -19,7 +19,8 @@
   * [longhorn](./storage-class/longhorn/README.md).
   * [EBS](./storage-class/ebs/README.md).
   * [ceph-csi](./storage-class/ceph/README.md)
-* [Nginx](./nginx/) Webserver deployment steps. Used for exposing services to external world along with ingress in on-prem mode k8s clusters. 
+* [Nginx](./nginx/) Webserver deployment steps. Used for exposing services to external world along with ingress in on-prem mode k8s clusters.
+* [Alerting](./alerting/README.md)
 * [logging](./logging/README.md)
 * [monitoring](./monitoring/README.md)
 * [Observation stack](observtaion/README.md) setup.
