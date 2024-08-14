@@ -62,7 +62,7 @@ Set up firewall rules on each of the VM's/machines. The following uses ufw to se
     ansible-playbook -i hosts.ini swap.yaml
     ```
 ## K8s setup
-* Different types of nodes to be be referenced moving ahead.
+* Different types of nodes to be referenced moving ahead.
   * **Primary server node** : 
     * First node used for creating RKE2 k8 cluster is called primary server node.
     * These are control plane nodes that run the Kubernetes API server, scheduler, and controller manager.
@@ -74,7 +74,7 @@ Set up firewall rules on each of the VM's/machines. The following uses ufw to se
   * **Agent node** :
     * They run the Kubelet and Kube-proxy services, allowing them to manage and execute containers and handle networking. 
     * Nodes used as worker nodes in k8 cluster and are responsible for running the actual loads.
-* Create RKE2 Configuration Directory in all nodes after establisihing SSH connection with sudo user.
+* Create RKE2 Configuration Directory in all nodes after establishing SSH connection with sudo user.
     ```
     mkdir -p /etc/rancher/rke2
     ```
@@ -90,12 +90,13 @@ Set up firewall rules on each of the VM's/machines. The following uses ufw to se
 * Steps to be performed on all types of nodes.
   * **Primary server node**
     * Create and Configure and place `config.yaml`:
-      * Update ```rke2-primary-conf.template``` with nodal details.
-        * Update `node-name` : name for the node to be distinguishable in k8 cluster.
-        * Update `node-ip` : internal ip of the node.
-      * copy ```rke2-primary-conf.template``` as `config.yml` in primary server node.
+      * Update ```rke2-server-control-plane-primary.conf.template``` with nodal details.
+        * Update `<node-name>` : name for the node to be distinguishable in k8 cluster.
+        * Update `<node-internal-ip>` : internal ip of the node.
+        * Update `<configure-some-token-here>` : token of the kubernetes cluster
+      * copy ```rke2-server-control-plane-primary.conf.template``` as `config.yml` in primary server node.
         ```
-        cp rke2-primary-conf.template /etc/rancher/rke2/config.yaml
+        cp rke2-server-control-plane-primary.conf.template /etc/rancher/rke2/config.yaml
         ```
     * Enable and start RKE2:
       ```
@@ -104,25 +105,45 @@ Set up firewall rules on each of the VM's/machines. The following uses ufw to se
       ```
   * **Secondary server** 
     * Create and Configure and place `config.yaml`:
-      * Update ```rke2-secondary-conf.template``` with nodal details for each VM's/machines.
-        * Update `node-name` : name for the node to be distinguishable in k8 cluster.
-        * Update `node-ip` : internal ip of the node.
-      * copy ```rke2-secondary-conf.template``` as `config.yml` in secondary server node.
+      * Update ```rke2-server-control-plane.subsequent.conf.template``` with nodal details for each VM's/machines.
+        * Update `<node-name>` : name for the node to be distinguishable in k8 cluster.
+        * Update `<node-internal-ip>` : internal ip of the node.
+        * Update `<primary-server-ip>` : primary server ip of the RKE2 kubernetes cluster.
+        * Update `<configure-some-token-here>` : token of the kubernetes cluster
+      * copy ```rke2-server-control-plane.subsequent.conf.template``` as `config.yml` in secondary server node.
         ```
-        cp rke2-secondary-conf.template /etc/rancher/rke2/config.yaml
+        cp rke2-server-control-plane.subsequent.conf.template /etc/rancher/rke2/config.yaml
         ```
     * Enable and start RKE2:
       ```
       systemctl enable rke2-server
       systemctl start rke2-server
-  * **Agent nodes**
+  * **Etcd & Worker nodes**
     * Create and Configure and place `config.yaml`:
-      * Update ```rke2-secondary-conf.template``` with agent nodal details for each VM's/machines.
-        * Update `node-name` : name for the node to be distinguishable in k8 cluster.
-        * Update `node-ip` : internal ip of the node.
-      * copy ```rke2-secondary-conf.template``` as `config.yml` in agent server node.
+      * Update ```rke2-etcd-worker.conf.template``` with agent nodal details for each VM's/machines.
+        * Update `<node-name>` : name for the node to be distinguishable in k8 cluster.
+        * Update `<node-internal-ip>` : internal ip of the node.
+        * Update `<primary-server-ip>` : primary server ip of the RKE2 kubernetes cluster.
+        * Update `<configure-some-token-here>` : token of the kubernetes cluster
+      * copy ```rke2-etcd-worker.conf.template``` as `config.yml` in agent server node.
         ```
-        cp rke2-secondary-conf.template /etc/rancher/rke2/config.yaml
+        cp rke2-etcd-worker.conf.template /etc/rancher/rke2/config.yaml
+        ```
+    * Enable and start RKE2:
+      ```
+      systemctl enable rke2-agent
+      systemctl start rke2-agent
+      ```
+  * **Worker nodes**
+    * Create and Configure and place `config.yaml`:
+      * Update ```rke2-worker.conf.template``` with agent nodal details for each VM's/machines.
+        * Update `<node-name>` : name for the node to be distinguishable in k8 cluster.
+        * Update `<node-internal-ip>` : internal ip of the node.
+        * Update `<primary-server-ip>` : primary server ip of the RKE2 kubernetes cluster.
+        * Update `<configure-some-token-here>` : token of the kubernetes cluster
+      * copy ```rke2-worker.conf.template``` as `config.yml` in agent server node.
+        ```
+        cp rke2-worker.conf.template /etc/rancher/rke2/config.yaml
         ```
     * Enable and start RKE2:
       ```
