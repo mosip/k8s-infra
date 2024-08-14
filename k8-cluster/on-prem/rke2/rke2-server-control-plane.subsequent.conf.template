@@ -1,7 +1,7 @@
-token: configure-some-token-here
+token: <configure-some-token-here>
 server: https://<primary-server-ip>:9345
-node-name: <node name>
-node-ip: <node internal ip>
+node-name: <node-name>
+node-ip: <node-internal-ip>
 node-label:
   - shouldInstallIstioIngress=true
   - rke2-upgrade=true
