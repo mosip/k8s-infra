@@ -37,4 +37,5 @@ data:
   mosip-injiweb-host: injiweb.sandbox.xyz.net
   mosip-injiverify-host: injiverify.sandbox.xyz.net
   mosip-injicertify-host: injicertify.sandbox.xyz.net
+  mosip-inji-datashare-host: datashare-inji.sandbox.xyz.net
   is_glowroot_env: absent
