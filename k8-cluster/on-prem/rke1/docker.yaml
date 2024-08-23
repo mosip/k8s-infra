@@ -1,39 +1,61 @@
 # Install docker
 - hosts: cluster wireguard
   become: true
+  vars:
+    DOKCER_VERSION: "5:20.10.24~3-0~ubuntu-jammy"
   tasks:
-  - name: Install docker.io for Debian
-    when: ansible_os_family == "Debian"
+  - name: Update the apt package index
     apt:
-      name: "docker.io=20.10.*"
-      state: present
       update_cache: yes
 
-  - name: Add docker repo For Centos
-    when: ansible_os_family == "RedHat"
-    yum_repository:
-      name: Docker
-      baseurl: https://download.docker.com/linux/centos/docker-ce.repo
-  - name: Install docker repo For Centos
-    when: ansible_os_family == "RedHat"
-    yum:
-      update_cache: yes
+  - name: Install required packages
+    apt:
+      name: 
+      - ca-certificates
+      - curl
       state: present
-      name:
-        - docker-ce
-        - docker-ce-cli
-        - containerd.io
+
+  - name: Create directory for apt keyrings
+    file:
+      path: /etc/apt/keyrings
+      state: directory
+      mode: '0755'
+
+  - name: Download Docker GPG key
+    get_url:
+      url: https://download.docker.com/linux/ubuntu/gpg
+      dest: /etc/apt/keyrings/docker.asc
+      mode: '0644'
+
+  - name: Add Docker repository to apt sources list
+    shell: |
+      echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo $VERSION_CODENAME) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+  - name: Update the apt package index after adding Docker repo
+    apt:
+      update_cache: yes
+
+  - name: Install the specified version of Docker CE
+    apt:
+      name: 
+      - "docker-ce={{ DOKCER_VERSION }}"
+      - "docker-ce-cli={{ DOKCER_VERSION }}"
+      - "containerd.io"
+      - "docker-buildx-plugin"
+      - "docker-compose-plugin"
+      state: present
+
   - name: Add docker user to docker group
     command: usermod -aG docker {{ ansible_user }}
 
-  - name: Copy dameon.json to limit logs
+  - name: Copy daemon.json to limit logs
     ansible.builtin.copy:
       src: ./daemon.json
       dest: /etc/docker
       mode: '0644'
 
-  - name: restart containerd
-    command: systemctl restart containerd    
+  - name: Start docker service
+    command: systemctl start docker
 
-  - name: Restart docker service
-    command: systemctl restart docker
+  - name: Enable docker service
+    command: systemctl enable docker
