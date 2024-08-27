@@ -2,6 +2,10 @@
 ## Install
 * Install `istioctl` as given [here](https://istio.io/latest/docs/setup/getting-started/#download)
 * Istioctl version 1.22.0.
+* Update the iop.yaml to be used for istio operator installation.
+  * `iop-default` : used for default operator.
+  * `iop-mosip.yaml` : used for mosip related istio operator.
+  * Note: By default `install.sh` is pointing to `iop-mosip.yaml` change it as and when needed to point to new requirement.
 * Execute
 ```bash
 ./install.sh

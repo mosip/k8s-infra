@@ -13,6 +13,3 @@ kubelet-arg:
   - eviction-soft-grace-period=memory.available=1m,nodefs.available=1m,nodefs.inodesFree=1m
   - eviction-max-pod-grace-period=120
   - eviction-minimum-reclaim=memory.available=0Mi,nodefs.available=500Mi,imagefs.available=2Gi
-
-node-taint:
-  - "CriticalAddonsOnly=true:NoExecute"
