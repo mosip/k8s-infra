@@ -7,17 +7,18 @@ This repository contains an Ansible playbook and associated configurations to se
 - [Inventory Setup](#inventory-setup)
 - [Playbooks](#playbooks)
 - [Templates](#templates)
-- [Running the Playbook](#running-the-playbook)
+- [Kubernetes setup via Ansible playbook](#kubernetes-setup-via-Ansible-playbook)
 - [Configuration Details](#configuration-details)
 
 ## Prerequisites
 
 Before running the playbooks, ensure the following:
 
-- **Ansible:** Installed on local machine.
-- **Access to Nodes:** SSH access to all nodes (primary control plane, subsequent control planes, agents, etcd) with appropriate permissions.
-- **Private Key:** Available for SSH authentication.
-- **Supported OS:** Ubuntu or other Debian-based distributions.
+- Install Ansible on your local machine.
+- Ensure that nodes are accessible from your local machine for SSH authentication.
+- Verify that the SSH private key for the nodes is available on your local machine.
+- Supported operating systems include Ubuntu 24.04 and other Debian-based distributions.
+
 
 ## Inventory Setup
 
@@ -51,17 +52,14 @@ RKE2_PATH=/etc/rancher/rke2
 
 ```
 
-
-### Update the `hosts.ini` File
-
-Update the `hosts.ini` file with the correct IP addresses, usernames, and paths to your private key files.
+- Update the `hosts.ini` file with the correct IP addresses, usernames, and paths to your private key files.
 
 ### Playbooks
 
 #### `main.yaml`
 This is the primary playbook that orchestrates the entire setup process. It includes the following tasks:
 
-- Installing required tools (`wget`, `curl`).
+- Installing required tools (`wget`, `curl`, `jq`).
 - Creating the RKE2 configuration directory.
 - Installing RKE2 using the specified version.
 
@@ -98,7 +96,7 @@ The configuration templates are located in the `rke2` directory and are used by 
 
 These templates contain placeholders that are dynamically replaced with actual values during the playbook execution.
 
-### Running the Playbook
+### Kubernetes setup via Ansible playbook
 
 To run the playbooks and set up your RKE2 Kubernetes cluster, follow these steps:
 
@@ -109,9 +107,11 @@ To run the playbooks and set up your RKE2 Kubernetes cluster, follow these steps
     cd <repository-directory>
     ```
 
-2. **Edit `hosts.ini`:**
+2. **Update the `hosts.ini` file with your node details:**
 
-    Update the `hosts.ini` file with your node details.
+    ```bash
+    cp hosts.ini.sample hosts.ini
+    ```
     
 3. **Run the playbook to open ports:**
     ```bash
