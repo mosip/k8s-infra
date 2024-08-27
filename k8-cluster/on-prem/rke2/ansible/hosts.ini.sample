@@ -1,0 +1,25 @@
+# Primary control plane node. This is the main node where RKE2 will be installed first.
+[control_plane_primary]
+control-plane-1 ansible_host=<internal ip> ansible_user=root ansible_ssh_private_key_file=<pvt .pem file>
+
+# Subsequent control plane nodes. These are additional control plane nodes that will be added to the cluster after the primary.
+[control_plane_subsequent]
+control-subsequent_plane-1 ansible_host=<internal ip> ansible_user=root ansible_ssh_private_key_file=<pvt .pem file>
+
+# agent nodes. These nodes will run application workloads.
+[agents]
+agent-1 ansible_host=<internal ip> ansible_user=root ansible_ssh_private_key_file=<pvt .pem file>
+
+# etcd nodes. These nodes will run the etcd database for Kubernetes, which is responsible for storing the cluster's state.
+[etcd]
+etcd-1 ansible_host=<internal ip> ansible_user=root ansible_ssh_private_key_file=<pvt .pem file>
+
+# Global variables applied to all hosts in the inventory.
+
+[all:vars]
+# The version of RKE2 to install across the cluster.
+INSTALL_RKE2_VERSION=v1.28.9+rke2r1
+# The DNS domain name to use for the cluster.
+cluster_domain=<cluster name>
+# The path where RKE2 will be installed on each node.
+RKE2_PATH=/etc/rancher/rke2

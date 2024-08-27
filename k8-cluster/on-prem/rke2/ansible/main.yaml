@@ -1,0 +1,25 @@
+- hosts: control_plane_primary:control_plane_subsequent:agents:etcd
+  become: yes
+  tasks:
+    - name: Ensure required tools are installed
+      apt:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - wget
+        - curl
+        - jq
+    - name: Create RKE2 config directory
+      file:
+        path: "{{ RKE2_PATH }}"
+        state: directory
+
+    - name: Install RKE2
+      shell: |
+        curl -sfL https://get.rke2.io | INSTALL_RKE2_VERSION="{{ INSTALL_RKE2_VERSION }}" sh -
+
+# Include the control_plane_primary playbook
+- import_playbook: playbook/control-plane-primary.yaml
+
+# Include subsequent roles playbook
+- import_playbook: playbook/subsequent-roles.yaml

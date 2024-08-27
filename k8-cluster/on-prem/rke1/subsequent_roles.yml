@@ -1,0 +1,43 @@
+- hosts: control_plane_subsequent:workers:etcd
+  become: yes
+  tasks:
+    - name: Wait for primary control plane to be ready
+      wait_for:
+        port: 9345
+        host: "{{ hostvars[groups['control_plane_primary'][0]]['ansible_host'] }}"
+        state: started
+        timeout: 300
+
+    - name: Set RKE2 config template URL
+      set_fact:
+        rke2_config_template_url: >
+          {{
+            'https://raw.githubusercontent.com/syedsalman3753/k8s-infra/develop/rke2/rke2-server-control-plane.subsequent.conf.template'
+            if inventory_hostname in groups['control_plane_subsequent'] else
+            'https://raw.githubusercontent.com/syedsalman3753/k8s-infra/develop/rke2/rke2-worker.conf.template'
+            if inventory_hostname in groups['workers'] else
+            'https://raw.githubusercontent.com/syedsalman3753/k8s-infra/develop/rke2/rke2-etcd-worker.conf.template'
+          }}
+
+    - name: Download RKE2 config template
+      get_url:
+        url: "{{ rke2_config_template_url }}"
+        dest: "{{ RKE2_PATH }}/config.yaml"
+
+    - name: Replace placeholders in RKE2 config
+      lineinfile:
+        path: "{{ RKE2_PATH }}/config.yaml"
+        regexp: "^{{ item.regexp }}"
+        line: "{{ item.line }}"
+      loop:
+        - { regexp: 'token:.*', line: "token: {{ hostvars[groups['control_plane_primary'][0]]['rke2_token'] }}" }
+        - { regexp: 'node-name:.*', line: "node-name: {{ inventory_hostname }}" }
+        - { regexp: 'node-ip:.*', line: "node-ip: {{ ansible_host }}" }
+        - { regexp: 'server:.*', line: "server: https://{{ hostvars[groups['control_plane_primary'][0]]['ansible_host'] }}:9345" }
+      no_log: true 
+
+    - name: Start and enable RKE2 service
+      systemd:
+        name: "{{ 'rke2-server' if inventory_hostname in groups['control_plane_subsequent'] else 'rke2-agent' }}"
+        enabled: yes
+        state: started

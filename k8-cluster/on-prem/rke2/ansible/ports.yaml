@@ -1,0 +1,108 @@
+# Ports to be opened for Kubernetes control plane, etcd, and agents nodes
+- hosts: all
+  become: true
+  tasks:
+    - name: OpenSSH for Control Plane
+      community.general.ufw:
+        rule: allow
+        port: 22
+        proto: tcp
+
+    - name: Kubelet metrics
+      community.general.ufw:
+        rule: allow
+        port: 10250
+        proto: tcp
+
+    - name: Kubernetes nodeports
+      community.general.ufw:
+        rule: allow
+        port: 30000:32767
+        proto: tcp
+
+    # - name: Prometheus metrics
+    #   community.general.ufw:
+    #     rule: allow
+    #     port: 9796
+    #     proto: tcp
+
+
+    # Nginx ingress controller (not sure if this is required)
+    # - name: "Allow tcp 10254 Nginx ingress controller " 
+    #   community.general.ufw:
+    #     rule: allow
+    #     port: 10254
+    #     proto: tcp
+    - community.general.ufw:
+        state: enabled
+
+- hosts: control_plane_primary:control_plane_subsequent
+  become: true
+  tasks:
+
+    - name: Kubernetes API
+      community.general.ufw:
+        rule: allow
+        port: 6443
+        proto: tcp
+
+    - name: RKE2 supervisor API
+      community.general.ufw:
+        rule: allow
+        port: 9345
+        proto: tcp
+
+
+    - name: ETCD client port
+      community.general.ufw:
+        rule: allow
+        port: 2379
+        proto: tcp
+
+    - name: ETCD peer port
+      community.general.ufw:
+        rule: allow
+        port: 2380
+        proto: tcp
+
+    - name: ETCD metrics port
+      community.general.ufw:
+        rule: allow
+        port: 2381
+        proto: tcp
+
+    - name: Canal CNI with VXLAN
+      community.general.ufw:
+        rule: allow
+        port: 8472
+        proto: udp
+
+    - name: Canal CNI health checks
+      community.general.ufw:
+        rule: allow
+        port: 9099
+        proto: tcp
+
+- hosts: etcd
+  become: true
+  tasks:
+    - name: ETCD client port
+      community.general.ufw:
+        rule: allow
+        port: 2379
+        proto: tcp
+
+    - name: ETCD peer port
+      community.general.ufw:
+        rule: allow
+        port: 2380
+        proto: tcp
+
+    - name: ETCD metrics port
+      community.general.ufw:
+        rule: allow
+        port: 2381
+        proto: tcp
+
+    - community.general.ufw:
+        state: enabled
