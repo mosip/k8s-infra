@@ -1,5 +1,10 @@
-- hosts: control_plane_primary:control_plane_subsequent:agents:etcd
+- name: Precheck
+  import_playbook: playbook/pre-checks.yaml
+
+- name: Ensure required tools and RKE2 are installed
+  hosts: all
   become: yes
+  gather_facts: y
   tasks:
     - name: Ensure required tools are installed
       apt:
@@ -9,6 +14,7 @@
         - wget
         - curl
         - jq
+
     - name: Create RKE2 config directory
       file:
         path: "{{ RKE2_PATH }}"
@@ -18,8 +24,9 @@
       shell: |
         curl -sfL https://get.rke2.io | INSTALL_RKE2_VERSION="{{ INSTALL_RKE2_VERSION }}" sh -
 
-# Include the control_plane_primary playbook
-- import_playbook: playbook/control-plane-primary.yaml
+- name: Configure Primary Node
+  import_playbook: playbook/primary-node.yaml
 
-# Include subsequent roles playbook
-- import_playbook: playbook/subsequent-roles.yaml
+- name: Configure Subsequent Nodes
+  import_playbook: playbook/subsequent-nodes.yaml
+

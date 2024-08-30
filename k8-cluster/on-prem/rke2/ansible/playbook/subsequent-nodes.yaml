@@ -7,13 +7,11 @@
         host: "{{ hostvars[groups['control_plane_primary'][0]]['ansible_host'] }}"
         state: started
         timeout: 300
-  
+
     - name: Copy RKE2 config template
       copy:
-        src: "{{ item }}"
+        src: "{{ '../../rke2-server-control-plane.subsequent.conf.template' if inventory_hostname in groups['control_plane_subsequent'] | default([]) else '../../rke2-agents.conf.template' if inventory_hostname in groups['agents'] | default([]) else '../../rke2-etcd-agents.conf.template' }}"
         dest: "{{ RKE2_PATH }}/config.yaml"
-      loop:
-        - "{{ '../../rke2-server-control-plane.subsequent.conf.template' if inventory_hostname in groups['control_plane_subsequent'] else '../../rke2-agents.conf.template' if inventory_hostname in groups['agents'] else '../../rke2-etcd-agents.conf.template' }}"
 
     - name: Replace placeholders in RKE2 config
       lineinfile:
@@ -29,6 +27,6 @@
 
     - name: Start and enable RKE2 service
       systemd:
-        name: "{{ 'rke2-server' if inventory_hostname in groups['control_plane_subsequent'] else 'rke2-agent' }}"
+        name: "{{ 'rke2-server' if inventory_hostname in groups['control_plane_subsequent'] | default([]) else 'rke2-agent' }}"
         enabled: yes
         state: started

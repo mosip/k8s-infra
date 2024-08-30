@@ -19,6 +19,18 @@
         rule: allow
         port: 30000:32767
         proto: tcp
+  
+    - name: Canal CNI with VXLAN
+      community.general.ufw:
+        rule: allow
+        port: 8472
+        proto: udp
+
+    - name: Canal CNI health checks
+      community.general.ufw:
+        rule: allow
+        port: 9099
+        proto: tcp
 
     # - name: Prometheus metrics
     #   community.general.ufw:
@@ -69,18 +81,6 @@
       community.general.ufw:
         rule: allow
         port: 2381
-        proto: tcp
-
-    - name: Canal CNI with VXLAN
-      community.general.ufw:
-        rule: allow
-        port: 8472
-        proto: udp
-
-    - name: Canal CNI health checks
-      community.general.ufw:
-        rule: allow
-        port: 9099
         proto: tcp
 
 - hosts: etcd
