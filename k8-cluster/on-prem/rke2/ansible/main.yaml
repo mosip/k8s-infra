@@ -4,7 +4,7 @@
 - name: Ensure required tools and RKE2 are installed
   hosts: all
   become: yes
-  gather_facts: y
+  gather_facts: yes
   tasks:
     - name: Ensure required tools are installed
       apt:
