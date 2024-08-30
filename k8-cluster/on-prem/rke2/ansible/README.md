@@ -1,5 +1,6 @@
 # RKE2 Kubernetes Cluster Setup using Ansible
 
+## Overview
 An Ansible playbook and associated configurations to set up an RKE2 Kubernetes cluster. This setup includes:
 
 * **Primary Control Plane Node:** Manages the cluster's control plane operations.
@@ -17,23 +18,38 @@ Below are the pre-requisites for ansible playbook execution:
 * Verify that the SSH private key for the nodes is available on your local machine.
 * Supported operating systems include Ubuntu 24.04 and other Debian-based distributions.
 
-### Kubernetes setup via Ansible playbook
+## Kubernetes setup via Ansible playbook
 
 To run the playbooks and set up your RKE2 Kubernetes cluster, follow these steps:
 
+### 1. Prepare Inventory File:
 
-1. **Create copy of `hosts.ini.sample` as `hosts.ini` and update the required details**
+#### For Sandbox and Development Environments
 
+* Create a copy of `hosts.ini.sample` as `hosts.ini`:
     ```bash
     cp hosts.ini.sample hosts.ini
     ```
-    
-2. **Execute `ports.yml` to enable ports on VM level using ufw:**
+* Comment out the `[etcd]` section in the `hosts.ini` file.
+* Update other sections with VM details.
+
+#### For Production Environment
+
+* Create a copy of `hosts.ini.sample` as `hosts.ini`:
+    ```bash
+    cp hosts.ini.sample hosts.ini
+    ```
+* Ensure that all required fields, including the `[etcd]` section, are updated with the correct details.
+
+### 2. Enable Required Ports:
+
+* **Execute `ports.yml` to enable ports on VM level using ufw:**
     ```bash
     ansible-playbook -i hosts.ini ports.yaml
     ```
+### 3. Run the Playbooks:
 
-3. **Run the playbook to provision RKE2 Cluster:**
+* **Run the playbook to provision RKE2 Cluster:**
 
     ```bash
     ansible-playbook -i hosts.ini main.yaml
