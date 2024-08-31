@@ -64,7 +64,6 @@
         port: 9345
         proto: tcp
 
-
     - name: ETCD client port
       community.general.ufw:
         rule: allow
@@ -82,7 +81,8 @@
         rule: allow
         port: 2381
         proto: tcp
-
+    - community.general.ufw:
+        state: enabled
 - hosts: etcd
   become: true
   tasks:
