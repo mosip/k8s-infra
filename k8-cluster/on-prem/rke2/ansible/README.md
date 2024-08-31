@@ -24,7 +24,7 @@ To run the playbooks and set up your RKE2 Kubernetes cluster, follow these steps
 
 ### 1. Prepare Inventory File:
 
-#### For Sandbox and Development Environments
+#### For Sandbox and Development Environments:
 
 * Create a copy of `hosts.ini.sample` as `hosts.ini`:
     ```bash
@@ -33,7 +33,7 @@ To run the playbooks and set up your RKE2 Kubernetes cluster, follow these steps
 * Comment out the `[etcd]` section in the `hosts.ini` file.
 * Update other sections with VM details.
 
-#### For Production Environment
+#### For Production Environment:
 
 * Create a copy of `hosts.ini.sample` as `hosts.ini`:
     ```bash
@@ -43,11 +43,20 @@ To run the playbooks and set up your RKE2 Kubernetes cluster, follow these steps
 
 ### 2. Enable Required Ports:
 
-* **Execute `ports.yml` to enable ports on VM level using ufw:**
+* **Execute `ports.yml` to enable ports:**
     ```bash
     ansible-playbook -i hosts.ini ports.yaml
     ```
-### 3. Run the Playbooks:
+
+### 3. Disable swap :
+
+* Disable swap in cluster nodes.(Ignore if swap is already disabled)
+
+    ```bash
+    ansible-playbook -i hosts.ini swap.yaml
+    ```
+
+### 4. Run the Playbooks:
 
 * **Run the playbook to provision RKE2 Cluster:**
 

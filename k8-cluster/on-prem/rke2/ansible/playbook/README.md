@@ -1,5 +1,4 @@
-## Playbook Structure
-
+## Configurations Details
 The `main.yaml` file is divided into the following sections:
 
 1. **Precheck**
@@ -16,12 +15,15 @@ The `main.yaml` file is divided into the following sections:
 4. **Configure Subsequent Nodes**
    * Imports and executes the `subsequent-nodes.yaml` playbook for configuring subsequent control plane nodes and workers.
 
-## Variables
+### Variables
 
 * `RKE2_PATH`: Path where the RKE2 configuration directory will be created.
 * `INSTALL_RKE2_VERSION`: Version of RKE2 to be installed.
+*  `cluster_domain` : The Domain name to use for the cluster.
 
 ### Playbooks
+
+#### pre-checks.yaml
 
 The `pre-checks.yaml` playbook performs initial checks on all target hosts to ensure they meet the necessary prerequisites before proceeding with further configuration tasks.
 
@@ -44,12 +46,12 @@ The `pre-checks.yaml` playbook includes the following tasks:
    * Fails the playbook if the user does not have sudo access.
 
 
-### `any_errors_fatal: true`
+#### `any_errors_fatal: true`
 
 * **Description**: This setting ensures that if any task within the playbook fails, the entire playbook execution stops immediately.
 * **Purpose**: By setting `any_errors_fatal: true`, you ensure that errors are addressed promptly and do not go unnoticed, which helps prevent the playbook from continuing in an invalid state. This is particularly useful in pre-checks where failing to meet any prerequisite should halt further execution to avoid potential issues in later stages.
 
-#### `control-plane-primary.yaml`
+#### `primary-node.yaml`
 This playbook handles the configuration of the primary control plane node:
 
 * Generates a unique RKE2 token.
@@ -58,7 +60,7 @@ This playbook handles the configuration of the primary control plane node:
 * Starts and enables the RKE2 service.
 * Configures `kubectl` and sets up `kubeconfig` for the primary control plane node.
 
-#### `subsequent-roles.yaml`
+#### `subsequent-nodes.yaml`
 This playbook configures subsequent control planes, agents, and etcd nodes:
 
 * Waits for the primary control plane to be ready.

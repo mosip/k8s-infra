@@ -19,7 +19,7 @@ etcd-1 ansible_host=<internal ip> ansible_user=root ansible_ssh_private_key_file
 [all:vars]
 # The version of RKE2 to install across the cluster.
 INSTALL_RKE2_VERSION=v1.28.9+rke2r1
-# The DNS domain name to use for the cluster.
+# The Domain name to use for the cluster.
 cluster_domain=<cluster name>
 # The path where RKE2 will be installed on each node.
 RKE2_PATH=/etc/rancher/rke2
