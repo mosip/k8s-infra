@@ -59,6 +59,7 @@ This playbook handles the configuration of the primary control plane node:
 * Replaces placeholders in the configuration file with node-specific details (e.g., token, node name, IP address).
 * Starts and enables the RKE2 service.
 * Configures `kubectl` and sets up `kubeconfig` for the primary control plane node.
+* Retrieves the kubeconfig file from the primary control plane node and saves in playbook directory.
 
 #### `subsequent-nodes.yaml`
 This playbook configures subsequent control planes, agents, and etcd nodes:

@@ -65,3 +65,35 @@ To run the playbooks and set up your RKE2 Kubernetes cluster, follow these steps
     ```
 
     This command will start the installation and configuration process across all nodes.
+
+
+### 5. Securely Store Kubeconfig File
+
+After the successful creation of the RKE2 cluster, the kubeconfig file will be saved in the [k8s-infra/k8-cluster/on-prem/rke2/ansible/playbook/](k8s-infra/k8-cluster/on-prem/rke2/ansible/playbook/) directory as `{{ cluster_domain }}-{{ inventory_hostname }}.yaml`. Store it securely:
+
+```bash
+cp {{ cluster_domain }}-{{ inventory_hostname }}.yaml $HOME/.kube/<cluster_name>_config
+chmod 400 $HOME/.kube/<cluster_name>_config
+```
+### 6. Access the Cluster
+
+To access the cluster using the kubeconfig file, use one of the following methods:
+
+* **Copy kubeconfig to default location:**
+    ```bash
+    cp $HOME/.kube/<cluster_name>_config $HOME/.kube/config
+    ```
+
+* **Or set the `KUBECONFIG` environment variable:**
+    ```bash
+    export KUBECONFIG="$HOME/.kube/<cluster_name>_config"
+    ```
+
+### 7. Test Cluster Access
+
+Verify that you can access the cluster:
+
+```bash
+kubectl get nodes
+```
+
