@@ -1,12 +1,12 @@
-# Primary control plane node. This is the main node where RKE2 will be installed first.And it has all roles (control-plane, etcd, master, agent).
+# Primary control plane node. This is the 1st node where RKE2 will be installed and it has all roles (control-plane, etcd, master, agent). Only one nodes should be mentioned in this.
 [control_plane_primary]
 control-plane-1 ansible_host=<internal ip> ansible_user=root ansible_ssh_private_key_file=<pvt .pem file>
 
-# Subsequent control plane nodes. These are additional control plane nodes that will be added to the cluster after the Primary control plane node.And it has all roles (control-plane, etcd, master, agent)
+# Subsequent control plane nodes. These are additional control plane nodes that will be added to the cluster after the Primary control plane node and it has also all the roles (control-plane, etcd, master, agent). Mumber of nodes to be added is based upon your requirement of HA.
 [control_plane_subsequent]
 control-subsequent_plane-1 ansible_host=<internal ip> ansible_user=root ansible_ssh_private_key_file=<pvt .pem file>
 
-# agent nodes. These nodes will run application workloads.
+# agent nodes. These nodes will run application workloads and number of nodes to be defined depends upon the required no of worker considering in sandbox the load is getting shared with primary and secondary server node.
 [agents]
 agent-1 ansible_host=<internal ip> ansible_user=root ansible_ssh_private_key_file=<pvt .pem file>
 
