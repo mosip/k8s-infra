@@ -5,7 +5,7 @@
 * Update the iop.yaml to be used for istio operator installation.
   * `iop-default` : used for default operator.
   * `iop-mosip.yaml` : used for mosip related istio operator.
-  * Note: By default `install.yaml` is pointing to `iop-mosip.yaml` change it as and when needed to point to new requirement.
+  * Note: By default `install.sh` is pointing to `iop-mosip.yaml` change it as and when needed to point to new requirement.
 * Execute
 ```bash
 ./install.sh

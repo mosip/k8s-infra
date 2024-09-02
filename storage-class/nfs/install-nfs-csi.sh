@@ -1,7 +1,7 @@
 #!/bin/sh
 
-# Install nfs-client-provisioner
-## Usage: ./install-nfs-provisioner.sh [kubeconfig]
+# Install nfs-csi
+## Usage: ./install-nfs-csi.sh [kubeconfig]
 
 if [ $# -ge 1 ] ; then
   export KUBECONFIG=$1
@@ -35,3 +35,12 @@ helm install csi-driver-nfs -n $NS csi-driver-nfs/csi-driver-nfs \
 --set storageClass.parameters.server="$NFS_SERVER" \
 --set storageClass.parameters.share="$NFS_PATH" \
 --version $CHART_VERSION
+
+# Wait for the installation to complete
+sleep 10
+
+echo "Patching the StorageClass to set it as default"
+kubectl patch storageclass nfs-csi \
+  -p '{"metadata": {"annotations": {"storageclass.kubernetes.io/is-default-class": "true"}}}'
+
+echo "NFS csi  installation and configuration completed."

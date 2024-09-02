@@ -3,7 +3,6 @@ server: https://<primary-server-ip>:9345
 node-name: <node-name>
 node-ip: <node-internal-ip>
 node-label:
-  - shouldInstallIstioIngress=true
   - rke2-upgrade=true
 disable:
   - rke2-ingress-nginx
@@ -17,4 +16,3 @@ kubelet-arg:
 disable-apiserver: true
 disable-controller-manager: true
 disable-scheduler: true
-disable-etcd: true

@@ -1,8 +1,7 @@
 token: <configure-some-token-here>
 node-name: <node-name>
 node-ip: <node-internal-ip>
-node-label: 
-  - shouldInstallIstioIngress=true
+node-label:
   - rke2-upgrade=true
 disable:
   - rke2-ingress-nginx

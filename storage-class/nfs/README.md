@@ -44,13 +44,12 @@
 ## Post installation steps
 * Check status of NFS Client Provisioner.
   ```
-  kubectl -n nfs get deployment.apps/nfs-csi 
+  kubectl -n nfs get deployment.apps/csi-driver-nfs
   ```
 * check status of `nfs-csi` storage class.
   ```
    kubectl get storageclass
    NAME                 PROVISIONER                            RECLAIMPOLICY   VOLUMEBINDINGMODE   ALLOWVOLUMEEXPANSION   AGE
-   longhorn (default)   driver.longhorn.io                     Delete          Immediate           true                   57d
    nfs-csi           cluster.local/nfs-csi                     Retain          Immediate           true                   40s
   ```
 
@@ -73,18 +72,18 @@
 
 ## Set NFS Storage Class for deployments
 
-* While deploying chart, set storage class to `nfs-client`, enable persistence to `true` & set `persistence.size` .
+* While deploying chart, set storage class to `nfs-csi`, enable persistence to `true` & set `persistence.size` .
   ```
   helm -n <namespace> install <name> <helm-repo>/<chart-name> \
   --set persistence.enabled=true \
-  --set persistence.storageClass=nfs-client \
+  --set persistence.storageClass=nfs-csi \
   --set persistence.size=<storage> --version <chart-version>
   ```
-* check whether pvc created with storage class `nfs-client`.
+* check whether pvc created with storage class `nfs-csi`.
   ```
   $ kubectl -n <namespace> get pvc
   NAME    STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   AGE
-  <name>  Bound    pvc-36d6e3ce-59bb-4f96-aea2-07c673356fac   5Gi        RWX            nfs-client     60s
+  <name>  Bound    pvc-36d6e3ce-59bb-4f96-aea2-07c673356fac   5Gi        RWX            nfs-csi     60s
   ```
 
 
