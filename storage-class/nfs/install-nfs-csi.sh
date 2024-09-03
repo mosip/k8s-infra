@@ -17,23 +17,29 @@ echo Add helm stable repo
 helm repo add csi-driver-nfs https://raw.githubusercontent.com/kubernetes-csi/csi-driver-nfs/master/charts
 helm repo update
 
-read -p "Please provide NFS SERVER: " NFS_SERVER
-read -p "Please provide NFS Path: " NFS_PATH
-
 if [ -z "$NFS_SERVER" ]; then
-  echo "NFS_SERVER not provided; EXITING;";
-  exit 1;
+  read -p "Please provide NFS SERVER: " NFS_SERVER
+  read -p "Please provide NFS Path: " NFS_SERVER_LOCATION
+
+  if [ -z "$NFS_SERVER" ]; then
+    echo "NFS_SERVER \"$NFS_SERVER\" not provided; EXITING;";
+    exit 1;
+  fi
 fi
-if [ -z "$NFS_PATH" ]; then
-  echo "NFS_PATH not provided; EXITING;";
-  exit 1;
+if [ -z "$NFS_SERVER_LOCATION" ]; then
+  read -p "Please provide NFS server path: " NFS_SERVER_LOCATION
+
+  if [ -z "$NFS_SERVER_LOCATION" ]; then
+    echo "NFS_SERVER_LOCATION \"$NFS_SERVER_LOCATION\" not provided; EXITING;";
+    exit 1;
+  fi
 fi
 
 echo "Installing NFS client provisioner"
 helm install csi-driver-nfs -n $NS csi-driver-nfs/csi-driver-nfs \
 -f values.yaml \
 --set storageClass.parameters.server="$NFS_SERVER" \
---set storageClass.parameters.share="$NFS_PATH" \
+--set storageClass.parameters.share="$NFS_SERVER_LOCATION" \
 --version $CHART_VERSION
 
 # Wait for the installation to complete
