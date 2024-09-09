@@ -2,13 +2,11 @@ apiVersion: install.istio.io/v1alpha1
 kind: IstioOperator
 metadata:
   namespace: istio-system
-  name: istio-operators-esignet
+  name: istio-operator-esignet
 spec:
   profile: default
   # This is done to merge multiple slashes in http URLs, otherwise, MOSIP APIs may not work
   meshConfig:
-    accessLogFile: /dev/stdout
-    accessLogFormat:
     pathNormalization:
       normalization: MERGE_SLASHES
     defaultConfig:
@@ -42,47 +40,41 @@ spec:
     ingressGateways:
       ## Public access to external ingress gateway is disabled by default. Enable it in production.
       - name: istio-ingressgateway
-        enabled: true
+        enabled: false
         k8s:
-          service:
-            type: NodePort
-            ports:
-            - port: 15021
-              targetPort: 15021
-              nodePort: 30521
-              name: status-port
-              protocol: TCP
-            - port: 80
-              targetPort: 8080
-              nodePort: 30080
-              name: http2
-              protocol: TCP
+          env:
+          - name: ISTIO_META_IDLE_TIMEOUT
+            value: 300s
+          serviceAnnotations:
+            service.beta.kubernetes.io/aws-load-balancer-proxy-protocol: "*"
+            service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
       - name: istio-ingressgateway-internal
         enabled: true
         label:
             istio: ingressgateway-internal
         k8s:
+          env:
+          - name: ISTIO_META_IDLE_TIMEOUT
+            value: 300s
+          serviceAnnotations:
+            service.beta.kubernetes.io/aws-load-balancer-proxy-protocol: "*"
+            service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
+            service.beta.kubernetes.io/aws-load-balancer-internal: "true"
           service:
-            type: NodePort
             ports:
             - port: 15021
               targetPort: 15021
-              nodePort: 31521
               name: status-port
               protocol: TCP
             - port: 80
               targetPort: 8080
-              nodePort: 31080
               name: http2
               protocol: TCP
-            # additional ports
+            - port: 443
+              targetPort: 8443
+              name: https
+              protocol: TCP
             - port: 5432
               targetPort: 5432
-              nodePort: 31432
               name: postgres
-              protocol: TCP
-            - port: 9000
-              targetPort: 9000
-              nodePort: 30900
-              name: minio
               protocol: TCP

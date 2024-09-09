@@ -2,7 +2,7 @@ apiVersion: install.istio.io/v1alpha1
 kind: IstioOperator
 metadata:
   namespace: istio-system
-  name: istio-operator-my
+  name: istio-operator-mosip
 spec:
   profile: default
   # This is done to merge multiple slashes in http URLs, otherwise, MOSIP APIs may not work
