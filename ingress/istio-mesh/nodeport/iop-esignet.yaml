@@ -2,7 +2,7 @@ apiVersion: install.istio.io/v1alpha1
 kind: IstioOperator
 metadata:
   namespace: istio-system
-  name: istio-operators-default
+  name: istio-operators-esignet
 spec:
   profile: default
   # This is done to merge multiple slashes in http URLs, otherwise, MOSIP APIs may not work
@@ -74,4 +74,15 @@ spec:
               targetPort: 8080
               nodePort: 31080
               name: http2
+              protocol: TCP
+            # additional ports
+            - port: 5432
+              targetPort: 5432
+              nodePort: 31432
+              name: postgres
+              protocol: TCP
+            - port: 9000
+              targetPort: 9000
+              nodePort: 30900
+              name: minio
               protocol: TCP
