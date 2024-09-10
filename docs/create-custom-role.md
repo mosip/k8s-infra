@@ -151,7 +151,7 @@
     1. Select below mentioned `verbs`, `resources`, and `API Groups`.
 
        | Verbs            | Resource | Non-Resource URLs | API Groups |
-              |----------|-------------------|-------------------|---------------------| 
+       |----------|-------------------|-------------------|---------------------| 
        | create, get, list, watch | cronjobs |                 |   batch        |
        | create, get, list, watch | jobs |                 |     batch      |
 
