@@ -5,7 +5,7 @@
   - name: Install docker.io for Debian
     when: ansible_os_family == "Debian"
     apt:
-      name: "docker.io=24.0.7"
+      name: "docker.io=24.0.*"
       state: present
       update_cache: yes
 
