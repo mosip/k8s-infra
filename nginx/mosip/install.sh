@@ -2,7 +2,10 @@
 # Script to configure and install Nginx with public and private interfaces
 # Usage: ./install.sh.
 
-
+  if [ -z "$cluster_env_domain" ]; then
+    echo -en "=====>\nPlease provide the environment domain (e.g., sandbox.xyz.net): "
+    read cluster_env_domain
+  fi &&
   if [ -z "$cluster_nginx_internal_ip" ]; then
     echo -en "=====>\nThe following internal ip will have to be DNS-mapped to all internal domains from you global_configmap.yaml. Ex: api-internal.sandbox.xyz.net, iam.sandbox.xyz.net, etc.\n"
     echo -en "Give the internal interface ip of this node here. Run \`ip a\` to get all the interface addresses (without any whitespaces) : "
@@ -65,6 +68,9 @@
     cluster_ingress_activemq_nodeport=${to_replace:-$cluster_ingress_activemq_nodeport}
   fi &&
 
+# List of public subdomains (customize as needed)
+  public_subdomains=("api" "prereg" "resident" "esignet" "healthservices" "signup")
+
 # Configuring and installing nginx
   apt install -y nginx nginx-extras &&
   upstream_server_internal="" &&
@@ -87,8 +93,9 @@
   for ip in $(sed "s/,/\n/g" <<< $cluster_node_ips); do
     upstream_server_activemq="${upstream_server_activemq}server ${ip}:${cluster_ingress_activemq_nodeport};\n\t\t"
   done &&
-  for domain in $(sed "s/,/\n/g" <<< $cluster_public_domains); do
-    upstream_public_domain_names="${upstream_public_domain_names} ${domain}"
+  server_name_public=""
+  for subdomain in "${public_subdomains[@]}"; do
+    server_name_public="${server_name_public} ${subdomain}.${cluster_env_domain}"
   done &&
   cp /etc/nginx/nginx.conf /etc/nginx/nginx.conf.orig &&
   cp nginx.conf.sample /etc/nginx/nginx.conf &&
@@ -102,5 +109,6 @@
   sed -i "s/<cluster-nodeport-postgres-of-all-nodes>/$upstream_server_postgres/g" /etc/nginx/nginx.conf &&
   sed -i "s/<cluster-nodeport-activemq-of-all-nodes>/$upstream_server_activemq/g" /etc/nginx/nginx.conf &&
   sed -i "s/<cluster-public-domain-names>/$upstream_public_domain_names/g" /etc/nginx/nginx.conf &&
+  sed -i "s/<cluster-public-domain-names>/$server_name_public/g" /etc/nginx/nginx.conf &&
   systemctl restart nginx && systemctl enable nginx &&
   echo "Nginx installed succesfully."
