@@ -3,14 +3,27 @@
 ## Kibana
 Kibana connects to Elasticsearch. Make sure you have a domain like `kibana.sandbox.xyz.net` pointing to your internal load balancer included in [global configmap](../mosip/global_configmap.yaml.sample).
 
-## Install Elasticsearch, Kibana and Istio addons
+## Install Elasticsearch, Kibana, Istio addons and logging operator.
 ```sh 
 ./install.sh
 ```
+Note: Before running the `install.sh` script please make sure the `values.yaml` is updated. 
 
-## Install Rancher FluentD system
-1. Install Logging from Apps and marketplace within the Rancher UI.
-1. Select Chart Version `103.1.1+up4.4.0` from Rancher console -> _Apps & Marketplaces_.
+## Install logging operator. 
+There are two ways to install logging operator as given below:
+
+### Using Helm charts:
+
+* Update the `values.yaml` file based on your requiremnt before installing logging operator.
+* Running `install.sh` will deploy logging operator with Elasticsearch, Kibana, Istio addons within your kubernetes cluster.
+
+Note: 
+* There is no need to install logging operator separately from rancher-ui as we are installing logging operator as a part of `install.sh` script.
+* Using helm charts will deploy `102.0.3+up3.17.10` version of logging operator.
+
+### Using Rancher-ui:
+* Install Logging operator from Apps and marketplace within the Rancher UI.
+* Select Chart Version `102.0.3+up3.17.10` from Rancher console -> _Apps & Marketplaces_.
 
 ## Add _Index Lifecycle Policy_ and  _Index Template_ to Elasticsearch
 ```sh
