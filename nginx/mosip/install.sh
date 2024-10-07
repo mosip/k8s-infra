@@ -108,7 +108,6 @@
   sed -i "s/<cluster-nodeport-minio-of-all-nodes>/$upstream_server_minio/g" /etc/nginx/nginx.conf &&
   sed -i "s/<cluster-nodeport-postgres-of-all-nodes>/$upstream_server_postgres/g" /etc/nginx/nginx.conf &&
   sed -i "s/<cluster-nodeport-activemq-of-all-nodes>/$upstream_server_activemq/g" /etc/nginx/nginx.conf &&
-  sed -i "s/<cluster-public-domain-names>/$upstream_public_domain_names/g" /etc/nginx/nginx.conf &&
   sed -i "s/<cluster-public-domain-names>/$server_name_public/g" /etc/nginx/nginx.conf &&
   systemctl restart nginx && systemctl enable nginx &&
   echo "Nginx installed succesfully."
