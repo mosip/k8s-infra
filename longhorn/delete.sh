@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # Uninstalls longhorn
 ## Usage: ./delete.sh [kubeconfig]
 
@@ -8,7 +8,8 @@ fi
 
 NS=longhorn-system
 
-while true; do
+function deleting_longhorn() {
+  while true; do
     echo "$(tput setaf 3 )[ WARNING ] Services using longhorn as a storage class will lose their data.";
     echo "Back up the data and uninstall the required services, then you can proceed with the uninstallation."$(tput sgr0);
     read -p "Are you sure you want to delete longhorn helm charts?(Y/n) " yn
@@ -24,4 +25,14 @@ while true; do
       else
         break
     fi
-done
+  done
+  return 0
+}
+
+# set commands for error handling.
+set -e
+set -o errexit   ## set -e : exit the script if any statement returns a non-true return value
+set -o nounset   ## set -u : exit the script if you try to use an uninitialised variable
+set -o errtrace  # trace ERR through 'time command' and other functions
+set -o pipefail  # trace ERR through pipes
+deleting_longhorn   # calling function
