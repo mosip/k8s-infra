@@ -14,7 +14,7 @@ function deleting_nfs() {
       read -p "Are you sure you want to delete nfs-csi helm chart?(Y/n) " yn
       if [ $yn = "Y" ]
         then
-          helm -n $NS delete nfs-csi
+          helm -n $NS delete csi-driver-nfs
           break
         else
           break

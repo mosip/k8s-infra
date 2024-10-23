@@ -1,13 +1,15 @@
 #!/bin/bash
 # Patch notification alerts 
 
+NS=cattle-monitoring-system
+
 function installing_alerting() {
   echo Patching alert manager secrets
-  kubectl patch secret alertmanager-rancher-monitoring-alertmanager -n cattle-monitoring-system  --patch="{\"data\": { \"alertmanager.yaml\": \"$(cat ./alertmanager.yaml |base64 |tr -d '\n' )\" }}"
+  kubectl patch secret alertmanager-rancher-monitoring-alertmanager -n $NS  --patch="{\"data\": { \"alertmanager.yaml\": \"$(cat ./alertmanager.yaml |base64 |tr -d '\n' )\" }}"
   echo Regenerating secrets
-  kubectl delete secret alertmanager-rancher-monitoring-alertmanager-generated -n cattle-monitoring-system
+  kubectl delete secret alertmanager-rancher-monitoring-alertmanager-generated -n $NS
   echo Adding cluster name
-  kubectl patch Prometheus rancher-monitoring-prometheus -n cattle-monitoring-system --patch-file patch-cluster-name.yaml --type=merge
+  kubectl patch Prometheus rancher-monitoring-prometheus -n $NS --patch-file patch-cluster-name.yaml --type=merge
   echo Applying custom alerts
   kubectl apply -f custom-alerts/
   return 0

@@ -3,18 +3,13 @@
 ## Usage: ./install.sh <iam_host_name> [kube_config_file]
 ## iam_host_name: Example iam.mosip.net
 
-if [ $# -lt 1 ]; then
-  echo "Usage: ./install.sh <iam_host_name> [kube_config_file]"; exit 1
-fi
-if [ $# -ge 2 ]; then
-  export KUBECONFIG=$2
-else
-  export KUBECONFIG="$HOME/.kube/config"
+if [ $# -ge 1 ]; then
+export KUBECONFIG=$1
 fi
 NS=keycloak
 
 echo Creating namespace
-kubectl create ns keycloak
+kubectl create ns $NS
 
 function installing_keycloak() {
   helm repo add bitnami https://charts.bitnami.com/bitnami

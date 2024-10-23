@@ -6,6 +6,8 @@ if [ $# -ge 1 ] ; then
   export KUBECONFIG=$1
 fi
 
+NS=istio-system
+
 echo Operator init
 istioctl operator init
 
@@ -15,9 +17,9 @@ function installing_istio() {
 
   echo Wait for all resources to come up
   sleep 30
-  kubectl -n istio-system rollout status deploy istiod
-  kubectl -n istio-system rollout status deploy istio-ingressgateway
-  kubectl -n istio-system rollout status deploy istio-ingressgateway-internal
+  kubectl -n $NS rollout status deploy istiod
+  kubectl -n $NS rollout status deploy istio-ingressgateway
+  kubectl -n $NS rollout status deploy istio-ingressgateway-internal
 
   echo ------ IMPORTANT ---------
   echo If you already have pods running with envoy sidecars, restart all of them NOW.  Check if all of them appear with command "istioctl proxy-status"

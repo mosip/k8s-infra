@@ -12,7 +12,10 @@ function deleting_httpbin() {
       read -p "Are you sure you want to delete Keyclaok? This is DANGEROUS! (Y/n) " yn
       if [ $yn = "Y" ]
         then
-          helm -n $NS delete httpbin
+          kubectl -n $NS delete -f svc.yaml
+          kubectl -n $NS delete -f deployment.yaml
+          kubectl -n $NS delete -f deployment-busybox-curl.yaml
+          kubectl -n $NS delete -f vs.yaml
           break
         else
           break
