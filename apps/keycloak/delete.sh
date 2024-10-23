@@ -1,20 +1,18 @@
 #!/bin/bash
-# Uninstall nfs-client-provisioner
-## Usage: ./delete-nfs-provisioner.sh [kubeconfig]
+## Deletes keycloak helm chart
+## Usage: ./delete.sh [kubeconfig]
 
 if [ $# -ge 1 ] ; then
   export KUBECONFIG=$1
 fi
 
-
-NS=nfs
-
-function deleting_nfs() {
+function deleting_keycloak() {
+  NS=keycloak
   while true; do
-      read -p "Are you sure you want to delete nfs-csi helm chart?(Y/n) " yn
+      read -p "Are you sure you want to delete Keyclaok? This is DANGEROUS! (Y/n) " yn
       if [ $yn = "Y" ]
         then
-          helm -n $NS delete nfs-csi
+          helm -n $NS delete keycloak
           break
         else
           break
@@ -29,4 +27,4 @@ set -o errexit   ## set -e : exit the script if any statement returns a non-true
 set -o nounset   ## set -u : exit the script if you try to use an uninitialised variable
 set -o errtrace  # trace ERR through 'time command' and other functions
 set -o pipefail  # trace ERR through pipes
-deleting_nfs   # calling function
+deleting_keycloak   # calling function
