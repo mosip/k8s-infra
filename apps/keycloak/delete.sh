@@ -1,22 +1,23 @@
 #!/bin/bash
-## Removes all the Istio resources along with Load Balancers.
-
+## Deletes keycloak helm chart
 ## Usage: ./delete.sh [kubeconfig]
 
 if [ $# -ge 1 ] ; then
   export KUBECONFIG=$1
 fi
 
-NS=istio-system
-NS1=istio-operator
-
-function deleting_istio() {
-  echo Removing Istio components
-  istioctl x uninstall --purge
-
-  echo deleting $NS and $NS1 namespaces
-
-  kubectl delete ns $NS $NS1
+function deleting_keycloak() {
+  NS=keycloak
+  while true; do
+      read -p "Are you sure you want to delete Keyclaok? This is DANGEROUS! (Y/n) " yn
+      if [ $yn = "Y" ]
+        then
+          helm -n $NS delete keycloak
+          break
+        else
+          break
+      fi
+  done
   return 0
 }
 
@@ -26,4 +27,4 @@ set -o errexit   ## set -e : exit the script if any statement returns a non-true
 set -o nounset   ## set -u : exit the script if you try to use an uninitialised variable
 set -o errtrace  # trace ERR through 'time command' and other functions
 set -o pipefail  # trace ERR through pipes
-deleting_istio   # calling function
+deleting_keycloak   # calling function
