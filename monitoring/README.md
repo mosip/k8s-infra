@@ -8,16 +8,14 @@ Prometheus and Graphana tools are used to monitor the cluster. There are two way
 * Update the values.yaml file based on your requiremnt before installing monitoring.
 * Running `install.sh` will deploy monitoring within your kubernetes cluster.
 
-Note: Using helm charts will deploy `102.0.5+up40.1.2` version of rancher-monitoring.
+Note: Using helm charts will deploy `103.1.1+up45.31.1` version of rancher-monitoring.
 
 ### Using Rancher-ui:
 
 * Select 'Monitoring' App from  Rancher console -> _Apps & Marketplaces_.
-* Select Chart Version `102.0.5+up40.1.2` from dropdown in Rancher console -> _Apps & Marketplaces_.
-* In Helm options, open the YAML file and disable Nginx Ingress. 
-
-    <img src="../docs/_images/ingress-disable.png" width="300">
-
+* Select Chart Version `103.1.1+up45.31.1` from dropdown in Rancher console -> _Apps & Marketplaces_.
+* In Helm options, open the YAML file and disable Nginx Ingress.
+  ![ingress-disable.png](../docs/_images/ingress-disable.png)
 * Click on 'Install'.
 
 ## Prometheus
@@ -27,6 +25,7 @@ All MOSIP modules have been configured to let Prometheus scrape metrics.
 To load a new dashboards to Grafana, sign in with user and password from `rancher-monitoring-grafana` in `cattle-monitoring-system` namespace of Rancher cluster.
 
 Important default dashboards:
+
 |Grafana dashboard|Description|
 |---|---|
 |Rancher/Cluster (Nodes)|Consolidated view of all nodes|

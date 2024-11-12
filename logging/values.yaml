@@ -16,22 +16,23 @@ additionalLoggingSources:
       logTag: kube-audit
       tolerations:
         - effect: NoSchedule
-          key: node-role.kubernetes.io/control-plane
+          key: node-role.kubernetes.io/controlplane
           value: 'true'
         - effect: NoExecute
           key: node-role.kubernetes.io/etcd
           value: 'true'
     pathPrefix: ''
   rke:
-    enabled: true
+    enabled: false
     fluentbit:
       log_level: info
       mem_buffer_limit: 5MB
   rke2:
-    enabled: false
+    enabled: true
     stripUnderscores: false
 affinity: {}
 annotations: {}
+createCustomResource: false
 debug: false
 disablePvc: true
 env: []
@@ -52,7 +53,7 @@ fluentbit:
   resources: {}
   tolerations:
     - effect: NoSchedule
-      key: node-role.kubernetes.io/control-plane
+      key: node-role.kubernetes.io/controlplane
       value: 'true'
     - effect: NoExecute
       key: node-role.kubernetes.io/etcd
@@ -73,7 +74,7 @@ global:
   cattle:
     psp:
       enabled: false
-    systemProjectId: p-25f76
+    systemProjectId: p-mhh2f
   dockerRootDirectory: ''
   rkeWindowsPathPrefix: c:\
   seLinux:
@@ -87,8 +88,8 @@ http:
     type: ClusterIP
 image:
   pullPolicy: IfNotPresent
-  repository: rancher/mirrored-banzaicloud-logging-operator
-  tag: 3.17.10
+  repository: rancher/mirrored-kube-logging-logging-operator
+  tag: 4.4.0
 imagePullSecrets: []
 images:
   config_reloader:
@@ -106,7 +107,33 @@ images:
   nodeagent_fluentbit:
     os: windows
     repository: rancher/fluent-bit
-    tag: v1.8.10
+    tag: 2.2.0
+logging:
+  allowClusterResourcesFromAllNamespaces: false
+  clusterDomain: cluster.local.
+  clusterFlows: []
+  clusterOutputs: []
+  controlNamespace: ''
+  defaultFlow: {}
+  enableRecreateWorkloadOnImmutableFieldChange: false
+  enabled: false
+  errorOutputRef: ''
+  eventTailer: {}
+  flowConfigCheckDisabled: false
+  flowConfigOverride: ''
+  fluentbit: {}
+  fluentbitDisabled: false
+  fluentd: {}
+  fluentdDisabled: false
+  globalFilters: []
+  hostTailer: {}
+  loggingRef: ''
+  nodeAgents: {}
+  skipInvalidResources: false
+  syslogNG: {}
+  watchNamespaceSelector: {}
+  watchNamespaces: []
+loggingServiceAccountAnnotations: {}
 monitoring:
   serviceMonitor:
     additionalLabels: {}
@@ -135,6 +162,16 @@ securityContext: {}
 serviceAccount:
   annotations: {}
 systemdLogPath: /run/log/journal
+testReceiver:
+  enabled: false
+  image: fluent/fluent-bit
+  port: 8080
+  pullPolicy: IfNotPresent
+  service:
+    annotations: {}
+    clusterIP: None
+    labels: {}
+    type: ClusterIP
 tolerations:
   - effect: NoSchedule
     key: cattle.io/os
