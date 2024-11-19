@@ -19,11 +19,11 @@ There are two ways to install logging operator as given below:
 
 Note: 
 * There is no need to install logging operator separately from rancher-ui as we are installing logging operator as a part of `install.sh` script.
-* Using helm charts will deploy `102.0.3+up3.17.10` version of logging operator.
+* Using helm charts will deploy `103.1.1+up4.4.0` version of logging operator.
 
 ### Using Rancher-ui:
 * Install Logging operator from Apps and marketplace within the Rancher UI.
-* Select Chart Version `102.0.3+up3.17.10` from Rancher console -> _Apps & Marketplaces_.
+* Select Chart Version `103.1.1+up4.4.0` from Rancher console -> _Apps & Marketplaces_.
 
 ## Add _Index Lifecycle Policy_ and  _Index Template_ to Elasticsearch
 ```sh

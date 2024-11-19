@@ -17,9 +17,20 @@ function installing_monitoring() {
   helm repo update
 
   echo Installing Crds for Monitoring
-  helm -n $NS install monitoring-crd mosip/rancher-monitoring-crd
+  helm -n $NS install rancher-monitoring-crd mosip/rancher-monitoring-crd
   echo Installing Monitoring
-  helm -n $NS install monitoring mosip/rancher-monitoring -f values.yaml
+
+  read -p "Please enter the env cluster-id: " cluster_id
+
+  # Check if cluster_id is empty
+  if [[ -z "$cluster_id" ]]; then
+    echo "Error: cluster-id is required. Exiting."
+    exit 1
+  fi
+
+  helm -n $NS install rancher-monitoring mosip/rancher-monitoring \
+  -f values.yaml \
+  --set grafana.global.cattle.clusterId=$cluster_id
   echo Installed monitoring
   return 0
 }
