@@ -8,9 +8,24 @@ route:
   receiver: slack
   repeat_interval: 12h
   routes:
+#  - match:
+#      alertname: InfoInhibitor
+#    receiver: 'null'
   - match:
       alertname: Watchdog
     receiver: 'null'
+  - match:
+      alertname: TargetDown
+    recevier: "null"
+  - match:
+      alertname: etcdMembersDown
+    recevier: "null"
+  - match:
+      alertname: etcdInsufficientMembers
+    recevier: "null"
+  - match:
+      alertname: CPUThrottlingHigh
+    recevier: "null"
   - match:
       alertname: AggregatedAPIDown 
     receiver: 'null'
@@ -24,8 +39,30 @@ route:
       statefulset: activemq-activemq-artemis-slave
     receiver: 'null'
   - match:
+      severity: critical
+    receiver: 'slack'
+  - match:
+      severity: warning
+    receiver: 'slack'
+  - match:
       severity: info
     receiver: 'null'
+  - match:
+      severity: none
+    receiver: 'null'
+  - match:
+      alertname: KubeStatefulSetReplicasMismatch
+    receiver: 'null'
+  - match:
+      alertname: KubeDeploymentReplicasMismatch
+    receiver: 'null'
+  - match:
+      alertname: KubeContainerWaiting
+    receiver: 'slack'
+  - match:
+      alertname: KubeJobFailed
+    receiver: 'slack'  
+
 receivers:
 - name: 'null'
 - name: slack
