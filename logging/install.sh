@@ -12,7 +12,7 @@ echo "Creating namespace: $NS"
 kubectl create namespace $NS || echo "Namespace $NS already exists"
 
 function check_and_update_kibana_host() {
-  echo "Checking for Kibana Host in global ConfigMap..."
+  echo "Checking for Kibana Host in global ConfigMap"
   KIBANA_HOST=$(kubectl get cm global -o jsonpath='{.data.mosip-kibana-host}' 2>/dev/null || echo "")
 
   if [ -z "$KIBANA_HOST" ]; then
@@ -29,30 +29,30 @@ function check_and_update_kibana_host() {
 function installing_logging() {
   check_and_update_kibana_host
 
-  echo "Updating Helm repositories..."
+  echo "Updating Helm repositories"
   helm repo add bitnami https://charts.bitnami.com/bitnami
   helm repo add banzaicloud-stable https://charts.helm.sh/stable
   helm repo update
 
-  echo "echo Installing Bitnami Elasticsearch and Kibana istio objects"
+  echo "Installing Bitnami Elasticsearch and Kibana istio objects"
   helm -n $NS install elasticsearch mosip/elasticsearch -f es_values.yaml --version 17.9.25 --wait
-  echo "echo Installing Bitnami Elasticsearch and Kibana istio objects"
+  echo "Installed Bitnami Elasticsearch and Kibana istio objects"
 
   KIBANA_HOST=$(kubectl get cm global -o jsonpath='{.data.mosip-kibana-host}')
   KIBANA_NAME=elasticsearch-kibana
 
-  echo "Installing Istio Addons..."
+  echo "Installing Istio Addons"
   helm -n $NS install istio-addons chart/istio-addons \
     --set kibanaHost=$KIBANA_HOST \
     --set installName=$KIBANA_NAME
 
-  echo "Installing CRDs for Logging Operator..."
+  echo "Installing CRDs for Logging Operator"
   helm -n $NS install rancher-logging-crd mosip/rancher-logging-crd --wait
   echo "Installed CRDs for Logging Operator."
 
-  echo "Installing Logging Operator..."
+  echo "Installing Logging Operator"
   helm -n $NS install rancher-logging mosip/rancher-logging -f values.yaml
-  echo "Installed Logging Operator."
+  echo "Installed Logging Operator"
   return 0
 }
 
