@@ -17,7 +17,7 @@ function check_and_update_kibana_host() {
 
   if [ -z "$KIBANA_HOST" ]; then
     read -p "Enter Kibana Host: " KIBANA_HOST
-    echo "Updating global ConfigMap with Kibana Host..."
+    echo "Updating global ConfigMap with Kibana Host and Kibana istio objects"
     kubectl patch cm global --type merge -p "{\"data\": {\"mosip-kibana-host\": \"$KIBANA_HOST\"}}" || \
     kubectl create cm global --from-literal=mosip-kibana-host="$KIBANA_HOST"
     echo "Kibana Host updated in global ConfigMap."
@@ -34,9 +34,9 @@ function installing_logging() {
   helm repo add banzaicloud-stable https://charts.helm.sh/stable
   helm repo update
 
-  echo "Installing Bitnami Elasticsearch..."
+  echo "echo Installing Bitnami Elasticsearch and Kibana istio objects"
   helm -n $NS install elasticsearch mosip/elasticsearch -f es_values.yaml --version 17.9.25 --wait
-  echo "Installed Bitnami Elasticsearch."
+  echo "echo Installing Bitnami Elasticsearch and Kibana istio objects"
 
   KIBANA_HOST=$(kubectl get cm global -o jsonpath='{.data.mosip-kibana-host}')
   KIBANA_NAME=elasticsearch-kibana
