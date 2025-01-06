@@ -21,7 +21,6 @@ function installing_logging() {
   helm -n $NS install elasticsearch mosip/elasticsearch -f es_values.yaml --version 17.9.25 --wait
   echo Installed Bitnami Elasticsearch and Kibana istio objects
 
-  KIBANA_HOST=$(kubectl get cm global -o jsonpath={.data.mosip-kibana-host})
   KIBANA_NAME=elasticsearch-kibana
 
   echo Install istio addons
