@@ -9,7 +9,12 @@ Prometheus, Grafana, and alert manager tools are needed to set up alert notifica
 
 ## Slack alerts notification
 
-- Creating slack incoming webhook [here](https://api.slack.com/messaging/webhooks), 
+- Creating slack incoming webhook [here](https://api.slack.com/messaging/webhooks),
+  * Create a slack application for your environment from the above url.
+  * After creating the app select `Incoming webhooks` from `Features` section.
+  * Then Activate Incoming webhooks.
+  * Then select `Add New Webhook To Workspace` and choose a slack channel where the alerts need to be notified.
+  * Then Incoming webhook url will be created.  
 - update ``slack_api_url`` and ``channel`` in ``alertmanager.yaml`` 
 - run ``./install.sh `` to patch alertmanager.
 
