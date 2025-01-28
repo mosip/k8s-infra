@@ -8,8 +8,24 @@ fi
 
 NS=cattle-logging-system
 
-echo Create namespace logging
-kubectl create namespace $NS
+echo "Creating namespace: $NS"
+kubectl create namespace $NS || echo "Namespace $NS already exists."
+
+function check_and_update_kibana_host() {
+  echo "Please provide the Kibana Host."
+
+  # Prompt for the Kibana Host
+  read -p "Enter Kibana Host (eg: kibana.sandbox.xyz.net ) : " KIBANA_HOST
+
+  echo "Kibana Host entered: $KIBANA_HOST"
+  echo "NOTE: Please update the global ConfigMap with the same Kibana Host as part of the MOSIP external modules deployment."
+
+  # Store Kibana Host in a ConfigMap for easy retrieval
+  kubectl -n $NS create configmap kibana-config --from-literal=mosip_kibana_host=$KIBANA_HOST --dry-run=client -o yaml | kubectl apply -f -
+  echo "Kibana Host stored in ConfigMap: kibana-config"
+}
+
+check_and_update_kibana_host
 
 function installing_logging() {
   echo Updating helm repos
@@ -21,7 +37,7 @@ function installing_logging() {
   helm -n $NS install elasticsearch mosip/elasticsearch -f es_values.yaml --version 17.9.25 --wait
   echo Installed Bitnami Elasticsearch and Kibana istio objects
 
-  KIBANA_HOST=$(kubectl get cm global -o jsonpath={.data.mosip-kibana-host})
+  KIBANA_HOST=$KIBANA_HOST
   KIBANA_NAME=elasticsearch-kibana
 
   echo Install istio addons
@@ -43,3 +59,4 @@ set -o nounset   ## set -u : exit the script if you try to use an uninitialised 
 set -o errtrace  # trace ERR through 'time command' and other functions
 set -o pipefail  # trace ERR through pipes
 installing_logging   # calling function
+
