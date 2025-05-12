@@ -14,12 +14,20 @@ This script is used for the renew of SSL certificates using Let's Encrypt's `cer
 
 1. **Install Certbot**: Follow the instructions [here](https://certbot.eff.org/instructions) to install `certbot` for your nginx server.
 2. **Configure AWS Route 53**: Ensure your domain's DNS is managed by AWS Route 53 and that you have the necessary permissions to perform DNS validation.
+3. **Configure AWS CLI (Using Root User)**
     ```sh
-    aws configure
+   sudo aws configure
     ```
    Configure your aws account using the above command by providing `Access_key_id` and `Secret_access_key`. Make sure you have right access to Route 53 service so that dns records can be added and verfified by let's-encrypt while renewing the ssl certs.
-3. Your private and public ssl certificates are assumed to be present in the location "/etc/letsencrypt/live/". 
-3. **Script Permissions**: Make sure the script has execute permissions:
+4. Your private and public ssl certificates are assumed to be present in the location "/etc/letsencrypt/live/".
+5. **Install the required Packages**:
+   ```sh
+    sudo apt update
+    sudo apt install certbot python3
+    sudo apt-get install python3-certbot-dns-route53
+    certbot plugins #To list all the certbot plugins
+   ```
+6. **Script Permissions**: Make sure the script has execute permissions:
     ```sh
     chmod +x renew_ssl_certs.sh
     ```
