@@ -7,6 +7,7 @@ if [ $# -ge 1 ] ; then
 fi
 
 NS=cattle-logging-system
+ISTIO_ADDONS_CHART_VERSION=0.0.1-develop
 
 echo "Creating namespace: $NS"
 kubectl create namespace $NS || echo "Namespace $NS already exists."
@@ -41,7 +42,7 @@ function installing_logging() {
   KIBANA_NAME=elasticsearch-kibana
 
   echo Install istio addons
-  helm -n $NS install istio-addons chart/istio-addons --set kibanaHost=$KIBANA_HOST --set installName=$KIBANA_NAME
+  helm -n $NS install istio-addons chart/istio-addons --version $ISTIO_ADDONS_CHART_VERSION
 
   echo Installing crds for logging operator
   helm -n $NS install rancher-logging-crd mosip/rancher-logging-crd --wait
