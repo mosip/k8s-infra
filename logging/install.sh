@@ -42,7 +42,7 @@ function installing_logging() {
   KIBANA_NAME=elasticsearch-kibana
 
   echo Install istio addons
-  helm -n $NS install istio-addons chart/istio-addons --version $ISTIO_ADDONS_CHART_VERSION
+  helm -n $NS install istio-addons chart/istio-addons --version $ISTIO_ADDONS_CHART_VERSION -f istio-addons-values.yaml
 
   echo Installing crds for logging operator
   helm -n $NS install rancher-logging-crd mosip/rancher-logging-crd --wait
