@@ -19,11 +19,11 @@
       kube-api:
         ...
         extra_args:
-          kubelet-certificate-authority: "/etc/kubenetes/ssl/kube-ca.pem"
+          kubelet-certificate-authority: "/etc/kubernetes/ssl/kube-ca.pem"
           profiling: false
         ...
         audit_log:
-          enabled true
+          enabled: true
         ...
     ```
   * Rke already has default values for audit_log_path, audit_log_maxage, audit_log_maxsize, audit_log_maxbackup, etc.
