@@ -7,7 +7,7 @@ Kibana connects to Elasticsearch. Make sure you have a domain like `kibana.sandb
 ```sh 
 ./install.sh
 ```
-Note: Before running the `install.sh` script please make sure the `values.yaml` is updated. 
+Note: Before running the `install.sh` script please make sure the `values.yaml` and the host value in 'istio-addons-values.yaml' is updated. 
 
 ## Install logging operator. 
 There are two ways to install logging operator as given below:
