@@ -1,0 +1,28 @@
+- hosts: all
+  become: yes
+  gather_facts: yes
+  any_errors_fatal: true
+  tasks:
+    - name: Check SSH connectivity
+      ping:
+    - name: Check HTTPS internet connectivity
+      uri:
+        url: https://www.google.com
+        return_content: no
+        validate_certs: yes
+      register: internet_check
+      failed_when: internet_check.status != 200
+
+    - name: Fail if HTTPS internet connectivity check fails
+      fail:
+        msg: "This host does not have HTTPS internet connectivity."
+      when: internet_check.failed
+
+    - name: Check sudo access
+      command: whoami
+      register: whoami_result
+
+    - name: Fail if sudo access is not available
+      fail:
+        msg: "The user {{ ansible_user }} does not have sudo privileges on {{ inventory_hostname }}"
+      when: whoami_result.stdout != "root"
