@@ -1,30 +1,29 @@
 # Kubernetes Infrastructure
 
 ## Overview
-This repo contains architecture and instructions to install Kubernetes based clusters for MOSIP deployment. The deployment consists of following clusters:
-1. **Rancher cluster**: Rancher is used for cluster administration and [RBAC](https://kubernetes.io/docs/reference/access-authn-authz/rbac/). One Rancher can manage multiple MOSIP clusters and hence a single organisation wide installation of this cluster would suffice.
-1. **MOSIP cluster**:  All MOSIP modules run on this cluster. Each installation of MOSIP for development, testing, staging, production etc. would have a cluster each. 
-
-![](docs/_images/architecture.png)
-
-The clusters may be installed on cloud or on-premise (on-prem).
-
-## Cloud versus on-prem
-There are certain differences between cloud and on-prem deployments. Few of them are given below:
-|Feature|Cloud|On-prem|
-|---|---|---|
-|K8s cluster|Cloud provider provisioned. Eg. EKS on AWS, AKS on Azure|Native, eg. using [Rancher RKE](https://rancher.com/docs/rke/latest/en/)|
-|Load balancer|Automatic provision of loadbalancer|Nginx|
-|TLS termination|Cloud loadbalancer|Nginx|
-|Inter-node Wireguard network|Not compatible|Works well|
-|Storage|Cloud storage like EBS on AWS|[Longhorn](cluster/longhorn) or [NFS](https://en.wikipedia.org/wiki/Network_File_System)|
-
-## Installation
-Following install sequence is recommended:
-* [Rancher cluster](rancher/README.md) 
-* [MOSIP cluster](mosip/README.md)
-* [Monitoring](monitoring/README.md)
-* [Alerting](monitoring/alerting/README.md)
-* [Logging](logging/README.md)
-
-
+* This repo contains architecture and instructions to install Kubernetes (K8s) based clusters for MOSIP, Esignet, Inji and other DPG deployment.
+* The k8s clusters may be installed on cloud or on-premise (on-prem).
+* Repo also contains scripts and intruction for supporting infra around k8s cluster.
+## Contents
+* [Wireguard](./wireguard/README.md) : Modern day VPN setup steps and instructions.
+* [k8-cluster](./k8-cluster/README.md).
+  * Contains scripts and instructions to create k8 cluster across different mediums.
+    * On-prem k8 clusters:
+      * [RKE1](./k8-cluster/on-prem/rke1/README.md) based k8 cluster creation steps.
+      * [RKE2](./k8-cluster/on-prem/rke2/README.md) based k8 cluster creation steps.
+  * Cloud service providers:
+    * [AWS](./k8-cluster/csp/aws/README.md) : based k8 cluster creation steps.
+* [Ingress](./ingress/README.md) : Setup steps for ingress in k8 cluster to espose services.
+* [Storage class](./storage-class) : Steps to setup and configure multiple types of storage classes for k8 cluster.
+  * [nfs](./storage-class/nfs/README.md).
+  * [longhorn](./storage-class/longhorn/README.md).
+  * [EBS](./storage-class/ebs/README.md).
+  * [ceph-csi](./storage-class/ceph/README.md)
+* [Nginx](./nginx/) Webserver deployment steps. Used for exposing services to external world along with ingress in on-prem mode k8s clusters.
+* [Alerting](./alerting/README.md)
+* [logging](./logging/README.md)
+* [monitoring](./monitoring/README.md)
+* [Observation stack](observtaion/README.md) setup.
+  * Contains below mentions apps for Observation stack.
+    * [Rancher UI](apps/rancher-ui/README.md) Rancher UI installation.
+    * [Keycloak](apps/keycloak/README.md) Installation for RBAC for k8 cluster access.

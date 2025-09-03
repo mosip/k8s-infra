@@ -1,0 +1,21 @@
+---
+- name: Update Multipath
+  hosts: cluster
+  become: yes
+  gather_facts: yes
+  tasks:
+    - name: Add blacklist line for multipath.conf
+      blockinfile:
+        path: /etc/multipath.conf
+        insertafter: defaults { user_friendly_names yes }
+        block: |
+          blacklist {
+              devnode "^sd[a-z0-9]+"
+                    }
+        backup: yes
+
+    - name: Run the command to restart multipath.conf service
+      become: true
+      systemd:
+        name: multipathd
+        state: restarted

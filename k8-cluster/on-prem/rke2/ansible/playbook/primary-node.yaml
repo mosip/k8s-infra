@@ -1,0 +1,59 @@
+- hosts: control_plane_primary
+  become: yes
+  tasks:
+    - name: Generate RKE2 token
+      set_fact:
+        rke2_token: "{{ lookup('password', '/dev/null length=32 chars=hexdigits') }}"
+      run_once: true
+
+    - name: Copy RKE2 config template
+      copy:
+        src: "../../rke2-server-control-plane-primary.conf.template"
+        dest: "{{ RKE2_PATH }}/config.yaml"
+
+    - name: Replace placeholders in RKE2 config
+      lineinfile:
+        path: "{{ RKE2_PATH }}/config.yaml"
+        regexp: "^{{ item.regexp }}"
+        line: "{{ item.line }}"
+      loop:
+        - { regexp: 'token:.*', line: "token: {{ rke2_token }}" }
+        - { regexp: 'node-name:.*', line: "node-name: {{ inventory_hostname }}" }
+        - { regexp: 'node-ip:.*', line: "node-ip: {{ ansible_host }}" }
+      no_log: true
+
+    - name: Start and enable RKE2 service
+      systemd:
+        name: rke2-server
+        enabled: yes
+        state: started
+
+    - name: Set home directory based on user
+      set_fact:
+        HOME_DIR: "{{ '/root' if ansible_user == 'root' else '/home/' + ansible_user }}"
+
+    - name: Configure kubectl and kubeconfig for primary control plane node
+      shell: |
+        if [[ -f "{{ RKE2_PATH }}/rke2.yaml" ]]; then
+          cp /var/lib/rancher/rke2/bin/kubectl /bin/kubectl
+
+          mkdir -p {{ HOME_DIR }}/.kube/
+          INTERNAL_IP={{ ansible_host }}
+          SUFFIX_NAME={{ inventory_hostname }}
+          CLUSTER_DOMAIN={{ cluster_domain }}
+          home_dir={{ HOME_DIR }}
+
+          cat "{{ RKE2_PATH }}/rke2.yaml" | sed "s/127.0.0.1/${INTERNAL_IP}/g" | sed "s/default/${CLUSTER_DOMAIN}/g" | tee $home_dir/.kube/${CLUSTER_DOMAIN}-${SUFFIX_NAME}.yaml
+          chown -R {{ ansible_user }}:{{ ansible_user }} $home_dir/.kube/*
+          chmod -R 444 $HOME_DIR/.kube/*.yaml
+          chmod +x /bin/kubectl
+        fi
+      args:
+        executable: /bin/bash
+
+    - name: Fetch kubeconfig file to local machine
+      fetch:
+        src: "{{ HOME_DIR }}/.kube/{{ cluster_domain }}-{{ inventory_hostname }}.yaml"
+        dest: "{{ playbook_dir }}/kubeconfigs/"
+        flat: yes
+        fail_on_missing: yes
