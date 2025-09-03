@@ -124,7 +124,7 @@
    Manage Ingress
    Manage Service Accounts
    Manage Service
-   Mamage Volumes
+   Manage Volumes
    View Ingress
    View Monitoring
    View Volumes
@@ -136,3 +136,39 @@
    Project Monitoring View Role
    Read-only
    ```
+
+
+## Create automation role
+
+`automation` role: view all resources, run cronjobs and exclude secrets.
+
+1. Login to `rancher UI` ---> select `≡` icon.
+1. Select `Users & Authentication` ---> `Roles` ---> `Cluster`.
+1. Click on `Create Cluster Role` to create a new role for clusters.
+1. Provide a unique role name `automation`.
+1. Set `Cluster Creator Default` to `No` and Set `Locked` to `No`.
+1. Select the `Grant Resources` option ---> click on `Add Resource`.
+    1. Select below mentioned `verbs`, `resources`, and `API Groups`.
+
+       | Verbs            | Resource | Non-Resource URLs | API Groups |
+       |----------|-------------------|-------------------|---------------------| 
+       | create, get, list, watch | cronjobs |                 |   batch        |
+       | create, get, list, watch | jobs |                 |     batch      |
+
+
+1. Inherit below mentioned roles, Select `Inherit From` option ---> click on `Add Resource` to add a new resource ---> Select Role.
+   ```
+   View Ingress
+   View Monitoring
+   View Volumes
+   View Nodes
+   View Services
+   View Config Maps
+   View Service Accounts
+   View Cluster Catalogs
+   View Cluster Members
+   Project Monitoring View Role
+   Read-only
+   ```
+
+

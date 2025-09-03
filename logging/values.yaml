@@ -1,0 +1,181 @@
+additionalLoggingSources:
+  aks:
+    enabled: false
+  eks:
+    enabled: false
+  gke:
+    enabled: false
+  k3s:
+    container_engine: systemd
+    enabled: false
+    stripUnderscores: false
+  kubeAudit:
+    auditFilename: ''
+    enabled: false
+    fluentbit:
+      logTag: kube-audit
+      tolerations:
+        - effect: NoSchedule
+          key: node-role.kubernetes.io/controlplane
+          value: 'true'
+        - effect: NoExecute
+          key: node-role.kubernetes.io/etcd
+          value: 'true'
+    pathPrefix: ''
+  rke:
+    enabled: false
+    fluentbit:
+      log_level: info
+      mem_buffer_limit: 5MB
+  rke2:
+    enabled: true
+    stripUnderscores: false
+affinity: {}
+annotations: {}
+createCustomResource: false
+debug: false
+disablePvc: true
+env: []
+extraArgs:
+  - '-enable-leader-election=true'
+fluentbit:
+  filterKubernetes:
+    Merge_Log: ''
+    Merge_Log_Key: ''
+    Merge_Log_Trim: ''
+    Merge_Parser: ''
+  inputTail:
+    Buffer_Chunk_Size: ''
+    Buffer_Max_Size: ''
+    Mem_Buf_Limit: ''
+    Multiline_Flush: ''
+    Skip_Long_Lines: ''
+  resources: {}
+  tolerations:
+    - effect: NoSchedule
+      key: node-role.kubernetes.io/controlplane
+      value: 'true'
+    - effect: NoExecute
+      key: node-role.kubernetes.io/etcd
+      value: 'true'
+fluentd:
+  bufferStorageVolume: {}
+  env: []
+  livenessProbe:
+    initialDelaySeconds: 30
+    periodSeconds: 15
+    tcpSocket:
+      port: 24240
+  nodeSelector: {}
+  resources: {}
+  tolerations: {}
+fullnameOverride: ''
+global:
+  cattle:
+    psp:
+      enabled: false
+    systemProjectId: p-mhh2f
+  dockerRootDirectory: ''
+  rkeWindowsPathPrefix: c:\
+  seLinux:
+    enabled: false
+http:
+  port: 8080
+  service:
+    annotations: {}
+    clusterIP: None
+    labels: {}
+    type: ClusterIP
+image:
+  pullPolicy: IfNotPresent
+  repository: rancher/mirrored-kube-logging-logging-operator
+  tag: 4.4.0
+imagePullSecrets: []
+images:
+  config_reloader:
+    repository: rancher/mirrored-jimmidyson-configmap-reload
+    tag: v0.4.0
+  fluentbit:
+    repository: rancher/mirrored-fluent-fluent-bit
+    tag: 2.2.0
+  fluentbit_debug:
+    repository: rancher/mirrored-fluent-fluent-bit
+    tag: 2.2.0-debug
+  fluentd:
+    repository: rancher/mirrored-banzaicloud-fluentd
+    tag: v1.14.6-alpine-5
+  nodeagent_fluentbit:
+    os: windows
+    repository: rancher/fluent-bit
+    tag: 2.2.0
+logging:
+  allowClusterResourcesFromAllNamespaces: false
+  clusterDomain: cluster.local.
+  clusterFlows: []
+  clusterOutputs: []
+  controlNamespace: ''
+  defaultFlow: {}
+  enableRecreateWorkloadOnImmutableFieldChange: false
+  enabled: false
+  errorOutputRef: ''
+  eventTailer: {}
+  flowConfigCheckDisabled: false
+  flowConfigOverride: ''
+  fluentbit: {}
+  fluentbitDisabled: false
+  fluentd: {}
+  fluentdDisabled: false
+  globalFilters: []
+  hostTailer: {}
+  loggingRef: ''
+  nodeAgents: {}
+  skipInvalidResources: false
+  syslogNG: {}
+  watchNamespaceSelector: {}
+  watchNamespaces: []
+loggingServiceAccountAnnotations: {}
+monitoring:
+  serviceMonitor:
+    additionalLabels: {}
+    enabled: false
+    metricRelabelings: []
+    relabelings: []
+nameOverride: ''
+namespaceOverride: ''
+nodeAgents:
+  tls:
+    enabled: false
+nodeSelector:
+  kubernetes.io/os: linux
+podLabels: {}
+podSecurityContext: {}
+priorityClassName: {}
+rbac:
+  enabled: true
+  psp:
+    annotations:
+      seccomp.security.alpha.kubernetes.io/allowedProfileNames: docker/default,runtime/default
+      seccomp.security.alpha.kubernetes.io/defaultProfileName: runtime/default
+replicaCount: 1
+resources: {}
+securityContext: {}
+serviceAccount:
+  annotations: {}
+systemdLogPath: /run/log/journal
+testReceiver:
+  enabled: false
+  image: fluent/fluent-bit
+  port: 8080
+  pullPolicy: IfNotPresent
+  service:
+    annotations: {}
+    clusterIP: None
+    labels: {}
+    type: ClusterIP
+tolerations:
+  - effect: NoSchedule
+    key: cattle.io/os
+    operator: Equal
+    value: linux
+volumeMounts: []
+volumes: []

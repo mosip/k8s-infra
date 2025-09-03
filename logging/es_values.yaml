@@ -19,3 +19,7 @@ master:
 kibana:
   persistence:
     enabled: false
+
+sysctlImage:
+  repository: bitnami/os-shell
+  tag: 12-debian-12-r46
