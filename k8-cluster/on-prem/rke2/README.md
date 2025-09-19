@@ -79,13 +79,13 @@ Set up firewall rules on each of the VM's/machines. The following uses ufw to se
     mkdir -p /etc/rancher/rke2
     ```
 * Generate random long string to be used as `token` during cluster creation and update the same in ```rke2-primary-conf.template``` and  ```rke2-secondary-conf.template```.
-* Run this to get download rke2.
-  ```
-  curl -sfL https://get.rke2.io | sh -
-  ```
 * Set required RKE2 Version:
   ```
-  export INSTALL_RKE2_VERSION="v1.28.10+rke2r1"
+  export INSTALL_RKE2_VERSION="v1.28.9+rke2r1"
+  ```
+* Run this to get download rke2.
+  ```
+  curl -sfL https://get.rke2.io | INSTALL_RKE2_VERSION="v1.28.9+rke2r1" sh -
   ```
 * Steps to be performed on all types of nodes.
   * **Primary server node**
@@ -158,12 +158,22 @@ Set up firewall rules on each of the VM's/machines. The following uses ufw to se
   ```
 ## Adding Nodes to the Cluster
 Guide to adding more nodes to an existing Kubernetes cluster:
-* From the k8s-infra/rke2 directory, use either `rke2-primary-conf.template` or `rke2-secondary-conf.template` based on whether the new node is a control-plane or worker node.
+* From the k8s-infra/rke2 directory, choose the appropriate template based on the node type you want to add:
+  * For **additional control plane nodes**: use `rke2-server-control-plane.subsequent.conf.template`
+  * For **etcd nodes**: use `rke2-etcd-agents.conf.template`
+  * For **worker nodes**: use `rke2-agents.conf.template`
 * Copy required config template file to /etc/rancher/rke2/config.yaml on the new node based upon type of node.
-* Update `config.yml` with relevant values.
+* Update `config.yml` with relevant values:
+  * **IMPORTANT**: Use the **same existing token** that was used during initial cluster creation
+  * Update node-specific details (node name, IP addresses, etc.)
+  * Ensure the token matches exactly with the existing cluster token
+* Set required RKE2 Version:
+  ```
+  export INSTALL_RKE2_VERSION="v1.28.9+rke2r1"
+  ```
 * Download RKE2 binary:
   ```
-  curl -sfL https://get.rke2.io | sh -
+  curl -sfL https://get.rke2.io | INSTALL_RKE2_VERSION="v1.28.9+rke2r1" sh -
   ```
 * Start the new RKE2 node with relevant command:
   * For adding server node:
