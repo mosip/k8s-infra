@@ -1,0 +1,42 @@
+global:
+  kibanaEnabled: true
+data:
+  heapSize: 728m
+  persistence:
+    enabled: true
+    size: 64Gi
+  resources:
+    requests:
+      memory: 512Mi
+  tolerations: {}
+
+master:
+  heapSize: 1024m
+  persistence:
+    enabled: true
+    size: 4Gi
+  resources:
+    requests:
+      memory: 728Mi
+  tolerations: {}
+kibana:
+  persistence:
+    enabled: false
+
+sysctlImage:
+  repository: mosipint/os-shell
+  tag: 12-debian-12-r46
+
+# Elasticsearch coordinating-only node configuration
+coordinating:
+  # Resources for coordinating-only pods
+  resources:
+    limits:
+      cpu: 1
+      memory: 2Gi
+    requests:
+      cpu: 500m
+      memory: 2Gi
+  # Heap size (maps to ELASTICSEARCH_HEAP_SIZE env var)
+  # Note: Recommended to be <= half of memory limit to leave room for off-heap usage
+  heapSize: 1g
