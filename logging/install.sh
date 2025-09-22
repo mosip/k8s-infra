@@ -35,7 +35,15 @@ function installing_logging() {
   helm repo update
 
   echo Installing Bitnami Elasticsearch and Kibana istio objects
-  helm -n $NS install elasticsearch mosip/elasticsearch -f es_values.yaml --version 17.9.25 --wait
+  helm -n $NS install elasticsearch mosip/elasticsearch \
+  -f es_values.yaml \
+  --version 17.9.25 \
+  --set image.repository="mosipint/elasticsearch" \
+  --set image.tag="7.17.2-debian-10-r4" \
+  --set kibana.image.repository="mosipint/kibana" \
+  --set kibana.image.tag="7.17.2-debian-10-r0" \
+  --set kibana.image.pullPolicy="IfNotPresent" \
+  --wait
   echo Installed Bitnami Elasticsearch and Kibana istio objects
 
   KIBANA_HOST=$KIBANA_HOST
