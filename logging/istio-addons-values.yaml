@@ -11,5 +11,5 @@ istio:
     name: kibana
     number: 80
     protocol: HTTP
-  serviceHost: kibana
+  serviceHost: elasticsearch-kibana
   servicePort: 5601
