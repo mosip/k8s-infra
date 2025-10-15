@@ -1,0 +1,27 @@
+{
+  "type": "roleTemplate",
+  "name": "viewAllDeletePod",
+  "displayName": "viewAllDeletePod",
+  "description": "view all resources and delete only pod.",
+  "context": "cluster",
+  "builtin": false,
+  "external": false,
+  "hidden": false,
+  "roleTemplateNames": [
+    "ingress-view",
+    "monitoring-ui-view",
+    "persistentvolumeclaims-view",
+    "nodes-view",
+    "services-view",
+    "secrets-view",
+    "configmaps-view",
+    "serviceaccounts-view",
+    "clustercatalogs-view"
+  ],
+  "rules": [
+    { "apiGroups": [""], "resources": ["*"], "verbs": ["get","list","watch"] },
+    { "apiGroups": [""], "resources": ["pods"], "verbs": ["delete"] },
+    { "apiGroups": ["networking.istio.io"], "resources": ["*"], "verbs": ["get","list","watch"] },
+    { "apiGroups": ["security.istio.io"], "resources": ["*"], "verbs": ["get","list","watch"] }
+  ]
+}
