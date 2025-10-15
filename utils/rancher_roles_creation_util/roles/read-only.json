@@ -1,0 +1,23 @@
+{
+  "type": "roleTemplate",
+  "name": "read-only",
+  "displayName": "read-only",
+  "description": "view all resources excluding secrets.",
+  "context": "cluster",
+  "builtin": false,
+  "external": false,
+  "hidden": false,
+  "roleTemplateNames": [
+    "ingress-view",
+    "monitoring-ui-view",
+    "nodes-view",
+    "services-view",
+    "persistentvolumeclaims-view",
+    "configmaps-view",
+    "serviceaccounts-view",
+    "clustercatalogs-view",
+    "clusterroletemplatebindings-view",
+    "project-monitoring-readonly",
+    "read-only",
+  ]
+}
