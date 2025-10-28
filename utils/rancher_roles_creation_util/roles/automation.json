@@ -1,0 +1,27 @@
+{
+  "type": "roleTemplate",
+  "name": "automation",
+  "displayName": "automation",
+  "description": "view all resources, run cronjobs and exclude secrets.",
+  "context": "cluster",
+  "builtin": false,
+  "external": false,
+  "hidden": false,
+  "roleTemplateNames": [
+    "ingress-view",
+    "monitoring-ui-view",
+    "persistentvolumeclaims-view",
+    "nodes-view",
+    "services-view",
+    "configmaps-view",
+    "serviceaccounts-view",
+    "clustercatalogs-view",
+    "clusterroletemplatebindings-view",
+    "project-monitoring-readonly",
+    "read-only"
+  ],
+  "rules": [
+    { "apiGroups": ["batch"], "resources": ["cronjobs"], "verbs": ["create","get","list","watch"] },
+    { "apiGroups": ["batch"], "resources": ["jobs"], "verbs": ["create","get","list","watch"] }
+  ]
+}

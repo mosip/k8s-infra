@@ -1,0 +1,25 @@
+{
+  "type": "roleTemplate",
+  "name": "read-only-delete-pod",
+  "displayName": "read-only-delete-pod",
+  "description": "view all resources, delete only pod and exclude secrets.",
+  "context": "cluster",
+  "builtin": false,
+  "external": false,
+  "hidden": false,
+  "roleTemplateNames": [
+    "ingress-view",
+    "monitoring-ui-view",
+    "persistentvolumeclaims-view",
+    "nodes-view",
+    "services-view",
+    "configmaps-view",
+    "serviceaccounts-view",
+    "clustercatalogs-view",
+    "project-monitoring-readonly",
+    "read-only"
+  ],
+  "rules": [
+    { "apiGroups": [""], "resources": ["pods"], "verbs": ["delete"] }
+  ]
+}
