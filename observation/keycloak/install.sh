@@ -21,7 +21,7 @@ helm repo add bitnami https://charts.bitnami.com/bitnami
 helm repo update
 
 echo Installing
-helm -n $NS install keycloak mosip/keycloak --version "7.1.18" -f values.yaml \
+helm -n $NS upgrade keycloak mosip/keycloak --version "7.1.18" -f values.yaml \
 --set image.repository=mosipid/mosip-artemis-keycloak \
 --set image.tag=1.2.0.1 \
 --set image.pullPolicy=Always \
