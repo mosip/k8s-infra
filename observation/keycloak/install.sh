@@ -14,18 +14,16 @@ fi
 NS=keycloak
 
 echo Creating namespace
-kubectl create ns keycloak
-
+kubectl get ns keycloak >/dev/null 2>&1 || kubectl create ns keycloak
 helm repo add mosip https://mosip.github.io/mosip-helm
 helm repo add bitnami https://charts.bitnami.com/bitnami
 helm repo update
 
 echo Installing
-helm -n $NS upgrade keycloak mosip/keycloak --version "7.1.18" -f values.yaml \
---set image.repository=mosipid/mosip-artemis-keycloak \
---set image.tag=1.2.0.1 \
---set image.pullPolicy=Always \
---set postgresql.image.repository="mosipint/postgresql" \
---set postgresql.image.tag="14.2.0-debian-10-r70" \
---set ingress.hostname=$1
-
+helm -n $NS upgrade --install keycloak mosip/keycloak --version "7.1.18" --atomic -f values.yaml \
+  --set image.repository=mosipid/mosip-artemis-keycloak \
+  --set image.tag=1.2.0.1 \
+  --set image.pullPolicy=Always \
+  --set postgresql.image.repository="mosipint/postgresql" \
+  --set postgresql.image.tag="14.2.0-debian-10-r70" \
+  --set ingress.hostname="$1"
