@@ -45,12 +45,22 @@ fluentbit:
     Merge_Log_Trim: ''
     Merge_Parser: ''
   inputTail:
-    Buffer_Chunk_Size: ''
-    Buffer_Max_Size: ''
-    Mem_Buf_Limit: ''
+    Buffer_Chunk_Size: '2M'
+    Buffer_Max_Size: '10M'
+    Mem_Buf_Limit: '50M'
     Multiline_Flush: ''
     Skip_Long_Lines: ''
-  resources: {}
+    StorageType: 'filesystem'
+    StoragePath: '/buffers/fluent-bit'
+    Path: '/var/log/containers/*.log'
+    RefreshInterval: 10
+  resources:
+    limits:
+      cpu: 500m
+      memory: 500M
+    requests:
+      cpu: 200m
+      memory: 100M
   tolerations:
     - effect: NoSchedule
       key: node-role.kubernetes.io/controlplane
@@ -67,7 +77,13 @@ fluentd:
     tcpSocket:
       port: 24240
   nodeSelector: {}
-  resources: {}
+  resources:
+    limits:
+      cpu: '2'
+      memory: 2Gi
+    requests:
+      cpu: 500m
+      memory: 500M
   tolerations: {}
 fullnameOverride: ''
 global:
