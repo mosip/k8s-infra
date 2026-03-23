@@ -193,5 +193,9 @@ tolerations:
     key: cattle.io/os
     operator: Equal
     value: linux
-volumeMounts: []
-volumes: []
+volumes:
+  - name: fluent-bit-buffer
+    emptyDir: {}
+volumeMounts:
+  - name: fluent-bit-buffer
+    mountPath: /buffers/fluent-bit
