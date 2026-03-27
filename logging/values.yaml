@@ -197,7 +197,8 @@ tolerations:
     value: linux
 volumes:
   - name: fluent-bit-buffer
-    emptyDir: {}
+    emptyDir:
+      sizeLimit: 2Gi   
 volumeMounts:
   - name: fluent-bit-buffer
     mountPath: /buffers/fluent-bit
