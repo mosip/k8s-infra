@@ -19,6 +19,6 @@ cron_time="0 0 $adjusted_date *"
 echo "Cron time: $cron_time"
 
 # Create a cron job to exicute the renew_certificates.sh script on the expiry date without manual intervention
-echo "$cron_time ./renew_certificates" | crontab -
+echo "$cron_time ./renew_ssl_certs.sh" | crontab -
 
 echo "Scheduled job for $cron_time to run at 12am."
