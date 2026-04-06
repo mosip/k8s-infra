@@ -5,12 +5,14 @@ metadata:
   namespace: cattle-logging-system
 spec:
   elasticsearch:
-    buffer:
-      flush_interval: 10s
-      flush_mode: interval
     host: elasticsearch-master
-    logstash_format: true
     port: 9200
     scheme: http
-    ssl_verify: true
-    ssl_version: TLSv1_2
+    logstash_format: true
+    suppress_type_name: true
+    log_es_400_reason: true
+    buffer:
+      flush_interval: 5s
+      flush_mode: interval
+      chunk_limit_size: 8MB
+      overflow_action: drop_oldest_chunk   # Prevent OOM on backlog

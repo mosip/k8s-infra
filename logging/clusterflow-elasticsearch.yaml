@@ -5,25 +5,32 @@ metadata:
   namespace: cattle-logging-system
 spec:
   filters:
+    # === NEW MULTI-FORMAT PARSER FOR MOSIP + ISTIO ===
     - parser:
         key_name: message
-        parse:
-          type: json
-        replace_invalid_sequence: true
         reserve_data: true
-    # Filter all actuator health and actuator prometheus logs as we don't really need them later.
+        remove_key_name_field: true
+        parse:
+          type: multi_format
+          patterns:
+            - format: regexp
+              expression: '^\[(?<time>\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d+Z)\] "(?<method>\S+) (?<path>\S+) (?<protocol>\S+)" (?<status>\d+) .*'
+              time_format: "%Y-%m-%dT%H:%M:%S.%NZ"
+            - format: regexp
+              expression: '^(?<time>\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{3}) \[(?<thread>[^\]]+)\] (?<level>\w+) \[(?<logger>[^\]]+)\]\.(?<method>\w+)\.(?<line>\d+) : (?<message>.*)$'
+              time_format: "%Y-%m-%d %H:%M:%S,%L"
+            - format: json
+              time_key: time
+            - format: none   # fallback for everything else
+
     - grep:
         exclude:
           - key: message
-            pattern: /actuator\/health/
+            pattern: /actuator\/(health|prometheus)/
     - grep:
         exclude:
           - key: message
-            pattern: /actuator\/prometheus/
-    # TODO: The below pattern is for unwanted errors from Activemq. We must fix this in Activemq config.
-    - grep:
-        exclude:
-          - key: message
-            pattern: /Temporary Store limit is 51200 mb, whilst the temporary data directory:/
+            pattern: /Temporary Store limit is 51200 mb/
+
   globalOutputRefs:
     - elasticsearch
