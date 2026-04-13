@@ -1,0 +1,113 @@
+# =============================================================================
+# Grafana - Production-Ready Values for Loki Monitoring
+# Cluster: RKE2 v1.28.9 | Namespace: loki-monitoring
+# Helm Chart: grafana/grafana (latest stable)
+# =============================================================================
+
+# --- Replicas ---
+replicas: 1
+
+# --- Admin Credentials ---
+# Change this password before deploying!
+adminUser: admin
+adminPassword: "Mosip@Loki123!"   # ⚠️  CHANGE THIS
+
+# --- Resource Limits ---
+resources:
+  requests:
+    cpu: "250m"
+    memory: "512Mi"
+  limits:
+    cpu: "500m"
+    memory: "1Gi"
+
+# --- Persistence ---
+persistence:
+  enabled: true
+  storageClassName: "nfs-csi"     # Leave empty for default StorageClass
+  # Set to your RKE2 StorageClass e.g. "local-path"
+  size: 5Gi
+  accessModes:
+    - ReadWriteOnce
+
+# --- Service ---
+service:
+  type: ClusterIP           # Use NodePort or LoadBalancer to expose externally
+  port: 80
+  # Uncomment below for NodePort access:
+  # type: NodePort
+  # port: 80
+  # nodePort: 32000
+
+# --- Loki Datasource Auto-Provisioned ---
+datasources:
+  datasources.yaml:
+    apiVersion: 1
+    datasources:
+      - name: Loki
+        type: loki
+        url: http://loki.loki-monitoring.svc.cluster.local:3100
+        access: proxy
+        isDefault: true
+        version: 1
+        editable: true
+        jsonData:
+          maxLines: 5000
+          derivedFields: []
+
+# --- Default Dashboards ---
+dashboardProviders:
+  dashboardproviders.yaml:
+    apiVersion: 1
+    providers:
+      - name: "loki-dashboards"
+        orgId: 1
+        folder: "Loki"
+        type: file
+        disableDelete: false
+        editable: true
+        options:
+          path: /var/lib/grafana/dashboards/loki-dashboards
+
+# Import community dashboards
+dashboards:
+  loki-dashboards:
+    # Loki Dashboard - Quick Search
+    loki-logs:
+      gnetId: 12611
+      revision: 1
+      datasource: Loki
+    # Loki Operational Dashboard
+    loki-operational:
+      gnetId: 14055
+      revision: 5
+      datasource: Prometheus
+
+# --- Grafana INI Config ---
+grafana.ini:
+  server:
+    domain: ""
+    root_url: "%(protocol)s://%(domain)s/"
+  security:
+    allow_embedding: true
+  auth.anonymous:
+    enabled: false
+  explore:
+    enabled: true
+  log:
+    mode: console
+    level: warn
+  analytics:
+    reporting_enabled: false
+    check_for_updates: false
+
+# --- Pod Annotations ---
+podAnnotations:
+  prometheus.io/scrape: "true"
+  prometheus.io/port: "3000"
+  prometheus.io/path: "/metrics"
+
+# --- Labels ---
+commonLabels:
+  app.kubernetes.io/part-of: loki-monitoring
+  cluster: rke2
