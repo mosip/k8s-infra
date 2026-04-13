@@ -1,0 +1,325 @@
+# Grafana Alloy Values for MOSIP Cluster
+# Chart: grafana/alloy v1.6.2 (app v1.14.0)
+# Loki endpoint: http://loki.loki-monitoring.svc.cluster.local:3100
+# Deploy to: loki-monitoring namespace
+# Cluster: rke2 | Environment: dev-int
+#
+# Uses loki.source.kubernetes which fetches logs via Kubernetes API
+# (no hostPath volume mounts needed, no path building required)
+
+alloy:
+  configMap:
+    create: true
+    content: |
+      // ==========================================================================
+      // POD DISCOVERY — NODE LOCAL (Major CPU optimization)
+      // ==========================================================================
+      discovery.kubernetes "pods" {
+        role = "pod"
+    
+        // Only discover pods on the same node as this Alloy instance
+        selectors {
+        role  = "pod"
+        field = "spec.nodeName=" + coalesce(env("NODE_NAME"), constants.hostname)
+        }
+      }
+
+      discovery.relabel "pods" {
+        targets = discovery.kubernetes.pods.targets
+    
+        // Drop system/infra namespaces including Loki itself
+        rule {
+          source_labels = ["__meta_kubernetes_namespace"]
+          action = "drop"
+          regex = "kube-system|cattle-system|cattle-monitoring-system|nfs|cattle-fleet-system|cattle-logging-system|loki-monitoring"
+        }   
+
+        // Only keep running pods
+        rule {
+          source_labels = ["__meta_kubernetes_pod_phase"]
+          action = "drop"
+          regex = "Pending|Succeeded|Failed|Completed"
+        }
+
+        // Drop init containers to prevent duplicate log collection
+        rule {
+          source_labels = ["__meta_kubernetes_pod_container_init"]
+          action = "drop"
+          regex = "true"
+        }
+
+        // Label mappings
+        rule {
+          source_labels = ["__meta_kubernetes_namespace"]
+          target_label = "namespace"
+        }
+        rule {
+          source_labels = ["__meta_kubernetes_pod_name"]
+          target_label = "pod"
+        }
+        rule {
+          source_labels = ["__meta_kubernetes_pod_container_name"]
+          target_label = "container"
+        }
+        rule {
+          source_labels = ["__meta_kubernetes_pod_node_name"]
+          target_label = "host"
+        }
+        // Short container ID makes each stream unique
+        rule {
+          source_labels = ["__meta_kubernetes_pod_container_id"]
+          target_label = "container_id"
+          regex = ".*://(.{12}).*"
+          replacement = "$1"
+        }
+        // app label: prefer app label, fall back to app.kubernetes.io/name
+        rule {
+          source_labels = ["__meta_kubernetes_pod_label_app"]
+          target_label = "app"
+        }
+        rule {
+          source_labels = ["__meta_kubernetes_pod_label_app_kubernetes_io_name"]
+          target_label = "app"
+          regex = "(.+)"
+        }
+      }
+
+      // ==========================================================================
+      // LOG INGESTION
+      // ==========================================================================
+      loki.source.kubernetes "pods" {
+        targets = discovery.relabel.pods.output
+        forward_to = [loki.process.drop_noise.receiver]
+      }
+
+      // ==========================================================================
+      // STAGE 1: Drop noise early (before expensive processing)
+      // ==========================================================================
+      loki.process "drop_noise" {
+        forward_to = [
+          loki.process.access_to_metrics.receiver,
+          loki.process.main_logs.receiver,
+        ]
+
+        // Drop very old logs
+        stage.drop {
+          older_than = "1h"
+          drop_counter_reason = "too_old"
+        }
+
+        // Aggressive early drop for common high-volume noise
+        stage.drop {
+          expression = ".*(actuator|kube-probe|/metrics|health|ping|ready|live|GET / ).*"
+          drop_counter_reason = "health_noise"
+        }
+
+        // No JSON parsing here anymore — moved to main_logs to save CPU
+      }
+
+      // ==========================================================================
+      // PIPELINE A: ACCESS logs → Prometheus metrics (log-to-metric)
+      // ==========================================================================
+      loki.process "access_to_metrics" {
+        forward_to = [loki.write.loki.receiver]
+    
+        // Only process ACCESS logs
+        stage.match {
+          selector = "{level!=\"ACCESS\"}"
+          action = "drop"
+        }
+
+        stage.labels {
+          values = {
+            statusCode = "statusCode",
+            requestURI = "requestURI",
+          }
+        }
+
+        stage.metrics {
+          metric.histogram {
+            name = "http_request_duration_ms"
+            description = "HTTP request duration in ms from ACCESS logs"
+            source = "timeTaken"
+            buckets = [10, 50, 100, 200, 500, 1000, 2000, 5000]
+          }
+        }
+
+        // Drop after metric extraction (main_logs will handle storage with sampling)
+        stage.match {
+          selector = "{level=\"ACCESS\"}"
+          action = "drop"
+        }
+      }
+
+      // ==========================================================================
+      // PIPELINE B: Main logs → Loki (with sampling)
+      // ==========================================================================
+      loki.process "main_logs" {
+        forward_to = [loki.write.loki.receiver]
+    
+        // Drop DEBUG completely
+        stage.match {
+          selector = "{level=~\"(?i)debug\"}"
+          action = "drop"
+        }
+
+        // <<< JSON PARSING MOVED HERE >>>
+        // Only parse JSON for logs that survived noise dropping
+        stage.json {
+          expressions = {
+            level      = "level",
+            statusCode = "statusCode",
+            timeTaken  = "timeTaken",
+            requestURI = "req.requestURI",
+            appName    = "appName",
+          }
+        }
+
+        stage.labels {
+          values = {
+            level = "level",
+          }
+        }
+
+        // ACCESS logs: sample at 10% (metrics have full data)
+        stage.match {
+          selector = "{level=\"ACCESS\"}"
+          stage.sampling {
+            rate = 0.1
+          }
+        }
+
+        // INFO logs: sample at 30%
+        stage.match {
+          selector = "{level=~\"(?i)info\"}"
+          stage.sampling {
+            rate = 0.3
+          }
+        }
+
+        // WARN and ERROR: keep 100%
+        stage.labels {
+          values = {
+            statusCode = "statusCode",
+          }
+        }
+
+        stage.static_labels {
+          values = {
+            cluster     = "rke2",
+            environment = "<env_name>",
+          }
+        }
+      }
+
+      // ==========================================================================
+      // PROMETHEUS METRICS EXPORT
+      // ==========================================================================
+      prometheus.exporter.self "alloy_metrics" {}
+
+      prometheus.scrape "alloy_self" {
+        targets = prometheus.exporter.self.alloy_metrics.targets
+        forward_to = [prometheus.remote_write.mimir.receiver]
+        scrape_interval = "15s"
+      }
+
+      prometheus.remote_write "mimir" {
+        endpoint {
+          url = "http://prometheus-operated.cattle-monitoring-system.svc.cluster.local:9090/api/v1/write"
+        }
+      }
+
+      // ==========================================================================
+      // LOKI WRITE
+      // ==========================================================================
+      loki.write "loki" {
+        endpoint {
+          url = "http://loki.loki-monitoring.svc.cluster.local:3100/loki/api/v1/push"
+          batch_size = "1MiB"
+          batch_wait = "3s"
+          min_backoff_period = "500ms"
+          max_backoff_period = "5m"
+          max_backoff_retries = 10
+        }
+        external_labels = {
+          cluster     = "rke2",
+          environment = "<env_name>",
+          log_source  = "alloy",
+        }
+      }
+
+  extraArgs:
+    - --stability.level=generally-available
+
+  listenPort: 12345
+
+# ============================================================
+# DAEMONSET: Run on every node
+# No volume mounts needed - uses Kubernetes API
+# ============================================================
+controller:
+  type: daemonset
+
+  tolerations:
+    - operator: Exists
+      effect: NoSchedule
+    - operator: Exists
+      effect: NoExecute
+    - key: node-role.kubernetes.io/control-plane
+      operator: Exists
+      effect: NoSchedule
+    - key: node-role.kubernetes.io/etcd
+      operator: Exists
+      effect: NoSchedule
+
+# ============================================================
+# RBAC
+# ============================================================
+rbac:
+  create: true
+
+serviceAccount:
+  create: true
+  name: alloy-loki
+
+clusterRole:
+  create: true
+  rules:
+    - apiGroups: [""]
+      resources:
+        - nodes
+        - nodes/proxy
+        - services
+        - endpoints
+        - pods
+        - pods/log
+        - namespaces
+      verbs: ["get", "list", "watch"]
+
+# ============================================================
+# RESOURCES
+# ============================================================
+resources:
+  requests:
+    cpu: 50m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
+
+serviceMonitor:
+  enabled: false
+
+livenessProbe:
+  httpGet:
+    path: /-/healthy
+    port: 12345
+  initialDelaySeconds: 30
+  periodSeconds: 15
+
+readinessProbe:
+  httpGet:
+    path: /-/ready
+    port: 12345
+  initialDelaySeconds: 30
+  periodSeconds: 15

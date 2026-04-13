@@ -1,0 +1,212 @@
+# =============================================================================
+# Loki Monolithic (SingleBinary) - Production-Ready Values
+# Cluster: RKE2 v1.28.9 | 11 Nodes | 15-20 Microservices
+# Helm Chart: grafana/loki v6.30.1 | App Version: 3.x
+# Updated: 25 Mar 2026 - Fixed scheduler/querier "context canceled" errors
+# =============================================================================
+
+deploymentMode: SingleBinary
+
+loki:
+  auth_enabled: false
+
+  commonConfig:
+    replication_factor: 1
+
+  storage:
+    type: filesystem
+
+  schemaConfig:
+    configs:
+      - from: "2024-01-01"
+        store: tsdb
+        object_store: filesystem
+        schema: v13
+        index:
+          prefix: loki_index_
+          period: 24h
+
+  # --- Ingestion & Query Limits (Tuned for your load) ---
+  limits_config:
+    ingestion_rate_mb: 64
+    ingestion_burst_size_mb: 128
+    reject_old_samples: true
+    reject_old_samples_max_age: 1h
+    creation_grace_period: 10m
+    max_streams_per_user: 50000
+    max_global_streams_per_user: 50000
+    max_line_size: 262144
+    max_query_series: 50000          # increased
+    max_query_parallelism: 32        # increased from 16
+    max_entries_limit_per_query: 100000
+    retention_period: 72h            # 3 days
+    split_queries_by_interval: 30m   # increased from 15m (better for performance)
+    allow_structured_metadata: false
+    query_timeout: "2m"              # added
+
+  compactor:
+    working_directory: /var/loki/compactor
+    compaction_interval: 10m
+    retention_enabled: true
+    retention_delete_delay: 2h
+    retention_delete_worker_count: 150
+    delete_request_store: filesystem
+
+  # --- Querier Tuning ---
+  querier:
+    max_concurrent: 20             # increased (roughly 2-3x CPU cores)
+
+  # --- Query Frontend & Scheduler (Critical for "context canceled" errors) ---
+  frontend:
+    max_outstanding_per_tenant: 4096
+    compress_responses: true
+
+  query_scheduler:
+    max_outstanding_requests_per_tenant: 4096
+
+  query_range:
+    align_queries_with_step: true
+    cache_results: true
+    results_cache:
+      cache:
+        embedded_cache:
+          enabled: true
+          max_size_mb: 1024          # increased from 500
+          ttl: 1h
+
+  ingester:
+    chunk_idle_period: 30m
+    chunk_block_size: 262144
+    wal:
+      enabled: true
+      dir: /var/loki/wal
+
+  storage_config:
+    tsdb_shipper:
+      active_index_directory: /var/loki/tsdb-index
+      cache_location: /var/loki/tsdb-cache
+      cache_ttl: 24h
+    filesystem:
+      directory: /var/loki/chunks
+
+  server:
+    http_listen_port: 3100
+    grpc_listen_port: 9095
+    log_level: warn
+    grpc_server_max_recv_msg_size: 33554432
+    grpc_server_max_send_msg_size: 33554432
+
+  ruler:
+    storage:
+      type: local
+      local:
+        directory: /var/loki/rules
+    rule_path: /var/loki/rules-temp
+    ring:
+      kvstore:
+        store: inmemory
+    enable_api: true
+
+# -----------------------------------------------------------------------------
+# SINGLE BINARY POD CONFIGURATION
+# -----------------------------------------------------------------------------
+singleBinary:
+  replicas: 1
+
+  # --- Increased Resources (Main fix for scheduler errors) ---
+  resources:
+    requests:
+      cpu: "4000m"     # 4 cores
+      memory: "6Gi"
+    limits:
+      cpu: "8000m"     # 8 cores
+      memory: "16Gi"
+
+  persistence:
+    enabled: true
+    storageClass: "nfs-csi"
+    size: 50Gi
+    accessModes:
+      - ReadWriteOnce
+
+  extraVolumeMounts:
+    - name: wal
+      mountPath: /var/loki/wal
+  extraVolumes:
+    - name: wal
+      emptyDir: {}
+
+  affinity:
+    nodeAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 1
+          preference:
+            matchExpressions:
+              - key: node-role.kubernetes.io/control-plane
+                operator: DoesNotExist
+
+  nodeSelector:
+    kubernetes.io/hostname: worker-test-13
+
+  tolerations:
+    - key: "dedicated"
+      operator: "Equal"
+      value: "elasticsearch"
+      effect: "NoSchedule"
+
+  podAnnotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "3100"
+    prometheus.io/path: "/metrics"
+
+  # --- Extra Environment ---
+  extraEnv:
+    - name: GOMAXPROCS
+      value: "8"               # increased to match new CPU limits
+
+# -----------------------------------------------------------------------------
+# DISABLE UNNEEDED COMPONENTS
+# -----------------------------------------------------------------------------
+backend:
+  replicas: 0
+read:
+  replicas: 0
+write:
+  replicas: 0
+
+gateway:
+  enabled: false
+
+chunksCache:
+  enabled: false
+resultsCache:
+  enabled: false
+
+monitoring:
+  serviceMonitor:
+    enabled: false
+  selfMonitoring:
+    enabled: false
+  lokiCanary:
+    enabled: false
+
+test:
+  enabled: false
+
+service:
+  type: ClusterIP
+  port: 3100
+
+networkPolicy:
+  enabled: false
+
+serviceAccount:
+  create: true
+  name: loki
+
+global:
+  clusterDomain: cluster.local
+
+commonLabels:
+  app.kubernetes.io/part-of: loki-monitoring
+  cluster: rke2
