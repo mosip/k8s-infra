@@ -45,12 +45,24 @@ fluentbit:
     Merge_Log_Trim: ''
     Merge_Parser: ''
   inputTail:
-    Buffer_Chunk_Size: ''
-    Buffer_Max_Size: ''
-    Mem_Buf_Limit: ''
+    Buffer_Chunk_Size: '2M'
+    Buffer_Max_Size: '10M'
+    Mem_Buf_Limit: '50M'
     Multiline_Flush: ''
     Skip_Long_Lines: ''
-  resources: {}
+    storageType: 'filesystem'
+    storagePath: '/buffers/fluent-bit'
+    Path: '/var/log/containers/*.log'
+    RefreshInterval: 10
+  resources:
+    limits:
+      cpu: 500m
+      memory: 500M
+      ephemeral-storage: 4Gi
+    requests:
+      cpu: 200m
+      memory: 100M
+      ephemeral-storage: 1Gi   
   tolerations:
     - effect: NoSchedule
       key: node-role.kubernetes.io/controlplane
@@ -67,7 +79,13 @@ fluentd:
     tcpSocket:
       port: 24240
   nodeSelector: {}
-  resources: {}
+  resources:
+    limits:
+      cpu: '2'
+      memory: 2Gi
+    requests:
+      cpu: 500m
+      memory: 500M
   tolerations: {}
 fullnameOverride: ''
 global:
@@ -177,5 +195,10 @@ tolerations:
     key: cattle.io/os
     operator: Equal
     value: linux
-volumeMounts: []
-volumes: []
+volumes:
+  - name: fluent-bit-buffer
+    emptyDir:
+      sizeLimit: 2Gi   
+volumeMounts:
+  - name: fluent-bit-buffer
+    mountPath: /buffers/fluent-bit
