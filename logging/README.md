@@ -85,3 +85,119 @@ Log pattern in [mosip-config](https://github.com/mosip/mosip-config/blob/develop
     ```sh
     curl -X POST -H 'Content-Type: application/json' -d '{ "query": { "match_all": {} }, "size": 1, "sort": [ { "@timestamp": { "order": "desc" } } ] }' http://localhost:9200/<index-name>/_search
     ```
+## Symptoms
+
+If you are experiencing any of the following, these fixes apply to you:
+- `fluentd` pods stuck in `CrashLoopBackOff` or restarting repeatedly
+- OOMKilled events on `fluentd` or `fluent-bit` pods
+- Elasticsearch indexing errors or high backpressure from the logging pipeline
+- Log parsing failures or unparsed logs appearing in Elasticsearch
+
+---
+
+## Changes and What to Update
+
+### 1. Log Parsing & Filters (`logging/clusterflow-elasticsearch.yaml`)
+
+**What changed:**  
+The previous single JSON parser has been replaced with a `multi_format` parser that handles multiple log shapes — two regex patterns, one JSON parser, and a `none` fallback. Additionally:
+
+- `reserve_data` is now preserved, and `remove_key_name_field` is enabled.
+- The actuator endpoint grep filter has been removed and replaced with expanded exclusions covering both `actuator/health` and `actuator/prometheus`.
+- The Temporary Store exclusion pattern has been shortened for broader matching.
+
+**Action for existing users:**  
+Re-apply `logging/clusterflow-elasticsearch.yaml` from the updated branch:
+
+```bash
+kubectl apply -f logging/clusterflow-elasticsearch.yaml
+```
+
+If you have custom grep/filter rules, make sure your exclusion patterns are compatible with the new `multi_format` parser structure.
+ 
+---
+
+### 2. Elasticsearch Output Configuration (`logging/clusteroutput-elasticsearch.yaml`)
+
+**What changed:**  
+The Elasticsearch output buffer has been restructured to prevent memory exhaustion when Elasticsearch is slow or unreachable:
+
+| Setting | Old | New |
+|---|---|---|
+| `logstash_format` | removed | reintroduced |
+| `suppress_type_name` | absent | added |
+| `log_es_400_reason` | absent | added |
+| `flush_interval` | flat/absent | `5s` |
+| `flush_mode` | flat/absent | `interval` |
+| `chunk_limit_size` | absent | `8MB` |
+| `overflow_action` | absent | `drop_oldest_chunk` |
+| `ssl_verify` / `ssl_version` | present | removed |
+
+**⚠️ Important note — silent log loss:**  
+`overflow_action: drop_oldest_chunk` prevents OOM crashes but will silently drop the oldest buffered log chunks when the buffer is full. This is a deliberate trade-off for stability. If Elasticsearch is unavailable for a prolonged period, older logs may be lost without any alert. Consider adding a PrometheusRule to monitor `fluentd_output_status_buffer_total_bytes` and `fluentd_output_status_retry_count` if log completeness is critical for your deployment.
+
+**Action for existing users:**
+
+```bash
+kubectl apply -f logging/clusteroutput-elasticsearch.yaml
+```
+
+If you have `ssl_verify: false` or `ssl_version` set explicitly, remove those fields — they are no longer supported/needed in this config.
+ 
+---
+
+### 3. Elasticsearch Cluster Values (`logging/es_values.yaml`)
+
+**What changed:**
+- `tolerations: {}` has been added for `data.resources` and `master.resources` nodes to improve scheduling flexibility.
+- A new **coordinating-only node** has been introduced with explicit `resources` (limits and requests) and `heapSize: 1g`, along with heap-sizing comments for tuning guidance.
+
+**Action for existing users:**  
+Apply the updated values to your Elasticsearch Helm release. Adjust `heapSize` according to your cluster's available memory before applying:
+
+```bash
+helm upgrade --install elasticsearch \
+  -f logging/es_values.yaml \
+  <your-chart-repo>/elasticsearch \
+  -n logging
+```
+
+The coordinating node is a new addition — it will create a new pod. Ensure your cluster has enough node capacity before applying.
+ 
+---
+
+### 4. Fluent Bit / Fluentd Values & Storage (`logging/values.yaml`)
+
+**What changed:**  
+This is the most impactful change for resolving the CrashLoopBackOff. The following have been added or updated:
+
+**Fluent Bit tail buffer tuning:**
+
+```yaml
+Buffer_Chunk_Size: 2M
+Buffer_Max_Size: 10M
+Mem_Buf_Limit: 50M
+```
+
+**Filesystem-backed storage for Fluent Bit (reduces in-memory pressure):**
+
+```yaml
+storageType: filesystem
+storagePath: /buffers/fluent-bit
+Path: <log-path>
+RefreshInterval: <interval>
+```
+
+**New `emptyDir` volume and mount for buffer storage:**
+
+```yaml
+volumes:
+  - name: fluent-bit-buffer
+    emptyDir:
+      sizeLimit: 2Gi
+volumeMounts:
+  - name: fluent-bit-buffer
+    mountPath: /buffers/fluent-bit
+```
+
+**Explicit resource limits for Fluent Bit and Fluentd pods** (prevents unbounded memory growth).
