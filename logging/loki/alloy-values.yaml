@@ -16,23 +16,24 @@ alloy:
       // ==========================================================================
       discovery.kubernetes "pods" {
         role = "pod"
-    
-        // Only discover pods on the same node as this Alloy instance
+
+        // Only discover pods on the same node as this Alloy instance.
+        // NODE_NAME is injected from the Downward API in `extraEnv` below.
         selectors {
-        role  = "pod"
-        field = "spec.nodeName=" + coalesce(env("NODE_NAME"), constants.hostname)
+          role  = "pod"
+          field = "spec.nodeName=" + coalesce(sys.env("NODE_NAME"), constants.hostname)
         }
       }
 
       discovery.relabel "pods" {
         targets = discovery.kubernetes.pods.targets
-    
+
         // Drop system/infra namespaces including Loki itself
         rule {
           source_labels = ["__meta_kubernetes_namespace"]
           action = "drop"
           regex = "kube-system|cattle-system|cattle-monitoring-system|nfs|cattle-fleet-system|cattle-logging-system|loki-monitoring"
-        }   
+        }
 
         // Only keep running pods
         rule {
@@ -112,8 +113,6 @@ alloy:
           expression = ".*(actuator|kube-probe|/metrics|health|ping|ready|live|GET / ).*"
           drop_counter_reason = "health_noise"
         }
-
-        // No JSON parsing here anymore — moved to main_logs to save CPU
       }
 
       // ==========================================================================
@@ -121,7 +120,24 @@ alloy:
       // ==========================================================================
       loki.process "access_to_metrics" {
         forward_to = [loki.write.loki.receiver]
-    
+
+        // Parse JSON FIRST so `level` and `timeTaken` are usable below
+        stage.json {
+          expressions = {
+            level      = "level",
+            statusCode = "statusCode",
+            timeTaken  = "timeTaken",
+            requestURI = "req.requestURI",
+          }
+        }
+
+        // Promote `level` to a stream label so the next stage.match selector works
+        stage.labels {
+          values = {
+            level = "level",
+          }
+        }
+
         // Only process ACCESS logs
         stage.match {
           selector = "{level!=\"ACCESS\"}"
@@ -144,7 +160,7 @@ alloy:
           }
         }
 
-        // Drop after metric extraction (main_logs will handle storage with sampling)
+        // Drop after metric extraction (main_logs handles storage with sampling)
         stage.match {
           selector = "{level=\"ACCESS\"}"
           action = "drop"
@@ -156,15 +172,8 @@ alloy:
       // ==========================================================================
       loki.process "main_logs" {
         forward_to = [loki.write.loki.receiver]
-    
-        // Drop DEBUG completely
-        stage.match {
-          selector = "{level=~\"(?i)debug\"}"
-          action = "drop"
-        }
 
-        // <<< JSON PARSING MOVED HERE >>>
-        // Only parse JSON for logs that survived noise dropping
+        // Parse JSON FIRST so downstream stage.match selectors can use `level`
         stage.json {
           expressions = {
             level      = "level",
@@ -175,13 +184,20 @@ alloy:
           }
         }
 
+        // Promote `level` to a stream label before any stage.match that uses it
         stage.labels {
           values = {
             level = "level",
           }
         }
 
-        // ACCESS logs: sample at 10% (metrics have full data)
+        // Drop DEBUG completely (now actually works — level is a label)
+        stage.match {
+          selector = "{level=~\"(?i)debug\"}"
+          action = "drop"
+        }
+
+        // ACCESS logs: sample at 10% (metrics pipeline already extracted full data)
         stage.match {
           selector = "{level=\"ACCESS\"}"
           stage.sampling {
@@ -197,7 +213,8 @@ alloy:
           }
         }
 
-        // WARN and ERROR: keep 100%
+        // WARN and ERROR pass through at 100%
+
         stage.labels {
           values = {
             statusCode = "statusCode",
@@ -207,25 +224,8 @@ alloy:
         stage.static_labels {
           values = {
             cluster     = "rke2",
-            environment = "<env_name>",
+            environment = "dev01",   // replace per environment
           }
-        }
-      }
-
-      // ==========================================================================
-      // PROMETHEUS METRICS EXPORT
-      // ==========================================================================
-      prometheus.exporter.self "alloy_metrics" {}
-
-      prometheus.scrape "alloy_self" {
-        targets = prometheus.exporter.self.alloy_metrics.targets
-        forward_to = [prometheus.remote_write.mimir.receiver]
-        scrape_interval = "15s"
-      }
-
-      prometheus.remote_write "mimir" {
-        endpoint {
-          url = "http://prometheus-operated.cattle-monitoring-system.svc.cluster.local:9090/api/v1/write"
         }
       }
 
@@ -243,7 +243,7 @@ alloy:
         }
         external_labels = {
           cluster     = "rke2",
-          environment = "<env_name>",
+          environment = "dev01",
           log_source  = "alloy",
         }
       }
@@ -252,6 +252,15 @@ alloy:
     - --stability.level=generally-available
 
   listenPort: 12345
+
+  # --- Environment variables injected into each Alloy container ---
+  # NODE_NAME is required by the field selector in discovery.kubernetes "pods"
+  # so each DaemonSet replica only tails pods on its own node.
+  extraEnv:
+    - name: NODE_NAME
+      valueFrom:
+        fieldRef:
+          fieldPath: spec.nodeName
 
 # ============================================================
 # DAEMONSET: Run on every node

@@ -1,17 +1,14 @@
 # =============================================================================
 # Grafana - Production-Ready Values for Loki Monitoring
 # Cluster: RKE2 v1.28.9 | Namespace: loki-monitoring
-# Helm Chart: grafana/grafana (latest stable)
+# Helm Chart: grafana-community/grafana 11.3.2  (appVersion 12.4.1)
 # =============================================================================
-
 # --- Replicas ---
 replicas: 1
-
 # --- Admin Credentials ---
 # Change this password before deploying!
 adminUser: admin
 adminPassword: "Mosip@Loki123!"   # ⚠️  CHANGE THIS
-
 # --- Resource Limits ---
 resources:
   requests:
@@ -20,7 +17,6 @@ resources:
   limits:
     cpu: "500m"
     memory: "1Gi"
-
 # --- Persistence ---
 persistence:
   enabled: true
@@ -29,7 +25,6 @@ persistence:
   size: 5Gi
   accessModes:
     - ReadWriteOnce
-
 # --- Service ---
 service:
   type: ClusterIP           # Use NodePort or LoadBalancer to expose externally
@@ -38,7 +33,6 @@ service:
   # type: NodePort
   # port: 80
   # nodePort: 32000
-
 # --- Loki Datasource Auto-Provisioned ---
 datasources:
   datasources.yaml:
@@ -54,7 +48,6 @@ datasources:
         jsonData:
           maxLines: 5000
           derivedFields: []
-
 # --- Default Dashboards ---
 dashboardProviders:
   dashboardproviders.yaml:
@@ -64,11 +57,10 @@ dashboardProviders:
         orgId: 1
         folder: "Loki"
         type: file
-        disableDelete: false
+        disableDeletion: false      # fixed: was "disableDelete" which Grafana ignores
         editable: true
         options:
           path: /var/lib/grafana/dashboards/loki-dashboards
-
 # Import community dashboards
 dashboards:
   loki-dashboards:
@@ -82,12 +74,30 @@ dashboards:
       gnetId: 14055
       revision: 5
       datasource: Prometheus
-
+sidecar:
+  dashboards:
+    enabled: true
+    label: grafana_dashboard
+    labelValue: "1"
+    folder: /tmp/dashboards
+    searchNamespace: loki-monitoring
+    # Pick up dashboards added/updated/removed without restarting Grafana
+    watchMethod: WATCH
+    # Optional: drop them into a named folder in the Grafana UI
+    folderAnnotation: grafana_folder
+    provider:
+      name: sidecarProvider
+      orgid: 1
+      folder: ""
+      type: file
+      disableDelete: false
+      allowUiUpdates: false
 # --- Grafana INI Config ---
 grafana.ini:
   server:
-    domain: ""
-    root_url: "%(protocol)s://%(domain)s/"
+    protocol: http
+    domain: "grafana.esdev.mosip.net"
+    root_url: "https://%(domain)s/"
   security:
     allow_embedding: true
   auth.anonymous:
@@ -101,12 +111,35 @@ grafana.ini:
     reporting_enabled: false
     check_for_updates: false
 
+  # -------------------------------------------------------------------------
+  # FIX for "no kind Folder is registered for version folder.grafana.app/v1"
+  # -------------------------------------------------------------------------
+  # Grafana 12.4 defaults some new k8s-style API toggles to ON. The legacy
+  # file provisioner (used by `dashboardProviders` above) then routes folder
+  # creation through folder.grafana.app/v1 — which isn't registered in the
+  # runtime scheme, so provisioning fails and the UI returns 503.
+  # We force the legacy SQL path for both folders and dashboards.
+  feature_toggles:
+    kubernetesFolders: false
+    kubernetesFoldersServiceV2: false
+    kubernetesDashboards: false
+    kubernetesClientDashboardsFolders: false
+    # `provisioning` is the new k8s-style provisioning subsystem (Git Sync etc.)
+    # We don't use it — legacy file provider is what creates the Loki folder.
+    provisioning: false
+
+  # Belt-and-braces: even if a default toggle re-enables a k8s path, keep
+  # writes in SQL only. dualWriterMode = 0 means "legacy SQL only".
+  unified_storage.folders.folder.grafana.app:
+    dualWriterMode: 0
+  unified_storage.dashboards.dashboard.grafana.app:
+    dualWriterMode: 0
+
 # --- Pod Annotations ---
 podAnnotations:
   prometheus.io/scrape: "true"
   prometheus.io/port: "3000"
   prometheus.io/path: "/metrics"
-
 # --- Labels ---
 commonLabels:
   app.kubernetes.io/part-of: loki-monitoring
