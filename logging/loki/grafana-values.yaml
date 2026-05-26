@@ -96,7 +96,7 @@ sidecar:
 grafana.ini:
   server:
     protocol: http
-    domain: "grafana.esdev.mosip.net"
+    domain: "grafana.sandbox.xyz.net"
     root_url: "https://%(domain)s/"
   security:
     allow_embedding: true

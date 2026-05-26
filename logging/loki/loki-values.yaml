@@ -1,8 +1,8 @@
 # =============================================================================
 # Loki Monolithic (SingleBinary) - Production-Ready Values
-# Cluster: RKE2 v1.28.9 | 4 Nodes | ~15-20 Microservices
+# Cluster: RKE2 v1.28.9 | 11 Nodes | ~15-20 Microservices
 # Helm Chart: grafana/loki v6.55.0 | App Version: 3.x
-# Updated: 22 May 2026 - Right-sized for 4-node cluster (down from 11)
+# Updated: 26 May 2026 - Scaled back up to 11-node cluster
 # =============================================================================
 
 deploymentMode: SingleBinary
@@ -26,21 +26,23 @@ loki:
           prefix: loki_index_
           period: 24h
 
-  # --- Ingestion & Query Limits (tuned for 4 nodes, ~15-20 microservices) ---
+  # --- Ingestion & Query Limits (tuned for 11 nodes, ~15-20 microservices) ---
   limits_config:
-    # Ingest ceilings dropped to ~half — leaves headroom for a noisy pod
-    # without letting one app saturate the NFS pool in minutes.
-    ingestion_rate_mb: 32
-    ingestion_burst_size_mb: 64
+    # Sized for roughly 3x the per-node fan-in vs the 4-node config.
+    # 64 MB/s is well above steady-state for this workload but absorbs spikes
+    # (e.g. a node coming back online and replaying buffered logs).
+    ingestion_rate_mb: 64
+    ingestion_burst_size_mb: 128
     reject_old_samples: true
     reject_old_samples_max_age: 1h
     creation_grace_period: 10m
-    # Stream cardinality halved — 4 nodes generate ~1/3 the unique label combos
-    # of an 11-node cluster; 20k leaves plenty of headroom.
-    max_streams_per_user: 20000
-    max_global_streams_per_user: 20000
+    # Stream cardinality: 11 nodes worth of unique pod/container/app combos.
+    # 50k leaves comfortable headroom; raise only if you see "max streams"
+    # rejections in Loki logs.
+    max_streams_per_user: 50000
+    max_global_streams_per_user: 50000
     max_line_size: 262144
-    max_query_series: 20000
+    max_query_series: 50000
     max_query_parallelism: 16        # aligned to 4 CPU limit on the Loki pod
     max_entries_limit_per_query: 100000
     retention_period: 72h            # 3 days
@@ -118,6 +120,8 @@ singleBinary:
   replicas: 1
 
   # --- Resources (unchanged — sized to Loki's own binary, not cluster size) ---
+  # If you start seeing OOMKills or sustained CPU throttling on the pod with
+  # the 11-node fan-in, switch to the heavier tier commented below.
   resources:
     requests:
       cpu: "2000m"
@@ -126,7 +130,8 @@ singleBinary:
       cpu: "4000m"
       memory: "6Gi"
 
-  # --- Resources for a heavier production deployment, if you ever need it ---
+  # --- Heavier resources for a busier 11-node setup, if needed ---
+  # If you adopt this tier, also bump GOMAXPROCS to "8" in extraEnv below.
   # requests:
   #   cpu: "4000m"
   #   memory: "6Gi"
@@ -140,9 +145,11 @@ singleBinary:
     # outages on this cluster. Strongly consider a block / local StorageClass
     # for Loki — its TSDB does poorly on NFS-backed volumes.
     storageClass: "nfs-csi"
-    # 30Gi is comfortable for 4 nodes at 72h retention.
-    # Loki at ~5-10 MB/s steady = ~30-50 GB / 3 days of chunks + index.
-    size: 30Gi
+    # 75Gi covers 11 nodes at 72h retention with comfortable headroom:
+    # ~10-20 MB/s realistic ingest → 50-100 GB / 3 days of chunks + index.
+    # Drop to 50Gi if NFS pool pressure is a concern; raise to 100Gi if
+    # retention bumps to a week.
+    size: 50Gi
     accessModes:
       - ReadWriteOnce
 
@@ -174,7 +181,7 @@ singleBinary:
   # --- Extra Environment ---
   extraEnv:
     - name: GOMAXPROCS
-      value: "4"               # match the CPU limit
+      value: "4"               # match the CPU limit (bump to "8" with heavier tier)
 
 # -----------------------------------------------------------------------------
 # DISABLE UNNEEDED COMPONENTS

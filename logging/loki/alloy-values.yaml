@@ -224,7 +224,7 @@ alloy:
         stage.static_labels {
           values = {
             cluster     = "rke2",
-            environment = "dev01",   // replace per environment
+            environment = "<env_name>",   // replace per environment
           }
         }
       }
@@ -243,7 +243,7 @@ alloy:
         }
         external_labels = {
           cluster     = "rke2",
-          environment = "dev01",
+          environment = "<env_name>",     // Update Environment name
           log_source  = "alloy",
         }
       }
