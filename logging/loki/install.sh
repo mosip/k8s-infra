@@ -14,19 +14,34 @@
 #   - Files in same directory:
 #       loki-values.yaml
 #       grafana-values.yaml
-#       loki-cluster-output.yaml
-#       loki-cluster-flow.yaml
+#       alloy-values.yaml
 # =============================================================================
 
 set -e   # Exit on any error
+
+# =============================================================================
+# LOGGING HELPERS  (must be defined before first use)
+# =============================================================================
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m'   # No Color
+
+info()    { echo -e "${BLUE}[INFO]${NC}    $*"; }
+success() { echo -e "${GREEN}[OK]${NC}      $*"; }
+warn()    { echo -e "${YELLOW}[WARN]${NC}    $*"; }
+error()   { echo -e "${RED}[ERROR]${NC}   $*" >&2; exit 1; }
 
 # =============================================================================
 # CONFIGURATION — Edit these values before running
 # =============================================================================
 NAMESPACE="loki-monitoring"
 LOKI_CHART_VERSION="6.55.0"
+GRAFANA_CHART_VERSION="11.3.2"
 ALLOY_CHART_VERSION="1.6.2"
 GRAFANA_PASSWORD="Mosip@Loki123!"   # ⚠️  CHANGE THIS
+ISTIO_ADDONS_CHART_VERSION="0.0.1-develop"
 
 # =============================================================================
 # PRE-FLIGHT CHECKS
@@ -40,8 +55,8 @@ command -v helm    >/dev/null 2>&1 || error "helm not found. Please install helm
 kubectl cluster-info >/dev/null 2>&1 || error "Cannot connect to Kubernetes cluster. Check kubeconfig."
 success "Cluster connectivity verified"
 
-# Check required files exist
-for f in loki-values.yaml grafana-values.yaml loki-cluster-output.yaml loki-cluster-flow.yaml; do
+# Check required files exist (only files this script actually uses)
+for f in loki-values.yaml grafana-values.yaml alloy-values.yaml; do
   [ -f "$f" ] || error "Required file not found: $f. Run this script from the deployment directory."
 done
 success "All required YAML files found"
@@ -50,9 +65,11 @@ success "All required YAML files found"
 # STEP 1: Create Namespace
 # =============================================================================
 info "Step 1: Creating namespace: $NAMESPACE"
-kubectl get namespace "$NAMESPACE" >/dev/null 2>&1 && \
-  warn "Namespace $NAMESPACE already exists — skipping creation" || \
+if kubectl get namespace "$NAMESPACE" >/dev/null 2>&1; then
+  warn "Namespace $NAMESPACE already exists — skipping creation"
+else
   kubectl create namespace "$NAMESPACE"
+fi
 success "Namespace ready: $NAMESPACE"
 
 # =============================================================================
@@ -93,18 +110,26 @@ success "Loki deployed successfully"
 # =============================================================================
 # STEP 4: Deploy Grafana
 # =============================================================================
-info "Step 4: Deploying Grafana..."
+info "Step 4: Deploying Grafana (chart: $GRAFANA_CHART_VERSION)..."
+
+# Verify the requested chart version is reachable in the community repo
+helm search repo grafana-community/grafana --version "$GRAFANA_CHART_VERSION" \
+  | grep -q "$GRAFANA_CHART_VERSION" \
+  || error "Grafana chart version $GRAFANA_CHART_VERSION not found in grafana-community repo. Run: helm search repo grafana-community/grafana --versions"
+success "Grafana chart version $GRAFANA_CHART_VERSION verified"
 
 if helm status grafana -n "$NAMESPACE" >/dev/null 2>&1; then
   warn "Grafana already installed — upgrading..."
-  helm upgrade grafana grafana/grafana \
+  helm upgrade grafana grafana-community/grafana \
     --namespace "$NAMESPACE" \
+    --version "$GRAFANA_CHART_VERSION" \
     -f grafana-values.yaml \
     --set adminPassword="$GRAFANA_PASSWORD" \
     --wait --timeout 5m
 else
   helm install grafana grafana-community/grafana \
     --namespace "$NAMESPACE" \
+    --version "$GRAFANA_CHART_VERSION" \
     -f grafana-values.yaml \
     --set adminPassword="$GRAFANA_PASSWORD" \
     --wait --timeout 5m
@@ -135,10 +160,71 @@ else
 fi
 success "Alloy deployed successfully"
 
+# ===========================================================================
+# STEP 6: Deploy Istio Addons
+# ==========================================================================
+
+info "step 6: DEploying Istio Addons..."
+if helm status istio-addons -n "$NAMESPACE" >/dev/null 2>&1; then
+  warn "Istio-Addons already installed — upgrading..."
+  helm upgrade istio-addons mosip/istio-addons \
+    --namespace "$NAMESPACE" \
+    --version "$ISTIO_ADDONS_CHART_VERSION" \
+    -f istio-addons-values.yaml \
+    --wait --timeout 2m
+else
+  helm install istio-addons mosip/istio-addons \
+    --namespace "$NAMESPACE" \
+    --version "$ISTIO_ADDONS_CHART_VERSION" \
+    -f istio-addons-values.yaml \
+    --wait --timeout 2m
+fi
+success "Istio Addons deployed successfully"
+
 # =============================================================================
-# STEP 6: Verify Deployment
+# STEP 7: Import Custom Dashboards
 # =============================================================================
-info "Step 6: Verifying deployment..."
+info "Step 7: Importing custom Grafana dashboards..."
+
+DASHBOARD_DIR="dashboards"
+
+# Wait for Grafana so the sidecar is actually running before we create ConfigMaps
+kubectl wait --for=condition=ready pod \
+  -l app.kubernetes.io/name=grafana \
+  -n "$NAMESPACE" \
+  --timeout=120s >/dev/null \
+  || warn "Grafana not ready yet — dashboards will load when sidecar starts"
+
+if [ ! -d "$DASHBOARD_DIR" ]; then
+  warn "Directory '$DASHBOARD_DIR' not found in $(pwd) — skipping dashboard import"
+else
+  shopt -s nullglob
+  dashboard_files=( "$DASHBOARD_DIR"/*.json )
+  shopt -u nullglob
+
+  if [ ${#dashboard_files[@]} -eq 0 ]; then
+    warn "No JSON files found in $DASHBOARD_DIR/ — skipping"
+  else
+    for f in "${dashboard_files[@]}"; do
+      # Derive a valid ConfigMap name from the filename
+      cm_name=$(basename "$f" .json | tr '[:upper:]_.' '[:lower:]--' | sed 's/[^a-z0-9-]//g')
+      info "  → $f as ConfigMap '$cm_name'"
+
+      kubectl create configmap "$cm_name" \
+        --namespace "$NAMESPACE" \
+        --from-file="$f" \
+        --dry-run=client -o yaml \
+        | kubectl label --local -f - grafana_dashboard=1 -o yaml \
+        | kubectl apply -f -
+    done
+    success "Submitted ${#dashboard_files[@]} dashboard(s) — sidecar will provision them within ~10s"
+  fi
+fi
+
+# =============================================================================
+# STEP 8: Verify Deployment
+# =============================================================================
+info "Step 7: Verifying deployment..."
 
 echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
@@ -153,8 +239,9 @@ echo "━━━━━━━━━━━━━━━━━━━━━━━━�
 kubectl get svc -n "$NAMESPACE"
 
 # =============================================================================
-# STEP 7: Print Access Info
+# STEP 9: Print Access Info
 # =============================================================================
+echo ""
 echo "  Access Grafana:"
 echo "  ─────────────────────────────────────────────────────"
 echo "  kubectl port-forward -n $NAMESPACE svc/grafana 3000:80"
@@ -175,7 +262,7 @@ echo "  {cluster=\"rke2\"} | json"
 echo ""
 
 # =============================================================================
-# STEP 8: Quick Health Check
+# STEP 10: Quick Health Check
 # =============================================================================
 info "Running quick Loki health check..."
 kubectl wait --for=condition=ready pod \
