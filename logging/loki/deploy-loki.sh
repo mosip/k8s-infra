@@ -176,7 +176,7 @@ success "Alloy deployed successfully"
 # STEP 6: Deploy Istio Addons
 # ==========================================================================
 
-info "step 6: DEploying Istio Addons..."
+info "step 6: Deploying Istio Addons..."
 if helm status istio-addons -n "$NAMESPACE" >/dev/null 2>&1; then
   warn "Istio-Addons already installed — upgrading..."
   helm upgrade istio-addons mosip/istio-addons \
@@ -257,9 +257,9 @@ echo ""
 echo "  Access Grafana:"
 echo "  ─────────────────────────────────────────────────────"
 echo "  kubectl port-forward -n $NAMESPACE svc/grafana 3000:80"
-echo "  Open: http://localhost:3000"
+echo "  Open: https://grafana.sandbox.xyz.net:3000"
 echo "  User: admin"
-echo "  Pass: $GRAFANA_PASSWORD"
+echo "  NOTE: The Grafana Dashboard will ask for user password, Please provide the grafana password that was setup while installing"
 echo ""
 echo "  Loki API:"
 echo "  ─────────────────────────────────────────────────────"
