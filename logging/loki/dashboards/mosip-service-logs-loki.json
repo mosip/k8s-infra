@@ -1,0 +1,251 @@
+{
+  "title": "MOSIP Service Logs",
+  "uid": "mosip-service-logs-loki",
+  "description": "Equivalent of Kibana MOSIP Service Logs dashboard. Shows logs from Loki with columns: req.requestURI, traceId, level, pod_name, message. Filter by namespace, service/container, level and search by traceId or keyword.",
+  "schemaVersion": 38,
+  "version": 1,
+  "refresh": "30s",
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
+  "templating": {
+    "list": [
+      {
+        "name": "namespace",
+        "type": "query",
+        "label": "Namespace",
+        "datasource": {"type": "loki", "uid": "${DS_LOKI}"},
+        "definition": "label_values(namespace)",
+        "query": "label_values(namespace)",
+        "refresh": 2,
+        "multi": false,
+        "includeAll": false,
+        "current": {"text": "packetmanager", "value": "packetmanager"}
+      },
+      {
+        "name": "app",
+        "type": "query",
+        "label": "Service / App",
+        "datasource": {"type": "loki", "uid": "${DS_LOKI}"},
+        "definition": "label_values({namespace=~\"$namespace\"}, app)",
+        "query": "label_values({namespace=~\"$namespace\"}, app)",
+        "refresh": 2,
+        "multi": false,
+        "includeAll": true,
+        "current": {"text": "All", "value": "$__all"}
+      },
+      {
+        "name": "level",
+        "type": "custom",
+        "label": "Log Level",
+        "query": "INFO,WARN,ERROR,DEBUG,ACCESS",
+        "current": {"text": "All", "value": "$__all"},
+        "options": [
+          {"text": "All",    "value": "$__all", "selected": true},
+          {"text": "INFO",   "value": "INFO",   "selected": false},
+          {"text": "WARN",   "value": "WARN",   "selected": false},
+          {"text": "ERROR",  "value": "ERROR",  "selected": false},
+          {"text": "DEBUG",  "value": "DEBUG",  "selected": false},
+          {"text": "ACCESS", "value": "ACCESS", "selected": false}
+        ],
+        "multi": false,
+        "includeAll": true
+      },
+      {
+        "name": "search",
+        "type": "textbox",
+        "label": "Search (traceId / keyword)",
+        "current": {"text": "", "value": ""},
+        "query": ""
+      }
+    ]
+  },
+  "panels": [
+    {
+      "id": 1,
+      "type": "logs",
+      "title": "MOSIP Service Logs — req.requestURI | traceId | level | pod | message",
+      "description": "All service logs. Use the Search variable to filter by traceId or any keyword. Use Level dropdown to filter by log level. Equivalent of Kibana MOSIP Service Logs saved search.",
+      "gridPos": {"h": 28, "w": 24, "x": 0, "y": 0},
+      "datasource": {"type": "loki", "uid": "${DS_LOKI}"},
+      "targets": [
+        {
+          "expr": "{namespace=~\"$namespace\", app=~\"$app\"} |= \"$search\" | json | level=~\"$level\" | line_format \"[{{.level}}] [{{.traceId}}] [{{.__pod__}}] {{.message}}\"",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "enableLogDetails": true,
+        "prettifyLogMessage": true,
+        "showLabels": true,
+        "showTime": true,
+        "sortOrder": "Descending",
+        "wrapLogMessage": true,
+        "dedupStrategy": "none"
+      }
+    },
+    {
+      "id": 2,
+      "type": "logs",
+      "title": "ACCESS Logs Only — statusCode | timeTaken | req.requestURI | traceId",
+      "description": "Only ACCESS level logs formatted to show HTTP request details: status code, response time, URI and trace ID.",
+      "gridPos": {"h": 28, "w": 24, "x": 0, "y": 28},
+      "datasource": {"type": "loki", "uid": "${DS_LOKI}"},
+      "targets": [
+        {
+          "expr": "{namespace=~\"$namespace\", app=~\"$app\", level=\"ACCESS\"} |= \"$search\" | json | line_format \"[{{.statusCode}}] {{.timeTaken}}ms | {{.req_requestURI}} | trace={{.traceId}} | pod={{.__pod__}}\"",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "enableLogDetails": true,
+        "prettifyLogMessage": false,
+        "showLabels": false,
+        "showTime": true,
+        "sortOrder": "Descending",
+        "wrapLogMessage": false,
+        "dedupStrategy": "none"
+      }
+    },
+    {
+      "id": 3,
+      "type": "logs",
+      "title": "ERROR Logs Only",
+      "description": "Only ERROR level logs across all services in the namespace. Useful for quick error triage.",
+      "gridPos": {"h": 16, "w": 24, "x": 0, "y": 56},
+      "datasource": {"type": "loki", "uid": "${DS_LOKI}"},
+      "targets": [
+        {
+          "expr": "{namespace=~\"$namespace\", app=~\"$app\"} |= \"$search\" | json | level=\"ERROR\" | line_format \"[{{.traceId}}] [{{.__pod__}}] {{.message}}\"",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "enableLogDetails": true,
+        "prettifyLogMessage": true,
+        "showLabels": true,
+        "showTime": true,
+        "sortOrder": "Descending",
+        "wrapLogMessage": true,
+        "dedupStrategy": "none"
+      }
+    },
+    {
+      "id": 4,
+      "type": "timeseries",
+      "title": "Log Volume by Level",
+      "description": "Count of log lines per level over time. Spike in ERROR = something went wrong.",
+      "gridPos": {"h": 8, "w": 24, "x": 0, "y": 72},
+      "datasource": {"type": "loki", "uid": "${DS_LOKI}"},
+      "targets": [
+        {
+          "expr": "sum by (level) (count_over_time({namespace=~\"$namespace\", app=~\"$app\"} | json | level=~\"INFO|WARN|ERROR|DEBUG\" [1m]))",
+          "legendFormat": "{{level}}",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "custom": {"lineWidth": 2, "fillOpacity": 8}
+        },
+        "overrides": [
+          {"matcher": {"id": "byName", "options": "ERROR"}, "properties": [{"id": "color", "value": {"fixedColor": "red",    "mode": "fixed"}}]},
+          {"matcher": {"id": "byName", "options": "WARN"},  "properties": [{"id": "color", "value": {"fixedColor": "orange", "mode": "fixed"}}]},
+          {"matcher": {"id": "byName", "options": "INFO"},  "properties": [{"id": "color", "value": {"fixedColor": "green",  "mode": "fixed"}}]},
+          {"matcher": {"id": "byName", "options": "DEBUG"}, "properties": [{"id": "color", "value": {"fixedColor": "blue",   "mode": "fixed"}}]}
+        ]
+      },
+      "options": {
+        "legend": {"displayMode": "list", "placement": "bottom"},
+        "tooltip": {"mode": "multi"}
+      }
+    },
+    {
+      "id": 5,
+      "type": "stat",
+      "title": "ERROR Count (last 15m)",
+      "gridPos": {"h": 4, "w": 6, "x": 0, "y": 80},
+      "datasource": {"type": "loki", "uid": "${DS_LOKI}"},
+      "targets": [
+        {
+          "expr": "sum(count_over_time({namespace=~\"$namespace\", app=~\"$app\"} | json | level=\"ERROR\" [15m]))",
+          "refId": "A"
+        }
+      ],
+      "options": {"reduceOptions": {"calcs": ["lastNotNull"]}, "colorMode": "background"},
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"},
+          "thresholds": {"steps": [{"color": "green", "value": null}, {"color": "red", "value": 1}]}
+        }
+      }
+    },
+    {
+      "id": 6,
+      "type": "stat",
+      "title": "WARN Count (last 15m)",
+      "gridPos": {"h": 4, "w": 6, "x": 6, "y": 80},
+      "datasource": {"type": "loki", "uid": "${DS_LOKI}"},
+      "targets": [
+        {
+          "expr": "sum(count_over_time({namespace=~\"$namespace\", app=~\"$app\"} | json | level=\"WARN\" [15m]))",
+          "refId": "A"
+        }
+      ],
+      "options": {"reduceOptions": {"calcs": ["lastNotNull"]}, "colorMode": "background"},
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"},
+          "thresholds": {"steps": [{"color": "green", "value": null}, {"color": "orange", "value": 1}]}
+        }
+      }
+    },
+    {
+      "id": 7,
+      "type": "stat",
+      "title": "Total Requests (last 15m)",
+      "gridPos": {"h": 4, "w": 6, "x": 12, "y": 80},
+      "datasource": {"type": "loki", "uid": "${DS_LOKI}"},
+      "targets": [
+        {
+          "expr": "sum(count_over_time({namespace=~\"$namespace\", app=~\"$app\", level=\"ACCESS\"} [15m]))",
+          "refId": "A"
+        }
+      ],
+      "options": {"reduceOptions": {"calcs": ["lastNotNull"]}, "colorMode": "background"},
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"},
+          "thresholds": {"steps": [{"color": "blue", "value": null}]}
+        }
+      }
+    },
+    {
+      "id": 8,
+      "type": "stat",
+      "title": "5xx Errors (last 15m)",
+      "gridPos": {"h": 4, "w": 6, "x": 18, "y": 80},
+      "datasource": {"type": "loki", "uid": "${DS_LOKI}"},
+      "targets": [
+        {
+          "expr": "sum(count_over_time({namespace=~\"$namespace\", app=~\"$app\", level=\"ACCESS\"} | json | statusCode >= 500 [15m]))",
+          "refId": "A"
+        }
+      ],
+      "options": {"reduceOptions": {"calcs": ["lastNotNull"]}, "colorMode": "background"},
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"},
+          "thresholds": {"steps": [{"color": "green", "value": null}, {"color": "red", "value": 1}]}
+        }
+      }
+    }
+  ],
+  "__inputs": [
+    {"name": "DS_LOKI", "type": "datasource", "pluginId": "loki", "label": "Loki"}
+  ],
+  "__requires": [
+    {"type": "datasource", "id": "loki", "name": "Loki", "version": "1.0.0"}
+  ]
+}
