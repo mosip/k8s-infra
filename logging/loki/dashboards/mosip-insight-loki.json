@@ -1,0 +1,605 @@
+{
+  "title": "MOSIP Insight",
+  "uid": "mosip-insight-loki",
+  "description": "Equivalent of Kibana MOSIP Insight dashboard. Tracks registration processing pipeline: MinIO upload → Packet Validation → Quality Check → Bio/Demo Dedupe → UIN Generation. Each stage shows total count (stat) + throughput per hour (timeseries).",
+  "schemaVersion": 38,
+  "version": 1,
+  "refresh": "1m",
+  "time": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "templating": {
+    "list": [
+      {
+        "name": "namespace",
+        "type": "query",
+        "label": "Namespace",
+        "datasource": {"type": "loki", "uid": "${DS_LOKI}"},
+        "definition": "label_values(namespace)",
+        "query": "label_values(namespace)",
+        "refresh": 2,
+        "multi": false,
+        "includeAll": false,
+        "current": {"text": "regproc", "value": "regproc"}
+      }
+    ]
+  },
+  "panels": [
+
+    {
+      "id": 100,
+      "type": "text",
+      "title": "",
+      "gridPos": {"h": 2, "w": 24, "x": 0, "y": 0},
+      "options": {
+        "mode": "markdown",
+        "content": "## 📦 Stage 1 — Packet Upload to MinIO\n`regproc-group6` | `Packet is Uploaded to Packet Store`"
+      }
+    },
+    {
+      "id": 1,
+      "type": "stat",
+      "title": "Packets Uploaded to MinIO",
+      "description": "Total count of packets successfully uploaded to MinIO (Packet Store) in the selected time range.",
+      "gridPos": {"h": 6, "w": 5, "x": 0, "y": 2},
+      "datasource": {"type": "loki", "uid": "${DS_LOKI}"},
+      "targets": [
+        {
+          "expr": "sum(count_over_time({namespace=~\"$namespace\", app=~\"regproc-group6\"} |= \"Packet is Uploaded to Packet Store\" [$__range]))",
+          "refId": "A"
+        }
+      ],
+      "options": {"reduceOptions": {"calcs": ["lastNotNull"]}, "colorMode": "background", "graphMode": "none", "textMode": "auto", "orientation": "auto"},
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"},
+          "thresholds": {"steps": [{"color": "blue", "value": null}]},
+          "mappings": []
+        }
+      }
+    },
+    {
+      "id": 2,
+      "type": "timeseries",
+      "title": "Packets Uploaded to MinIO per hour",
+      "description": "Count of packets uploaded to MinIO per hour. Equivalent of Kibana line chart with 1h date histogram.",
+      "gridPos": {"h": 6, "w": 19, "x": 5, "y": 2},
+      "datasource": {"type": "loki", "uid": "${DS_LOKI}"},
+      "targets": [
+        {
+          "expr": "sum(count_over_time({namespace=~\"$namespace\", app=~\"regproc-group6\"} |= \"Packet is Uploaded to Packet Store\" [1h]))",
+          "legendFormat": "Uploaded to MinIO",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {"fixedColor": "#5794F2", "mode": "fixed"},
+          "custom": {"lineWidth": 2, "fillOpacity": 10, "showPoints": "auto", "spanNulls": true}
+        }
+      },
+      "options": {"legend": {"displayMode": "list", "placement": "bottom"}, "tooltip": {"mode": "single"}}
+    },
+
+    {
+      "id": 101,
+      "type": "text",
+      "title": "",
+      "gridPos": {"h": 2, "w": 24, "x": 0, "y": 8},
+      "options": {
+        "mode": "markdown",
+        "content": "## ✅ Stage 2 — Packet Validation\n`regproc-group5` | `RPR-PVM-000Packet Validation Success`"
+      }
+    },
+    {
+      "id": 3,
+      "type": "stat",
+      "title": "Packet Validator",
+      "description": "Total count of packets passing Packet Validation (RPR-PVM-000) in the selected time range.",
+      "gridPos": {"h": 6, "w": 5, "x": 0, "y": 10},
+      "datasource": {"type": "loki", "uid": "${DS_LOKI}"},
+      "targets": [
+        {
+          "expr": "sum(count_over_time({namespace=~\"$namespace\", app=~\"regproc-group5\"} |= \"RPR-PVM-000Packet Validation Success\" [$__range]))",
+          "refId": "A"
+        }
+      ],
+      "options": {"reduceOptions": {"calcs": ["lastNotNull"]}, "colorMode": "background", "graphMode": "none"},
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"},
+          "thresholds": {"steps": [{"color": "green", "value": null}]}
+        }
+      }
+    },
+    {
+      "id": 4,
+      "type": "timeseries",
+      "title": "Packets Passing Through Packet Validator per hour",
+      "gridPos": {"h": 6, "w": 19, "x": 5, "y": 10},
+      "datasource": {"type": "loki", "uid": "${DS_LOKI}"},
+      "targets": [
+        {
+          "expr": "sum(count_over_time({namespace=~\"$namespace\", app=~\"regproc-group5\"} |= \"RPR-PVM-000Packet Validation Success\" [1h]))",
+          "legendFormat": "Packet Validation",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {"fixedColor": "green", "mode": "fixed"},
+          "custom": {"lineWidth": 2, "fillOpacity": 10, "showPoints": "auto", "spanNulls": true}
+        }
+      },
+      "options": {"legend": {"displayMode": "list", "placement": "bottom"}, "tooltip": {"mode": "single"}}
+    },
+
+    {
+      "id": 102,
+      "type": "text",
+      "title": "",
+      "gridPos": {"h": 2, "w": 24, "x": 0, "y": 16},
+      "options": {
+        "mode": "markdown",
+        "content": "## 👷 Stage 3 — Operator / Supervisor / Introducer Validation\n`regproc-group5`"
+      }
+    },
+    {
+      "id": 5,
+      "type": "stat",
+      "title": "Operator Validator",
+      "description": "Total packets passing Operator Validation (RPR-OVM-000).",
+      "gridPos": {"h": 6, "w": 5, "x": 0, "y": 18},
+      "datasource": {"type": "loki", "uid": "${DS_LOKI}"},
+      "targets": [
+        {
+          "expr": "sum(count_over_time({namespace=~\"$namespace\", app=~\"regproc-group5\"} |= \"RPR-OVM-000OPERATOR Validation Success\" [$__range]))",
+          "refId": "A"
+        }
+      ],
+      "options": {"reduceOptions": {"calcs": ["lastNotNull"]}, "colorMode": "background", "graphMode": "none"},
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"},
+          "thresholds": {"steps": [{"color": "green", "value": null}]}
+        }
+      }
+    },
+    {
+      "id": 6,
+      "type": "timeseries",
+      "title": "Packets Passing through Operator Validator per hour",
+      "gridPos": {"h": 6, "w": 19, "x": 5, "y": 18},
+      "datasource": {"type": "loki", "uid": "${DS_LOKI}"},
+      "targets": [
+        {
+          "expr": "sum(count_over_time({namespace=~\"$namespace\", app=~\"regproc-group5\"} |= \"RPR-OVM-000OPERATOR Validation Success\" [1h]))",
+          "legendFormat": "Operator Validation",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {"fixedColor": "green", "mode": "fixed"},
+          "custom": {"lineWidth": 2, "fillOpacity": 10, "showPoints": "auto", "spanNulls": true}
+        }
+      },
+      "options": {"legend": {"displayMode": "list", "placement": "bottom"}, "tooltip": {"mode": "single"}}
+    },
+    {
+      "id": 7,
+      "type": "stat",
+      "title": "Supervisor Validator",
+      "description": "Total packets passing Supervisor Validation (RPR-SVM-000).",
+      "gridPos": {"h": 6, "w": 5, "x": 0, "y": 24},
+      "datasource": {"type": "loki", "uid": "${DS_LOKI}"},
+      "targets": [
+        {
+          "expr": "sum(count_over_time({namespace=~\"$namespace\", app=~\"regproc-group5\"} |= \"RPR-SVM-000SUPERVISOR Validation Success\" [$__range]))",
+          "refId": "A"
+        }
+      ],
+      "options": {"reduceOptions": {"calcs": ["lastNotNull"]}, "colorMode": "background", "graphMode": "none"},
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"},
+          "thresholds": {"steps": [{"color": "green", "value": null}]}
+        }
+      }
+    },
+    {
+      "id": 8,
+      "type": "timeseries",
+      "title": "Packets Passing through Supervisor Validator per hour",
+      "gridPos": {"h": 6, "w": 19, "x": 5, "y": 24},
+      "datasource": {"type": "loki", "uid": "${DS_LOKI}"},
+      "targets": [
+        {
+          "expr": "sum(count_over_time({namespace=~\"$namespace\", app=~\"regproc-group5\"} |= \"RPR-SVM-000SUPERVISOR Validation Success\" [1h]))",
+          "legendFormat": "Supervisor Validation",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {"fixedColor": "orange", "mode": "fixed"},
+          "custom": {"lineWidth": 2, "fillOpacity": 10, "showPoints": "auto", "spanNulls": true}
+        }
+      },
+      "options": {"legend": {"displayMode": "list", "placement": "bottom"}, "tooltip": {"mode": "single"}}
+    },
+    {
+      "id": 9,
+      "type": "stat",
+      "title": "Introducer Validator",
+      "description": "Total packets passing Introducer Validation (RPR-IVM-000).",
+      "gridPos": {"h": 6, "w": 5, "x": 0, "y": 30},
+      "datasource": {"type": "loki", "uid": "${DS_LOKI}"},
+      "targets": [
+        {
+          "expr": "sum(count_over_time({namespace=~\"$namespace\", app=~\"regproc-group5\"} |= \"RPR-IVM-000INTRODUCER Validation Success\" [$__range]))",
+          "refId": "A"
+        }
+      ],
+      "options": {"reduceOptions": {"calcs": ["lastNotNull"]}, "colorMode": "background", "graphMode": "none"},
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"},
+          "thresholds": {"steps": [{"color": "green", "value": null}]}
+        }
+      }
+    },
+    {
+      "id": 10,
+      "type": "timeseries",
+      "title": "Packets Passing through Introducer Validator per hour",
+      "gridPos": {"h": 6, "w": 19, "x": 5, "y": 30},
+      "datasource": {"type": "loki", "uid": "${DS_LOKI}"},
+      "targets": [
+        {
+          "expr": "sum(count_over_time({namespace=~\"$namespace\", app=~\"regproc-group5\"} |= \"RPR-IVM-000INTRODUCER Validation Success\" [1h]))",
+          "legendFormat": "Introducer Validation",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {"fixedColor": "purple", "mode": "fixed"},
+          "custom": {"lineWidth": 2, "fillOpacity": 10, "showPoints": "auto", "spanNulls": true}
+        }
+      },
+      "options": {"legend": {"displayMode": "list", "placement": "bottom"}, "tooltip": {"mode": "single"}}
+    },
+
+    {
+      "id": 103,
+      "type": "text",
+      "title": "",
+      "gridPos": {"h": 2, "w": 24, "x": 0, "y": 36},
+      "options": {
+        "mode": "markdown",
+        "content": "## 🔬 Stage 4 — Quality Check\n`regproc-group2` | `QualityCheckerImpl::success`"
+      }
+    },
+    {
+      "id": 11,
+      "type": "stat",
+      "title": "Quality Checker",
+      "description": "Total packets passing Quality Check in the selected time range.",
+      "gridPos": {"h": 6, "w": 5, "x": 0, "y": 38},
+      "datasource": {"type": "loki", "uid": "${DS_LOKI}"},
+      "targets": [
+        {
+          "expr": "sum(count_over_time({namespace=~\"$namespace\", app=~\"regproc-group2\"} |= \"QualityCheckerImpl::success\" [$__range]))",
+          "refId": "A"
+        }
+      ],
+      "options": {"reduceOptions": {"calcs": ["lastNotNull"]}, "colorMode": "background", "graphMode": "none"},
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"},
+          "thresholds": {"steps": [{"color": "blue", "value": null}]}
+        }
+      }
+    },
+    {
+      "id": 12,
+      "type": "timeseries",
+      "title": "Packets Passing Through Quality Check per hour",
+      "gridPos": {"h": 6, "w": 19, "x": 5, "y": 38},
+      "datasource": {"type": "loki", "uid": "${DS_LOKI}"},
+      "targets": [
+        {
+          "expr": "sum(count_over_time({namespace=~\"$namespace\", app=~\"regproc-group2\"} |= \"QualityCheckerImpl::success\" [1h]))",
+          "legendFormat": "Quality Check",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {"fixedColor": "#5794F2", "mode": "fixed"},
+          "custom": {"lineWidth": 2, "fillOpacity": 10, "showPoints": "auto", "spanNulls": true}
+        }
+      },
+      "options": {"legend": {"displayMode": "list", "placement": "bottom"}, "tooltip": {"mode": "single"}}
+    },
+
+    {
+      "id": 104,
+      "type": "text",
+      "title": "",
+      "gridPos": {"h": 2, "w": 24, "x": 0, "y": 44},
+      "options": {
+        "mode": "markdown",
+        "content": "## 🧬 Stage 5 — Biometric & Demographic Deduplication\n`regproc-group3` | `regproc-group4`"
+      }
+    },
+    {
+      "id": 13,
+      "type": "stat",
+      "title": "Biometric Deduplication",
+      "description": "Total packets passing Biometric Deduplication (BioDedupeProcessor::SUCCESS).",
+      "gridPos": {"h": 6, "w": 5, "x": 0, "y": 46},
+      "datasource": {"type": "loki", "uid": "${DS_LOKI}"},
+      "targets": [
+        {
+          "expr": "sum(count_over_time({namespace=~\"$namespace\", app=~\"regproc-group3\"} |= \"BioDedupeProcessor::SUCCESS\" [$__range]))",
+          "refId": "A"
+        }
+      ],
+      "options": {"reduceOptions": {"calcs": ["lastNotNull"]}, "colorMode": "background", "graphMode": "none"},
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"},
+          "thresholds": {"steps": [{"color": "blue", "value": null}]}
+        }
+      }
+    },
+    {
+      "id": 14,
+      "type": "timeseries",
+      "title": "Packets Passing Bio Dedupe per hour",
+      "gridPos": {"h": 6, "w": 19, "x": 5, "y": 46},
+      "datasource": {"type": "loki", "uid": "${DS_LOKI}"},
+      "targets": [
+        {
+          "expr": "sum(count_over_time({namespace=~\"$namespace\", app=~\"regproc-group3\"} |= \"BioDedupeProcessor::SUCCESS\" [1h]))",
+          "legendFormat": "Bio Dedupe",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {"fixedColor": "#5794F2", "mode": "fixed"},
+          "custom": {"lineWidth": 2, "fillOpacity": 10, "showPoints": "auto", "spanNulls": true}
+        }
+      },
+      "options": {"legend": {"displayMode": "list", "placement": "bottom"}, "tooltip": {"mode": "single"}}
+    },
+    {
+      "id": 15,
+      "type": "stat",
+      "title": "Demo Deduplication",
+      "description": "Total packets passing Demographic Deduplication (DemoDedupeProcessor::success).",
+      "gridPos": {"h": 6, "w": 5, "x": 0, "y": 52},
+      "datasource": {"type": "loki", "uid": "${DS_LOKI}"},
+      "targets": [
+        {
+          "expr": "sum(count_over_time({namespace=~\"$namespace\", app=~\"regproc-group4\"} |= \"DemoDedupeProcessor::success\" [$__range]))",
+          "refId": "A"
+        }
+      ],
+      "options": {"reduceOptions": {"calcs": ["lastNotNull"]}, "colorMode": "background", "graphMode": "none"},
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"},
+          "thresholds": {"steps": [{"color": "blue", "value": null}]}
+        }
+      }
+    },
+    {
+      "id": 16,
+      "type": "timeseries",
+      "title": "Packets Passing Demo Dedupe per hour",
+      "gridPos": {"h": 6, "w": 19, "x": 5, "y": 52},
+      "datasource": {"type": "loki", "uid": "${DS_LOKI}"},
+      "targets": [
+        {
+          "expr": "sum(count_over_time({namespace=~\"$namespace\", app=~\"regproc-group4\"} |= \"DemoDedupeProcessor::success\" [1h]))",
+          "legendFormat": "Demo Dedupe",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {"fixedColor": "orange", "mode": "fixed"},
+          "custom": {"lineWidth": 2, "fillOpacity": 10, "showPoints": "auto", "spanNulls": true}
+        }
+      },
+      "options": {"legend": {"displayMode": "list", "placement": "bottom"}, "tooltip": {"mode": "single"}}
+    },
+
+    {
+      "id": 105,
+      "type": "text",
+      "title": "",
+      "gridPos": {"h": 2, "w": 24, "x": 0, "y": 58},
+      "options": {
+        "mode": "markdown",
+        "content": "## 🎉 Stage 6 — UIN Generation\n`regproc-group7` | `UIN Generator  Success`"
+      }
+    },
+    {
+      "id": 17,
+      "type": "stat",
+      "title": "UIN Generated",
+      "description": "Total UINs successfully generated in the selected time range.",
+      "gridPos": {"h": 6, "w": 5, "x": 0, "y": 60},
+      "datasource": {"type": "loki", "uid": "${DS_LOKI}"},
+      "targets": [
+        {
+          "expr": "sum(count_over_time({namespace=~\"$namespace\", app=~\"regproc-group7\"} |= \"UIN Generator  Success\" [$__range]))",
+          "refId": "A"
+        }
+      ],
+      "options": {"reduceOptions": {"calcs": ["lastNotNull"]}, "colorMode": "background", "graphMode": "none"},
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"},
+          "thresholds": {"steps": [{"color": "green", "value": null}]}
+        }
+      }
+    },
+    {
+      "id": 18,
+      "type": "timeseries",
+      "title": "UIN Generated per hour",
+      "description": "Count of UINs successfully generated per hour. The final output metric of the registration pipeline.",
+      "gridPos": {"h": 6, "w": 19, "x": 5, "y": 60},
+      "datasource": {"type": "loki", "uid": "${DS_LOKI}"},
+      "targets": [
+        {
+          "expr": "sum(count_over_time({namespace=~\"$namespace\", app=~\"regproc-group7\"} |= \"UIN Generator  Success\" [1h]))",
+          "legendFormat": "UIN Generated",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {"fixedColor": "green", "mode": "fixed"},
+          "custom": {"lineWidth": 2, "fillOpacity": 10, "showPoints": "auto", "spanNulls": true}
+        }
+      },
+      "options": {"legend": {"displayMode": "list", "placement": "bottom"}, "tooltip": {"mode": "single"}}
+    },
+
+    {
+      "id": 106,
+      "type": "text",
+      "title": "",
+      "gridPos": {"h": 2, "w": 24, "x": 0, "y": 66},
+      "options": {
+        "mode": "markdown",
+        "content": "## 📊 Pipeline Overview — All Stages Combined"
+      }
+    },
+    {
+      "id": 19,
+      "type": "timeseries",
+      "title": "Full Pipeline Throughput per hour — All Stages",
+      "description": "All 6 pipeline stages overlaid on one chart. Use this to spot where packets are dropping off or bottlenecks forming.",
+      "gridPos": {"h": 10, "w": 24, "x": 0, "y": 68},
+      "datasource": {"type": "loki", "uid": "${DS_LOKI}"},
+      "targets": [
+        {
+          "expr": "sum(count_over_time({namespace=~\"$namespace\", app=~\"regproc-group6\"} |= \"Packet is Uploaded to Packet Store\" [1h]))",
+          "legendFormat": "1. MinIO Upload",
+          "refId": "A"
+        },
+        {
+          "expr": "sum(count_over_time({namespace=~\"$namespace\", app=~\"regproc-group5\"} |= \"RPR-PVM-000Packet Validation Success\" [1h]))",
+          "legendFormat": "2. Packet Validation",
+          "refId": "B"
+        },
+        {
+          "expr": "sum(count_over_time({namespace=~\"$namespace\", app=~\"regproc-group2\"} |= \"QualityCheckerImpl::success\" [1h]))",
+          "legendFormat": "3. Quality Check",
+          "refId": "C"
+        },
+        {
+          "expr": "sum(count_over_time({namespace=~\"$namespace\", app=~\"regproc-group3\"} |= \"BioDedupeProcessor::SUCCESS\" [1h]))",
+          "legendFormat": "4. Bio Dedupe",
+          "refId": "D"
+        },
+        {
+          "expr": "sum(count_over_time({namespace=~\"$namespace\", app=~\"regproc-group4\"} |= \"DemoDedupeProcessor::success\" [1h]))",
+          "legendFormat": "5. Demo Dedupe",
+          "refId": "E"
+        },
+        {
+          "expr": "sum(count_over_time({namespace=~\"$namespace\", app=~\"regproc-group7\"} |= \"UIN Generator  Success\" [1h]))",
+          "legendFormat": "6. UIN Generated",
+          "refId": "F"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "palette-classic"},
+          "custom": {"lineWidth": 2, "fillOpacity": 5, "showPoints": "auto", "spanNulls": true}
+        }
+      },
+      "options": {
+        "legend": {"displayMode": "table", "placement": "right", "calcs": ["sum", "max", "last"]},
+        "tooltip": {"mode": "multi", "sort": "desc"}
+      }
+    },
+    {
+      "id": 20,
+      "type": "stat",
+      "title": "MinIO Upload",
+      "gridPos": {"h": 4, "w": 4, "x": 0, "y": 78},
+      "datasource": {"type": "loki", "uid": "${DS_LOKI}"},
+      "targets": [{"expr": "sum(count_over_time({namespace=~\"$namespace\", app=~\"regproc-group6\"} |= \"Packet is Uploaded to Packet Store\" [$__range]))", "refId": "A"}],
+      "options": {"reduceOptions": {"calcs": ["lastNotNull"]}, "colorMode": "background", "graphMode": "none"},
+      "fieldConfig": {"defaults": {"color": {"mode": "thresholds"}, "thresholds": {"steps": [{"color": "#5794F2", "value": null}]}}}
+    },
+    {
+      "id": 21,
+      "type": "stat",
+      "title": "Packet Validation",
+      "gridPos": {"h": 4, "w": 4, "x": 4, "y": 78},
+      "datasource": {"type": "loki", "uid": "${DS_LOKI}"},
+      "targets": [{"expr": "sum(count_over_time({namespace=~\"$namespace\", app=~\"regproc-group5\"} |= \"RPR-PVM-000Packet Validation Success\" [$__range]))", "refId": "A"}],
+      "options": {"reduceOptions": {"calcs": ["lastNotNull"]}, "colorMode": "background", "graphMode": "none"},
+      "fieldConfig": {"defaults": {"color": {"mode": "thresholds"}, "thresholds": {"steps": [{"color": "green", "value": null}]}}}
+    },
+    {
+      "id": 22,
+      "type": "stat",
+      "title": "Quality Check",
+      "gridPos": {"h": 4, "w": 4, "x": 8, "y": 78},
+      "datasource": {"type": "loki", "uid": "${DS_LOKI}"},
+      "targets": [{"expr": "sum(count_over_time({namespace=~\"$namespace\", app=~\"regproc-group2\"} |= \"QualityCheckerImpl::success\" [$__range]))", "refId": "A"}],
+      "options": {"reduceOptions": {"calcs": ["lastNotNull"]}, "colorMode": "background", "graphMode": "none"},
+      "fieldConfig": {"defaults": {"color": {"mode": "thresholds"}, "thresholds": {"steps": [{"color": "blue", "value": null}]}}}
+    },
+    {
+      "id": 23,
+      "type": "stat",
+      "title": "Bio Dedupe",
+      "gridPos": {"h": 4, "w": 4, "x": 12, "y": 78},
+      "datasource": {"type": "loki", "uid": "${DS_LOKI}"},
+      "targets": [{"expr": "sum(count_over_time({namespace=~\"$namespace\", app=~\"regproc-group3\"} |= \"BioDedupeProcessor::SUCCESS\" [$__range]))", "refId": "A"}],
+      "options": {"reduceOptions": {"calcs": ["lastNotNull"]}, "colorMode": "background", "graphMode": "none"},
+      "fieldConfig": {"defaults": {"color": {"mode": "thresholds"}, "thresholds": {"steps": [{"color": "blue", "value": null}]}}}
+    },
+    {
+      "id": 24,
+      "type": "stat",
+      "title": "Demo Dedupe",
+      "gridPos": {"h": 4, "w": 4, "x": 16, "y": 78},
+      "datasource": {"type": "loki", "uid": "${DS_LOKI}"},
+      "targets": [{"expr": "sum(count_over_time({namespace=~\"$namespace\", app=~\"regproc-group4\"} |= \"DemoDedupeProcessor::success\" [$__range]))", "refId": "A"}],
+      "options": {"reduceOptions": {"calcs": ["lastNotNull"]}, "colorMode": "background", "graphMode": "none"},
+      "fieldConfig": {"defaults": {"color": {"mode": "thresholds"}, "thresholds": {"steps": [{"color": "orange", "value": null}]}}}
+    },
+    {
+      "id": 25,
+      "type": "stat",
+      "title": "UIN Generated",
+      "gridPos": {"h": 4, "w": 4, "x": 20, "y": 78},
+      "datasource": {"type": "loki", "uid": "${DS_LOKI}"},
+      "targets": [{"expr": "sum(count_over_time({namespace=~\"$namespace\", app=~\"regproc-group7\"} |= \"UIN Generator  Success\" [$__range]))", "refId": "A"}],
+      "options": {"reduceOptions": {"calcs": ["lastNotNull"]}, "colorMode": "background", "graphMode": "none"},
+      "fieldConfig": {"defaults": {"color": {"mode": "thresholds"}, "thresholds": {"steps": [{"color": "green", "value": null}]}}}
+    }
+
+  ],
+  "__inputs": [
+    {"name": "DS_LOKI", "type": "datasource", "pluginId": "loki", "label": "Loki"}
+  ],
+  "__requires": [
+    {"type": "datasource", "id": "loki", "name": "Loki", "version": "1.0.0"}
+  ]
+}
