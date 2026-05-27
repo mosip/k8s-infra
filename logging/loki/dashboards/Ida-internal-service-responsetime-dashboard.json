@@ -465,12 +465,12 @@
           "refId": "B"
         },
         {
-          "expr": "quantile_over_time(0.95, {namespace=~\"$namespace\", level=\"ACCESS\"} | json | req_requestURI != \"/commons/v1/ida-auth/actuator/health\" | req_requestURI != \"/commons/v1/ida-internal/actuator/prometheus\" | unwrap timeTaken [1m])",
+          "expr": "quantile_over_time(0.95, {namespace=~\"$namespace\", level=\"ACCESS\"} | json | req_requestURI != \"/commons/v1/ida-internal/actuator/health\" | req_requestURI != \"/commons/v1/ida-internal/actuator/prometheus\" | unwrap timeTaken [1m])",
           "legendFormat": "p95",
           "refId": "C"
         },
         {
-          "expr": "quantile_over_time(0.99, {namespace=~\"$namespace\", level=\"ACCESS\"} | json | req_requestURI != \"/commons/v1/ida-internal/actuator/health\" | req_requestURI != \"/commons/v1/ida-auth/actuator/prometheus\" | unwrap timeTaken [1m])",
+          "expr": "quantile_over_time(0.99, {namespace=~\"$namespace\", level=\"ACCESS\"} | json | req_requestURI != \"/commons/v1/ida-internal/actuator/health\" | req_requestURI != \"/commons/v1/ida-internal/actuator/prometheus\" | unwrap timeTaken [1m])",
           "legendFormat": "p99",
           "refId": "D"
         }
@@ -1020,8 +1020,8 @@
       },
       {
         "current": {
-          "text": "ida-auth",
-          "value": "ida-auth"
+          "text": "ida-internal",
+          "value": "ida-internal"
         },
         "datasource": {
           "type": "loki",

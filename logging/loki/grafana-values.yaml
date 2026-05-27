@@ -70,10 +70,10 @@ dashboards:
       revision: 1
       datasource: Loki
     # Loki Operational Dashboard
-    loki-operational:
-      gnetId: 14055
-      revision: 5
-      datasource: Prometheus
+    # loki-operational:
+    #   gnetId: 14055
+    #   revision: 5
+    #   datasource: Prometheus
 sidecar:
   dashboards:
     enabled: true

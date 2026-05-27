@@ -59,7 +59,7 @@
       "gridPos": { "h": 4, "w": 6, "x": 0, "y": 0 },
       "datasource": { "type": "loki", "uid": "${DS_LOKI}" },
       "targets": [{
-        "expr": "sum(count_over_time({namespace=~\"$namespace\", pod=~\"$pod\"}[5m]))",
+        "expr": "sum(count_over_time({namespace=~\"$namespace\", pod=~\"$pod\", container=~\"$container\"}[5m]))",
         "legendFormat": "Total Logs"
       }],
       "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "colorMode": "background" },
@@ -72,7 +72,7 @@
       "gridPos": { "h": 4, "w": 6, "x": 6, "y": 0 },
       "datasource": { "type": "loki", "uid": "${DS_LOKI}" },
       "targets": [{
-        "expr": "sum(count_over_time({namespace=~\"$namespace\", pod=~\"$pod\"} |= \"error\" [5m]))",
+        "expr": "sum(count_over_time({namespace=~\"$namespace\", pod=~\"$pod\", container=~\"$container\"} |= \"error\" [5m]))",
         "legendFormat": "Errors"
       }],
       "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "colorMode": "background" },
@@ -85,7 +85,7 @@
       "gridPos": { "h": 4, "w": 6, "x": 12, "y": 0 },
       "datasource": { "type": "loki", "uid": "${DS_LOKI}" },
       "targets": [{
-        "expr": "sum(count_over_time({namespace=~\"$namespace\", pod=~\"$pod\"} |= \"warn\" [5m]))",
+        "expr": "sum(count_over_time({namespace=~\"$namespace\", pod=~\"$pod\", container=~\"$container\"} |= \"warn\" [5m]))",
         "legendFormat": "Warnings"
       }],
       "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "colorMode": "background" },
@@ -111,7 +111,7 @@
       "gridPos": { "h": 8, "w": 24, "x": 0, "y": 4 },
       "datasource": { "type": "loki", "uid": "${DS_LOKI}" },
       "targets": [{
-        "expr": "sum by (namespace) (rate({namespace=~\"$namespace\", pod=~\"$pod\"}[2m]))",
+        "expr": "sum by (namespace) (rate({namespace=~\"$namespace\", pod=~\"$pod\", container=~\"$container\"}[2m]))",
         "legendFormat": "{{namespace}}"
       }],
       "fieldConfig": { "defaults": { "custom": { "lineWidth": 2, "fillOpacity": 10 } } }
@@ -123,7 +123,7 @@
       "gridPos": { "h": 8, "w": 24, "x": 0, "y": 12 },
       "datasource": { "type": "loki", "uid": "${DS_LOKI}" },
       "targets": [{
-        "expr": "sum by (namespace) (rate({namespace=~\"$namespace\", pod=~\"$pod\"} |= \"error\" [2m]))",
+        "expr": "sum by (namespace) (rate({namespace=~\"$namespace\", pod=~\"$pod\", container=~\"$container\"} |= \"error\" [2m]))",
         "legendFormat": "{{namespace}} errors"
       }],
       "fieldConfig": { "defaults": { "color": { "fixedColor": "red", "mode": "fixed" }, "custom": { "lineWidth": 2, "fillOpacity": 10 } } }
@@ -135,7 +135,7 @@
       "gridPos": { "h": 16, "w": 24, "x": 0, "y": 20 },
       "datasource": { "type": "loki", "uid": "${DS_LOKI}" },
       "targets": [{
-        "expr": "{namespace=~\"$namespace\", pod=~\"$pod\"} |~ \"(?i)$search\"",
+        "expr": "{namespace=~\"$namespace\", pod=~\"$pod\", container=~\"container\"} |~ \"(?i)$search\"",
         "legendFormat": ""
       }],
       "options": {

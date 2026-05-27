@@ -80,7 +80,7 @@
         {
           "direction": "backward",
           "editorMode": "code",
-          "expr": "quantile_over_time($percentile,\n  {namespace=\"packetmanager\", level=\"ACCESS\"}\n  | json\n  | req_requestURI != \"/commons/v1/packetmanager/actuator/health\"\n  | req_requestURI != \"/commons/v1/packetmanager/actuator/prometheus\"\n  | unwrap timeTaken\n  [$__range]\n) by (req_requestURI)",
+          "expr": "quantile_over_time($percentile,\n  {namespace=\"$namespace\", level=\"ACCESS\"}\n  | json\n  | req_requestURI != \"/commons/v1/packetmanager/actuator/health\"\n  | req_requestURI != \"/commons/v1/packetmanager/actuator/prometheus\"\n  | unwrap timeTaken\n  [$__range]\n) by (req_requestURI)",
           "queryType": "instant",
           "refId": "A"
         }
@@ -191,7 +191,7 @@
         {
           "direction": "backward",
           "editorMode": "code",
-          "expr": "quantile_over_time($percentile,\n  {namespace=\"packetmanager\", level=\"ACCESS\"}\n  | json\n  | req_requestURI != \"/commons/v1/packetmanager/actuator/health\"\n  | unwrap timeTaken\n  [60m]\n) by (req_requestURI)",
+          "expr": "quantile_over_time($percentile,\n  {namespace=\"$namespace\", level=\"ACCESS\"}\n  | json\n  | req_requestURI != \"/commons/v1/packetmanager/actuator/health\"\n  | unwrap timeTaken\n  [60m]\n) by (req_requestURI)",
           "queryType": "range",
           "refId": "A"
         }
