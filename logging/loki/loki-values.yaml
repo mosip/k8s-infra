@@ -153,12 +153,20 @@ singleBinary:
     accessModes:
       - ReadWriteOnce
 
+  # NEW: dedicated PVC just for the WAL, on a fast StorageClass:
+  extraVolumeClaimTemplates:
+    - metadata:
+        name: wal
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        storageClassName: "nfs-csi"
+        resources:
+          requests:
+            storage: 10Gi
+
   extraVolumeMounts:
     - name: wal
       mountPath: /var/loki/wal
-  extraVolumes:
-    - name: wal
-      emptyDir: {}
 
   affinity:
     nodeAffinity:

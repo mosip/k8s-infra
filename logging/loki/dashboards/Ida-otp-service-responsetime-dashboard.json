@@ -1020,8 +1020,8 @@
       },
       {
         "current": {
-          "text": "ida-auth",
-          "value": "ida-auth"
+          "text": "ida-otp",
+          "value": "ida-otp"
         },
         "datasource": {
           "type": "loki",

@@ -40,7 +40,6 @@ NAMESPACE="loki-monitoring"
 LOKI_CHART_VERSION="6.55.0"
 GRAFANA_CHART_VERSION="11.3.2"
 ALLOY_CHART_VERSION="1.6.2"
-GRAFANA_PASSWORD="Mosip@Loki123!"   # ⚠️  CHANGE THIS
 ISTIO_ADDONS_CHART_VERSION="0.0.1-develop"
 
 # =============================================================================
@@ -56,7 +55,7 @@ kubectl cluster-info >/dev/null 2>&1 || error "Cannot connect to Kubernetes clus
 success "Cluster connectivity verified"
 
 # Check required files exist (only files this script actually uses)
-for f in loki-values.yaml grafana-values.yaml alloy-values.yaml; do
+for f in loki-values.yaml grafana-values.yaml alloy-values.yaml istio-addons-values.yaml; do
   [ -f "$f" ] || error "Required file not found: $f. Run this script from the deployment directory."
 done
 success "All required YAML files found"
@@ -78,6 +77,7 @@ success "Namespace ready: $NAMESPACE"
 info "Step 2: Adding Grafana Helm repository..."
 helm repo add grafana https://grafana.github.io/helm-charts 2>/dev/null || true
 helm repo add grafana-community https://grafana-community.github.io/helm-charts 2>/dev/null || true
+helm repo add mosip https://mosip.github.io/mosip-helm 2>/dev/null || true
 helm repo update
 success "Helm repos updated"
 
@@ -111,6 +111,18 @@ success "Loki deployed successfully"
 # STEP 4: Deploy Grafana
 # =============================================================================
 info "Step 4: Deploying Grafana (chart: $GRAFANA_CHART_VERSION)..."
+
+# Read from environment or prompt securely
+if [ -z "$GRAFANA_PASSWORD" ]; then
+  read -s -p "Enter Grafana admin password: " GRAFANA_PASSWORD
+  echo
+fi
+
+# Optional: basic validation
+if [ -z "$GRAFANA_PASSWORD" ]; then
+  echo "ERROR: Grafana password cannot be empty"
+  exit 1
+fi
 
 # Verify the requested chart version is reachable in the community repo
 helm search repo grafana-community/grafana --version "$GRAFANA_CHART_VERSION" \
