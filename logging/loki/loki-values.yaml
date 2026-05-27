@@ -1,0 +1,241 @@
+# =============================================================================
+# Loki Monolithic (SingleBinary) - Production-Ready Values
+# Cluster: RKE2 v1.28.9 | 11 Nodes | ~15-20 Microservices
+# Helm Chart: grafana/loki v6.55.0 | App Version: 3.x
+# Updated: 26 May 2026 - Scaled back up to 11-node cluster
+# =============================================================================
+
+deploymentMode: SingleBinary
+
+loki:
+  auth_enabled: false
+
+  commonConfig:
+    replication_factor: 1
+
+  storage:
+    type: filesystem
+
+  schemaConfig:
+    configs:
+      - from: "2024-01-01"
+        store: tsdb
+        object_store: filesystem
+        schema: v13
+        index:
+          prefix: loki_index_
+          period: 24h
+
+  # --- Ingestion & Query Limits (tuned for 11 nodes, ~15-20 microservices) ---
+  limits_config:
+    # Sized for roughly 3x the per-node fan-in vs the 4-node config.
+    # 64 MB/s is well above steady-state for this workload but absorbs spikes
+    # (e.g. a node coming back online and replaying buffered logs).
+    ingestion_rate_mb: 64
+    ingestion_burst_size_mb: 128
+    reject_old_samples: true
+    reject_old_samples_max_age: 1h
+    creation_grace_period: 10m
+    # Stream cardinality: 11 nodes worth of unique pod/container/app combos.
+    # 50k leaves comfortable headroom; raise only if you see "max streams"
+    # rejections in Loki logs.
+    max_streams_per_user: 50000
+    max_global_streams_per_user: 50000
+    max_line_size: 262144
+    max_query_series: 50000
+    max_query_parallelism: 16        # aligned to 4 CPU limit on the Loki pod
+    max_entries_limit_per_query: 100000
+    retention_period: 72h            # 3 days
+    split_queries_by_interval: 30m
+    allow_structured_metadata: false
+    query_timeout: "2m"
+
+  compactor:
+    working_directory: /var/loki/compactor
+    compaction_interval: 10m
+    retention_enabled: true
+    retention_delete_delay: 2h
+    retention_delete_worker_count: 30
+    delete_request_store: filesystem
+
+  # --- Querier Tuning ---
+  querier:
+    max_concurrent: 12             # ~3x CPU cores (4 cores at limit)
+
+  # --- Query Frontend & Scheduler (critical for "context canceled" errors) ---
+  frontend:
+    max_outstanding_per_tenant: 4096
+    compress_responses: true
+
+  query_scheduler:
+    max_outstanding_requests_per_tenant: 4096
+
+  query_range:
+    align_queries_with_step: true
+    cache_results: true
+    results_cache:
+      cache:
+        embedded_cache:
+          enabled: true
+          max_size_mb: 512
+          ttl: 1h
+
+  ingester:
+    chunk_idle_period: 30m
+    chunk_block_size: 262144
+    wal:
+      enabled: true
+      dir: /var/loki/wal
+
+  storage_config:
+    tsdb_shipper:
+      active_index_directory: /var/loki/tsdb-index
+      cache_location: /var/loki/tsdb-cache
+      cache_ttl: 24h
+    filesystem:
+      directory: /var/loki/chunks
+
+  server:
+    http_listen_port: 3100
+    grpc_listen_port: 9095
+    log_level: warn
+    grpc_server_max_recv_msg_size: 33554432
+    grpc_server_max_send_msg_size: 33554432
+
+  ruler:
+    storage:
+      type: local
+      local:
+        directory: /var/loki/rules
+    rule_path: /var/loki/rules-temp
+    ring:
+      kvstore:
+        store: inmemory
+    enable_api: true
+
+# -----------------------------------------------------------------------------
+# SINGLE BINARY POD CONFIGURATION
+# -----------------------------------------------------------------------------
+singleBinary:
+  replicas: 1
+
+  # --- Resources (unchanged — sized to Loki's own binary, not cluster size) ---
+  # If you start seeing OOMKills or sustained CPU throttling on the pod with
+  # the 11-node fan-in, switch to the heavier tier commented below.
+  resources:
+    requests:
+      cpu: "2000m"
+      memory: "4Gi"
+    limits:
+      cpu: "4000m"
+      memory: "6Gi"
+
+  # --- Heavier resources for a busier 11-node setup, if needed ---
+  # If you adopt this tier, also bump GOMAXPROCS to "8" in extraEnv below.
+  # requests:
+  #   cpu: "4000m"
+  #   memory: "6Gi"
+  # limits:
+  #   cpu: "8000m"
+  #   memory: "16Gi"
+
+  persistence:
+    enabled: true
+    # WARNING: nfs-csi has been the source of repeated "no space left on device"
+    # outages on this cluster. Strongly consider a block / local StorageClass
+    # for Loki — its TSDB does poorly on NFS-backed volumes.
+    storageClass: "nfs-csi"
+    # 75Gi covers 11 nodes at 72h retention with comfortable headroom:
+    # ~10-20 MB/s realistic ingest → 50-100 GB / 3 days of chunks + index.
+    # Drop to 50Gi if NFS pool pressure is a concern; raise to 100Gi if
+    # retention bumps to a week.
+    size: 50Gi
+    accessModes:
+      - ReadWriteOnce
+
+  # NEW: dedicated PVC just for the WAL, on a fast StorageClass:
+  extraVolumeClaimTemplates:
+    - metadata:
+        name: wal
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        storageClassName: "nfs-csi"
+        resources:
+          requests:
+            storage: 10Gi
+
+  extraVolumeMounts:
+    - name: wal
+      mountPath: /var/loki/wal
+
+  affinity:
+    nodeAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 1
+          preference:
+            matchExpressions:
+              - key: node-role.kubernetes.io/control-plane
+                operator: DoesNotExist
+
+  nodeSelector: {}
+
+  tolerations: {}
+
+  podAnnotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "3100"
+    prometheus.io/path: "/metrics"
+
+  # --- Extra Environment ---
+  extraEnv:
+    - name: GOMAXPROCS
+      value: "4"               # match the CPU limit (bump to "8" with heavier tier)
+
+# -----------------------------------------------------------------------------
+# DISABLE UNNEEDED COMPONENTS
+# -----------------------------------------------------------------------------
+backend:
+  replicas: 0
+read:
+  replicas: 0
+write:
+  replicas: 0
+
+gateway:
+  enabled: false
+
+chunksCache:
+  enabled: false
+resultsCache:
+  enabled: false
+
+monitoring:
+  serviceMonitor:
+    enabled: false
+  selfMonitoring:
+    enabled: false
+
+# --- Loki Canary (top-level key in chart 6.x) ---
+lokiCanary:
+  enabled: false
+
+test:
+  enabled: false
+
+service:
+  type: ClusterIP
+  port: 3100
+
+networkPolicy:
+  enabled: false
+
+serviceAccount:
+  create: true
+  name: loki
+
+global:
+  clusterDomain: cluster.local
+
+commonLabels:
+  app.kubernetes.io/part-of: loki-monitoring
+  cluster: rke2
