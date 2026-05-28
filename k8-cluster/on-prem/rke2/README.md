@@ -62,6 +62,20 @@ Set up firewall rules on each of the VM's/machines. The following uses ufw to se
     ansible-playbook -i hosts.ini swap.yaml
     ```
 ## K8s setup
+You can set up the RKE2 cluster either automatically using Ansible (recommended) or manually.
+
+### Automated Setup via Ansible (Recommended)
+The automated deployment uses the provided Ansible playbooks to install and configure the RKE2 cluster across all nodes. This is the preferred and less error-prone way to deploy the cluster.
+
+* Ensure you have updated `hosts.ini` with all your node details and disabled swap using `swap.yaml`.
+* Execute the main Ansible playbook to provision the RKE2 Cluster:
+  ```
+  cd ansible
+  ansible-playbook -i hosts.ini main.yaml
+  ```
+* For detailed instructions, refer to the [Ansible Setup README](./ansible/README.md).
+
+### Manual Setup
 * Different types of nodes to be referenced moving ahead.
   * **Primary server node** : 
     * First node used for creating RKE2 k8 cluster is called primary server node.
