@@ -8,60 +8,84 @@ The following guide uses [RKE2](https://docs.rke2.io/) to set up the Kubernetes 
 * The following tools are installed on all the VM's/machines and the client machine.
   ```ufw , wget , curl , kubectl , istioctl , helm , jq```
 ## Firewall Setup
-Set up firewall rules on each of the VM's/machines. The following uses ufw to setup firewall.
-* `ufw` commands to be executed on each of the VM's/machines:
-  * SSH into each node VM/machine super user or change to superuser.
-  * Run the following command for each rule in the following table
-    ```
-    ufw allow from <from-ip-range-allowed> to any port <port/range> proto <tcp/udp>
-    ```
-  * Example
-    ```
-    ufw allow from any to any port 22 proto tcp
-    ufw allow from 10.3.4.0/24 to any port 9345 proto tcp
-    ```
-  * Enable ufw.
-    ```
-    ufw enable
-    ufw default deny incoming
-    ```
+You can set up firewall rules on each of the VM's/machines either automatically using Ansible (recommended) or manually. The following uses `ufw` to setup the firewall.
+
+### Automated Setup via Ansible (Recommended)
+You can use the provided Ansible scripts to automatically open the required ports and disable swap across all nodes.
+* Configure `Wireguard conf` and establish wireguard tunnel with Wireguard Bastion server.
+* Install [Ansible](https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html) on your personal computer or machine used to perform deployment.
+* Navigate to the `ansible` directory and prepare the inventory:
+  ```
+  cd ansible
+  cp hosts.ini.sample hosts.ini
+  ```
+* Update `hosts.ini` with proper details of all the VM's/machines.
+* Execute Ansible command to open port on each node:
+  ```
+  ansible-playbook -i hosts.ini ports.yaml
+  ```
+* Disable swap (perhaps not needed as swap is already disabled).
+  ```
+  ansible-playbook -i hosts.ini swap.yaml
+  ```
+
+### Manual Setup
+If you prefer not to use Ansible, you must manually run `ufw` commands on each of the VM's/machines.
+* SSH into each node VM/machine super user or change to superuser.
+* Run the following command for each rule in the following table
+  ```
+  ufw allow from <from-ip-range-allowed> to any port <port/range> proto <tcp/udp>
+  ```
+* Example
+  ```
+  ufw allow from any to any port 22 proto tcp
+  ufw allow from 10.3.4.0/24 to any port 9345 proto tcp
+  ```
+* Enable ufw.
+  ```
+  ufw enable
+  ufw default deny incoming
+  ```
 * Additional reference : [ RKE2 Networking Requirements](https://docs.rke2.io/install/requirements#networking).
-* Ports to be opened in server nodes:
-  |Protocal|Port|Accesibility|Description|
-  |---|---|---|---|
-  |TCP|22|RKE2 server and agent nodes over wireguard|SSH|
-  |TCP|80|RKE2 server and agent nodes|Internal traffic|
-  |TCP|443|RKE2 server and agent nodes|External traffic (if any apart fron nginx/loadbalancer)|
-  |TCP|2381|RKE2 server and agent nodes|etcd metrics port|
-  |TCP|2379|RKE2 server and agent nodes|etcd client port|
-  |TCP|2380|RKE2 server and agent nodes|etcd peer port|
-  |TCP|10250|RKE2 server and agent nodes|kubelet metrics|
-  |TCP|9345|RKE2 server and agent nodes|RKE2 supervisor API|
-  |TCP|6443|RKE2 server and agent nodes|Kubernetes API|
-  |UDP|8472|RKE2 server and agent nodes|Canal CNI with VXLAN|
-  |TCP|9099|RKE2 server and agent nodes|Canal CNI health checks|    
-  |TCP|30000-32767|RKE2 server and agent nodes|NodePort port range|
-* Ports to be opened in agent nodes
-  |Protocal|Port|Accesibility|Description|
-  |---|---|---|---|
-  |TCP|22|RKE2 server and agent nodes over wireguard|SSH|
-  |TCP|80|RKE2 server and agent nodes|Internal traffic|
-  |TCP|443|RKE2 server and agent nodes|External traffic (if any apart fron nginx/loadbalancer)|
-  |TCP|10250|RKE2 server and agent nodes|kubelet metrics|
-* Ansible script to be used for opening ports via `ufw` on all VM's/machines.
-  * Configure `Wireguard conf` and establish wireguard tunnel with Wireguard Bastion server.
-  * Install [Ansible](https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html) on your personel computer or machine used to perform deployment.
-  * Create a copy of `hosts.ini.sample` as `hosts.ini`.
-  * Update `hosts.ini` with proper details of all the VM's/machines.
-  * Execute Ansible command to open port on each nodes:
-    ```
-    ansible-playbook -i hosts.ini ports.yaml
-    ```
-  * Disable swap (perhaps not needed as swap is already disabled).
-    ```
-    ansible-playbook -i hosts.ini swap.yaml
-    ```
+
+#### Ports to be opened in server nodes:
+|Protocal|Port|Accesibility|Description|
+|---|---|---|---|
+|TCP|22|RKE2 server and agent nodes over wireguard|SSH|
+|TCP|80|RKE2 server and agent nodes|Internal traffic|
+|TCP|443|RKE2 server and agent nodes|External traffic (if any apart fron nginx/loadbalancer)|
+|TCP|2381|RKE2 server and agent nodes|etcd metrics port|
+|TCP|2379|RKE2 server and agent nodes|etcd client port|
+|TCP|2380|RKE2 server and agent nodes|etcd peer port|
+|TCP|10250|RKE2 server and agent nodes|kubelet metrics|
+|TCP|9345|RKE2 server and agent nodes|RKE2 supervisor API|
+|TCP|6443|RKE2 server and agent nodes|Kubernetes API|
+|UDP|8472|RKE2 server and agent nodes|Canal CNI with VXLAN|
+|TCP|9099|RKE2 server and agent nodes|Canal CNI health checks|    
+|TCP|30000-32767|RKE2 server and agent nodes|NodePort port range|
+
+#### Ports to be opened in agent nodes
+|Protocal|Port|Accesibility|Description|
+|---|---|---|---|
+|TCP|22|RKE2 server and agent nodes over wireguard|SSH|
+|TCP|80|RKE2 server and agent nodes|Internal traffic|
+|TCP|443|RKE2 server and agent nodes|External traffic (if any apart fron nginx/loadbalancer)|
+|TCP|10250|RKE2 server and agent nodes|kubelet metrics|
 ## K8s setup
+You can set up the RKE2 cluster either automatically using Ansible (recommended) or manually.
+
+### Automated Setup via Ansible (Recommended)
+The automated deployment uses the provided Ansible playbooks to install and configure the RKE2 cluster across all nodes. This is the preferred and less error-prone way to deploy the cluster.
+
+* Ensure you have updated `hosts.ini` with all your node details and disabled swap using `swap.yaml`.
+* Execute the main Ansible playbook to provision the RKE2 Cluster:
+  ```
+  cd ansible
+  ansible-playbook -i hosts.ini main.yaml
+  ```
+* For detailed instructions, refer to the [Ansible Setup README](./ansible/README.md).
+
+### Manual Setup
 * Different types of nodes to be referenced moving ahead.
   * **Primary server node** : 
     * First node used for creating RKE2 k8 cluster is called primary server node.
