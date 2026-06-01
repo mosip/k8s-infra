@@ -17,29 +17,33 @@
   ```
   ansible-playbook -i ./hosts.ini nfs-ports.yaml
   ```
-* Login to the NFS node and execute `./install-nfs-server.sh` to deploy the NFS server for a specific environment.
-* While deploying the NFS server, you have to pass the environment Name.
-* Location in NFS server nodes for that specific environment will be `/srv/nfs/mosip/<envName>`.
-  ```
+* Login to the NFS node and execute `./install-nfs-server.sh` to deploy the NFS server.
+* The script uses environment variables to set the configuration:
+  * `NFS_SERVER_LOCATION`: The directory path for the NFS storage (default: `/srv/nfs`)
+  * `NFS_USER`: The user created for NFS operations (default: `nfsnobody`)
+* To use the defaults, simply run:
+  ```bash
   sudo ./install-nfs-server.sh
-  .....
-  Please Enter Environment Name: <envName>
-  .....
-  .....
-  .....
-  [ Export the NFS Share Directory ] 
-  exporting *:/srv/nfs/mosip/<envName>
-  
-  NFS Server Path: /srv/nfs/mosip/<envName>
+  ```
+* To configure custom paths or a specific environment, pass the variables:
+  ```bash
+  sudo NFS_SERVER_LOCATION=/correct/path NFS_USER=nfsnobody ./install-nfs-server.sh
   ```
 ## NFS Client Provisioner Installation
 * Run `./install-nfs-csi.sh` to deploy NFS client provisioner.
-  ```
+* The script supports interactive prompts, but you can also provide environment variables for a non-interactive installation:
+  * `NFS_SERVER`: The IP or hostname of the NFS server
+  * `NFS_SERVER_LOCATION`: The NFS path on the server
+* To install interactively:
+  ```bash
   ./install-nfs-csi.sh
-    .....
-    .....
-    Please provide NFS SERVER: <NFS-SERVER>
-    Please provide NFS Path: <NFS-SERVER-PATH>
+  .....
+  Please provide NFS SERVER: <NFS-SERVER>
+  Please provide NFS Path: <NFS-SERVER-PATH>
+  ```
+* To install non-interactively using variables:
+  ```bash
+  NFS_SERVER=<NFS-SERVER> NFS_SERVER_LOCATION=<NFS-SERVER-PATH> ./install-nfs-csi.sh
   ```
 ## Post installation steps
 * Check status of NFS Client Provisioner.
@@ -88,7 +92,18 @@
 
 
 ## Uninstall NFS Client Provisioner
-* Run `./delete-nfs-csi.sh` to uninstall `nfs-csi ` helm/chart.
+* Run `./delete-nfs-cient-csi.sh` to uninstall `nfs-csi ` helm/chart.
+  ```bash
+  ./delete-nfs-cient-csi.sh
   ```
-  ./delete-nfs-csi.sh
+
+## Uninstall NFS Server
+* Login to the NFS node and execute the uninstall script to clean up the NFS server configuration and remove the package.
+* **Important:** If you used custom variables during installation, you must provide the same environment variables so the script can accurately clean up the specific exports and user:
+  ```bash
+  sudo NFS_SERVER_LOCATION=/correct/path NFS_USER=nfsnobody ./uninstall-nfs-server.sh
+  ```
+* If you used the default settings, simply run:
+  ```bash
+  sudo ./uninstall-nfs-server.sh
   ```
