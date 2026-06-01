@@ -17,7 +17,7 @@
   ```
   ansible-playbook -i ./hosts.ini nfs-ports.yaml
   ```
-* Login to the NFS node and execute `./install-nfs-server.sh` to deploy the NFS server.
+* Login to the NFS node to deploy the NFS server.
 * The script uses environment variables to set the configuration:
   * `NFS_SERVER_LOCATION`: The directory path for the NFS storage (default: `/srv/nfs`)
   * `NFS_USER`: The user created for NFS operations (default: `nfsnobody`)
