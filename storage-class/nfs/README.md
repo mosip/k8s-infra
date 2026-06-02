@@ -90,9 +90,8 @@
   <name>  Bound    pvc-36d6e3ce-59bb-4f96-aea2-07c673356fac   5Gi        RWX            nfs-csi     60s
   ```
 
-
 ## Uninstall NFS Client Provisioner
-* Run `./delete-nfs-cient-csi.sh` to uninstall `nfs-csi ` helm/chart.
+* Run `./delete-nfs-cient-csi.sh` to uninstall `nfs-csi` helm/chart.
   ```bash
   ./delete-nfs-cient-csi.sh
   ```
