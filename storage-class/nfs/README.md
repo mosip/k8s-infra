@@ -95,14 +95,3 @@
   ```bash
   ./delete-nfs-cient-csi.sh
   ```
-
-## Uninstall NFS Server
-* Login to the NFS node and execute the uninstall script to clean up the NFS server configuration and remove the package.
-* **Important:** If you used custom variables during installation, you must provide the same environment variables so the script can accurately clean up the specific exports and user:
-  ```bash
-  sudo NFS_SERVER_LOCATION=/correct/path NFS_USER=nfsnobody ./uninstall-nfs-server.sh
-  ```
-* If you used the default settings, simply run:
-  ```bash
-  sudo ./uninstall-nfs-server.sh
-  ```
