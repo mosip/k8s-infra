@@ -4,7 +4,7 @@ function uninstalling_nfs() {
   export NFS_SERVER_LOCATION=${NFS_SERVER_LOCATION:-/srv/nfs}
   export NFS_USER=${NFS_USER:-nfsnobody}
 
-  if [ "$USER" != "root" ]; then
+  if [ "${EUID:-$(id -u)}" -ne 0 ]; then
     echo "Run this as root"
     exit 1
   fi
@@ -21,8 +21,9 @@ function uninstalling_nfs() {
 
   echo -e "\n$(tput setaf 9)[ Clean up NFS export file ] $(tput sgr 0)"
   if [ -f /etc/exports ]; then
-    grep -v "^${NFS_SERVER_LOCATION}" /etc/exports > /tmp/exports || true
-    mv /tmp/exports /etc/exports
+    tmp_exports="$(mktemp)"
+    grep -Fv -- "$NFS_SERVER_LOCATION" /etc/exports > "$tmp_exports" || true
+    mv "$tmp_exports" /etc/exports
     exportfs -rav || true
     echo "Cleaned up NFS export file."
   fi
