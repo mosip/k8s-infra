@@ -49,7 +49,7 @@ If you prefer not to use Ansible, you must manually run `ufw` commands on each o
 * Additional reference : [ RKE2 Networking Requirements](https://docs.rke2.io/install/requirements#networking).
 
 #### Ports to be opened in server nodes:
-|Protocal|Port|Accesibility|Description|
+|Protocol|Port|Accesibility|Description|
 |---|---|---|---|
 |TCP|22|RKE2 server and agent nodes over wireguard|SSH|
 |TCP|80|RKE2 server and agent nodes|Internal traffic|
