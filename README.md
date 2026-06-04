@@ -13,6 +13,7 @@
       * [RKE2](./k8-cluster/on-prem/rke2/README.md) based k8 cluster creation steps.
   * Cloud service providers:
     * [AWS](./k8-cluster/csp/aws/README.md) : based k8 cluster creation steps.
+* [monitoring](./monitoring/README.md)
 * [Ingress](./ingress/README.md) : Setup steps for ingress in k8 cluster to espose services.
 * [Storage class](./storage-class) : Steps to setup and configure multiple types of storage classes for k8 cluster.
   * [nfs](./storage-class/nfs/README.md).
@@ -22,7 +23,6 @@
 * [Nginx](./nginx/) Webserver deployment steps. Used for exposing services to external world along with ingress in on-prem mode k8s clusters.
 * [Alerting](./alerting/README.md)
 * [logging](./logging/README.md)
-* [monitoring](./monitoring/README.md)
 * [Observation stack](observtaion/README.md) setup.
   * Contains below mentions apps for Observation stack.
     * [Rancher UI](apps/rancher-ui/README.md) Rancher UI installation.
