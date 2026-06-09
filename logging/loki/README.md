@@ -113,7 +113,7 @@ Without this stack, logs live only inside individual pods and are lost when a po
 
 ```
 logging/loki/
-├── install.sh              # Main deployment script
+├── deploy-loki.sh              # Main deployment script
 ├── delete.sh              # Uninstall / cleanup script
 │
 ├── loki-values.yaml            # Helm values for Loki
@@ -165,7 +165,7 @@ Helm values for Grafana Alloy. The most important section is `alloy.configMap.co
 
 - `kubectl` installed and configured, connected to your RKE2 cluster.
 - `helm` v3 installed.
-- All YAML files present in the same directory as `install.sh`.
+- All YAML files present in the same directory as `deploy-loki.sh`.
 
 ### Steps
 
@@ -173,16 +173,15 @@ Helm values for Grafana Alloy. The most important section is `alloy.configMap.co
 # 1. Clone or copy the deployment files to your working directory
 
 # 2. Review and update configuration
-#    - Open install.sh and change GRAFANA_PASSWORD
 #    - Review alloy-values.yaml and update cluster/environment labels if needed
 #    - Review grafana-values.yaml and update the values as per the requirement.
 #    - Review loki-values.yaml and update the values as per the requirement.
 
 # 3. Make the script executable
-chmod +x install.sh
+chmod +x deploy-loki.sh
 
-# 4. Run the deployment
-./install.sh
+# 4. Run the deployment script
+./deploy-loki.sh
 ```
 
 ### What the Script Does (Step by Step)
