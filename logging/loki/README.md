@@ -165,7 +165,10 @@ Helm values for Grafana Alloy. The most important section is `alloy.configMap.co
 
 - `kubectl` installed and configured, connected to your RKE2 cluster.
 - `helm` v3 installed.
-- All YAML files present in the same directory as `deploy-loki.sh`.
+- Required files present in the same directory as `deploy-loki.sh`:
+  - `loki-values.yaml`
+  - `grafana-values.yaml`
+  - `alloy-values.yaml`
 
 ### Steps
 

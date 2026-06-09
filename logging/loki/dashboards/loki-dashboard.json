@@ -135,7 +135,7 @@
       "gridPos": { "h": 16, "w": 24, "x": 0, "y": 20 },
       "datasource": null,
       "targets": [{
-        "expr": "{namespace=~\"$namespace\", pod=~\"$pod\", container=~\"container\"} |~ \"(?i)$search\"",
+        "expr": "{namespace=~\"$namespace\", pod=~\"$pod\", container=~\"$container\"} |~ \"(?i)$search\"",
         "legendFormat": ""
       }],
       "options": {
