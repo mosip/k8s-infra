@@ -1,71 +1,169 @@
 #!/bin/bash
-# Script to renew ssl certificates..
+# =============================================================================
+# setup_ssl_cronjob.sh
+# Validates prerequisites and sets up the SSL renewal cron job.
+# Run this once on the VM to register the cron job.
+# =============================================================================
 
-# Log file path
-log_file="ssl_cert_renewal.log"
+SCRIPT_NAME="renew_ssl_certs.sh"
+SCRIPT_TARGET="/usr/local/bin/${SCRIPT_NAME}"
+CRON_FILE="/etc/cron.d/ssl-cert-renewal"
+LOG_FILE="/var/log/ssl_cert_renewal.log"
 
-# Redirect stdout and stderr to the log file
-exec > >(tee -a "$log_file") 2>&1
+log()  { echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1"; }
+info() { log "INFO:  $1"; }
+err()  { log "ERROR: $1"; }
 
-function ssl_certs_renew() {
-  # Get the current date to backup the existing ssl certs directory with current date
-  suffix=$(date +"%d-%m-%Y")
+info "========== SSL Renewal Cron Setup =========="
 
-  # Define the source and destination directories
-  src_dir="/etc/letsencrypt/live"
-  dest_dir="/etc/letsencrypt/live-${suffix}"
+# ==========================================================================
+# PREREQUISITE CHECKS
+# ==========================================================================
+info "Running prerequisite checks before registering cron job..."
+PREREQ_FAILED=false
 
-  # Check if the source directory exists
-  if [ -d "$src_dir" ]; then
-      # Move the directory
-      sudo mv "$src_dir" "$dest_dir"
-      echo "Directory moved to $dest_dir"
+# --------------------------------------------------------------------------
+# Check 1: Must run as root
+# --------------------------------------------------------------------------
+info "CHECK 1/6: Sudo / root privileges..."
+if [ "$EUID" -ne 0 ]; then
+  err "This script must be run as root. Use: sudo bash $0"
+  exit 1
+fi
+info "  PASSED — running as root."
+
+# --------------------------------------------------------------------------
+# Check 2: certbot is installed
+# --------------------------------------------------------------------------
+info "CHECK 2/6: certbot installation..."
+if ! command -v certbot &>/dev/null; then
+  err "certbot is not installed."
+  err "Fix: sudo apt install certbot python3-certbot-dns-route53"
+  PREREQ_FAILED=true
+else
+  CERTBOT_VERSION=$(certbot --version 2>&1)
+  info "  PASSED — ${CERTBOT_VERSION}"
+fi
+
+# --------------------------------------------------------------------------
+# Check 3: certbot Route53 DNS plugin
+# --------------------------------------------------------------------------
+info "CHECK 3/6: certbot Route53 DNS plugin..."
+if ! python3 -c "import certbot_dns_route53" &>/dev/null; then
+  err "certbot-dns-route53 plugin is not installed."
+  err "Fix: sudo apt install python3-certbot-dns-route53"
+  PREREQ_FAILED=true
+else
+  info "  PASSED — certbot-dns-route53 plugin is available."
+fi
+
+# --------------------------------------------------------------------------
+# Check 4: AWS Route53 access
+# --------------------------------------------------------------------------
+info "CHECK 4/6: AWS Route53 access..."
+if ! command -v aws &>/dev/null; then
+  err "aws CLI not found. Cannot verify Route53 access."
+  err "Fix: sudo apt install awscli"
+  PREREQ_FAILED=true
+else
+  if aws route53 list-hosted-zones --output text &>/dev/null; then
+    ZONE_COUNT=$(aws route53 list-hosted-zones --query 'length(HostedZones)' --output text 2>/dev/null || echo "unknown")
+    info "  PASSED — Route53 accessible. Hosted zones: ${ZONE_COUNT}"
   else
-      echo "Source directory $src_dir does not exist."
+    err "Cannot access Route53 via AWS CLI."
+    err "Ensure the EC2 IAM role has these permissions:"
+    err "  route53:GetChange, route53:ChangeResourceRecordSets"
+    err "  route53:ListHostedZones, route53:ListResourceRecordSets"
+    PREREQ_FAILED=true
   fi
+fi
 
-  # Regenerate the ssl certificates
-
-  # Fetch the domain from the ssl certs
-  domain=$(sudo openssl x509 -in $dest_dir/*/fullchain.pem -noout -text | grep -A 1 "Subject Alternative Name:" | tail -n 1 | sed 's/ *DNS://g')
-  mosip_domain=$(echo "$domain" | tr ',' '\n' | grep -v '^\*' | head -n 1)
-
-  # Check if the domain is not empty
-  if [ -z "$mosip_domain" ]; then
-      echo "Domain name cannot be empty"
-      exit 1
+# --------------------------------------------------------------------------
+# Check 5: nginx is installed and config is valid
+# --------------------------------------------------------------------------
+info "CHECK 5/6: nginx..."
+if ! command -v nginx &>/dev/null; then
+  err "nginx is not installed."
+  err "Fix: sudo apt install nginx"
+  PREREQ_FAILED=true
+else
+  info "  PASSED — $(nginx -v 2>&1)"
+  if ! sudo nginx -t &>/dev/null; then
+    err "nginx config test failed. Run 'sudo nginx -t' for details."
+    PREREQ_FAILED=true
+  else
+    info "  PASSED — nginx config is valid."
   fi
+fi
 
-  # Run certbot with the user-provided domain name
-  sudo certbot certonly \
-    --dns-route53 \
-    -d "$mosip_domain" \
-    -d "*.$mosip_domain"
+# --------------------------------------------------------------------------
+# Check 6: renewal script exists at /usr/local/bin/
+# --------------------------------------------------------------------------
+info "CHECK 6/6: Renewal script at ${SCRIPT_TARGET}..."
+if [ ! -f "$SCRIPT_TARGET" ]; then
+  err "Renewal script not found at ${SCRIPT_TARGET}."
+  err "Fix:"
+  err "  sudo cp ${SCRIPT_NAME} ${SCRIPT_TARGET}"
+  err "  sudo chmod +x ${SCRIPT_TARGET}"
+  PREREQ_FAILED=true
+else
+  sudo chmod +x "$SCRIPT_TARGET"
+  info "  PASSED — script found and marked executable."
+fi
 
-  # Rename the new certificates
-  sudo mv /etc/letsencrypt/live/$mosip_domain-* /etc/letsencrypt/live/$mosip_domain
+# --------------------------------------------------------------------------
+# Abort if any check failed
+# --------------------------------------------------------------------------
+if [ "$PREREQ_FAILED" = true ]; then
+  err "========== One or more prerequisite checks FAILED. =========="
+  err "Fix the issues above and re-run this script."
+  exit 1
+fi
 
-  # Slack notification for ssl certs renew
-  # Slack webhook URL
-  slack_webhook_url="https://hooks.slack.com/services/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"
+info "========== All prerequisite checks PASSED =========="
 
-  # Notification message
-  message="SSL certificate for "$mosip_domain" has been successfully renewed."
+# ==========================================================================
+# SETUP
+# ==========================================================================
 
-  # Send notification to Slack
-  curl -X POST -H 'Content-type: application/json' --data "{
-      \"text\": \"$message\"
-  }" "$slack_webhook_url"
+# --------------------------------------------------------------------------
+# Prepare log file
+# --------------------------------------------------------------------------
+sudo touch "$LOG_FILE"
+sudo chmod 644 "$LOG_FILE"
+info "Log file ready: ${LOG_FILE}"
 
-  # Restart the Nginx service
-  sudo systemctl restart nginx
-  return 0
-}
+# --------------------------------------------------------------------------
+# Register the cron job in /etc/cron.d/
+# --------------------------------------------------------------------------
+sudo tee "$CRON_FILE" > /dev/null <<EOF
+# SSL Certificate Renewal Check
+# Runs daily at midnight — only renews if expiry is within 7 days
+# Managed by: setup_ssl_cronjob.sh
+# Logs to: ${LOG_FILE}
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
-# set commands for error handling.
-set -e
-set -o errexit   ## set -e : exit the script if any statement returns a non-true return value
-set -o nounset   ## set -u : exit the script if you try to use an uninitialised variable
-set -o errtrace  # trace ERR through 'time command' and other functions
-set -o pipefail  # trace ERR through pipes
-ssl_certs_renew
+0 0 * * * root ${SCRIPT_TARGET} >> ${LOG_FILE} 2>&1
+EOF
+
+sudo chmod 644 "$CRON_FILE"
+
+# --------------------------------------------------------------------------
+# Summary
+# --------------------------------------------------------------------------
+echo ""
+echo "==========================================="
+echo " Cron job registered successfully"
+echo "-------------------------------------------"
+echo " File    : ${CRON_FILE}"
+echo " Schedule: daily at 00:00"
+echo " Script  : ${SCRIPT_TARGET}"
+echo " Log     : ${LOG_FILE}"
+echo "==========================================="
+echo ""
+echo "Useful commands:"
+echo "  View cron entry  : cat ${CRON_FILE}"
+echo "  Run manually     : sudo ${SCRIPT_TARGET}"
+echo "  Watch logs live  : tail -f ${LOG_FILE}"
+echo "  Verify cert      : sudo certbot certificates"
+echo ""
