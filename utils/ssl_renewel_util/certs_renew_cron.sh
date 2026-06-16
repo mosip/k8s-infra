@@ -97,18 +97,32 @@ else
 fi
 
 # --------------------------------------------------------------------------
-# Check 6: renewal script exists at /usr/local/bin/
+# Check 6: locate renew_ssl_certs.sh and deploy it to /usr/local/bin/
+# Looks in the same directory as this setup script first, then falls
+# back to the current working directory.
 # --------------------------------------------------------------------------
-info "CHECK 6/6: Renewal script at ${SCRIPT_TARGET}..."
-if [ ! -f "$SCRIPT_TARGET" ]; then
-  err "Renewal script not found at ${SCRIPT_TARGET}."
-  err "Fix:"
-  err "  sudo cp ${SCRIPT_NAME} ${SCRIPT_TARGET}"
-  err "  sudo chmod +x ${SCRIPT_TARGET}"
-  PREREQ_FAILED=true
+info "CHECK 6/6: Locating and deploying ${SCRIPT_NAME}..."
+
+# Resolve the directory this setup script is running from
+SETUP_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SOURCE_SCRIPT=""
+
+if [ -f "${SETUP_DIR}/${SCRIPT_NAME}" ]; then
+  SOURCE_SCRIPT="${SETUP_DIR}/${SCRIPT_NAME}"
+  info "  Found ${SCRIPT_NAME} alongside this setup script at ${SETUP_DIR}/"
+elif [ -f "$(pwd)/${SCRIPT_NAME}" ]; then
+  SOURCE_SCRIPT="$(pwd)/${SCRIPT_NAME}"
+  info "  Found ${SCRIPT_NAME} in current directory $(pwd)/"
 else
+  err "${SCRIPT_NAME} not found."
+  err "Ensure ${SCRIPT_NAME} is in the same directory as this setup script."
+  PREREQ_FAILED=true
+fi
+
+if [ -n "$SOURCE_SCRIPT" ]; then
+  sudo cp "$SOURCE_SCRIPT" "$SCRIPT_TARGET"
   sudo chmod +x "$SCRIPT_TARGET"
-  info "  PASSED — script found and marked executable."
+  info "  PASSED — copied to ${SCRIPT_TARGET} and marked executable."
 fi
 
 # --------------------------------------------------------------------------
