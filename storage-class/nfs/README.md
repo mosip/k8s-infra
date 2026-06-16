@@ -30,31 +30,25 @@
   sudo NFS_SERVER_LOCATION=/correct/path NFS_USER=nfsnobody ./install-nfs-server.sh
   ```
 ## NFS Client Provisioner Installation
-* Run `./install-nfs-csi.sh` to deploy NFS client provisioner.
-* The script supports interactive prompts, but you can also provide environment variables for a non-interactive installation:
+* The script uses environment variables for installation:
   * `NFS_SERVER`: The IP or hostname of the NFS server
   * `NFS_SERVER_LOCATION`: The NFS path on the server
-* To install interactively:
-  ```bash
-  ./install-nfs-csi.sh
-  .....
-  Please provide NFS SERVER: <NFS-SERVER>
-  Please provide NFS Path: <NFS-SERVER-PATH>
-  ```
-* To install non-interactively using variables:
+* Install the provisioner by running the script with the required variables. Replace the `<NFS-SERVER>` and `<NFS-SERVER-PATH>` placeholders with your actual server IP and path:
   ```bash
   NFS_SERVER=<NFS-SERVER> NFS_SERVER_LOCATION=<NFS-SERVER-PATH> ./install-nfs-csi.sh
   ```
 ## Post installation steps
 * Check status of NFS Client Provisioner.
   ```
-  kubectl -n nfs get deployment.apps/csi-driver-nfs
+  kubectl get deploy -n nfs
+  NAME                 READY   UP-TO-DATE   AVAILABLE   AGE
+  csi-nfs-controller   1/1     1            1           40s
   ```
 * check status of `nfs-csi` storage class.
   ```
    kubectl get storageclass
-   NAME                 PROVISIONER                            RECLAIMPOLICY   VOLUMEBINDINGMODE   ALLOWVOLUMEEXPANSION   AGE
-   nfs-csi           cluster.local/nfs-csi                     Retain          Immediate           true                   40s
+   NAME                 PROVISIONER                     RECLAIMPOLICY   VOLUMEBINDINGMODE   ALLOWVOLUMEEXPANSION   AGE
+   nfs-csi(default)     nfs.csi.k8s.io                  Delete          Immediate           false                  40s
   ```
 
 * Login to the NFS node and check NFS server status:
