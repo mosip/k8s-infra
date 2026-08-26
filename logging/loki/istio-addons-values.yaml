@@ -1,5 +1,6 @@
 istio:
   name: grafana
+  # Replace with this environment's Grafana hostname (e.g. grafana.qadraft.example.net).
   host: grafana.sandbox.xyz.net
   # Note: If you have multiple ingressController then pass it in the form of list.
   ingressController: ingressgateway-internal
