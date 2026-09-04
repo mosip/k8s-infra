@@ -1,9 +1,9 @@
 {
   "title": "MOSIP Service Logs",
   "uid": "mosip-service-logs-loki",
-  "description": "Equivalent of Kibana MOSIP Service Logs dashboard. Shows logs from Loki with columns: req.requestURI, traceId, level, pod_name, message. Filter by namespace, service/container, level and search by traceId or keyword.",
+  "description": "Loki service logs dashboard. Works with both JSON-structured logs (MOSIP services: level, traceId, req.requestURI, message) and plain-text logs (kafka, etc.). Filter by namespace, service/app, level; search by traceId or keyword.",
   "schemaVersion": 38,
-  "version": 1,
+  "version": 2,
   "refresh": "30s",
   "time": {
     "from": "now-1h",
@@ -15,7 +15,7 @@
         "name": "namespace",
         "type": "query",
         "label": "Namespace",
-        "datasource": null,
+        "datasource": {"type": "loki", "uid": "${DS_LOKI}"},
         "definition": "label_values(namespace)",
         "query": "label_values(namespace)",
         "refresh": 2,
@@ -27,7 +27,7 @@
         "name": "app",
         "type": "query",
         "label": "Service / App",
-        "datasource": null,
+        "datasource": {"type": "loki", "uid": "${DS_LOKI}"},
         "definition": "label_values({namespace=~\"$namespace\"}, app)",
         "query": "label_values({namespace=~\"$namespace\"}, app)",
         "refresh": 2,
@@ -40,9 +40,9 @@
         "type": "custom",
         "label": "Log Level",
         "query": "INFO,WARN,ERROR,DEBUG,ACCESS",
-        "current": {"text": "All", "value": "$__all"},
+        "current": {"text": "All", "value": ".*"},
         "options": [
-          {"text": "All",    "value": "$__all", "selected": true},
+          {"text": "All",    "value": ".*",     "selected": true},
           {"text": "INFO",   "value": "INFO",   "selected": false},
           {"text": "WARN",   "value": "WARN",   "selected": false},
           {"text": "ERROR",  "value": "ERROR",  "selected": false},
@@ -50,7 +50,7 @@
           {"text": "ACCESS", "value": "ACCESS", "selected": false}
         ],
         "multi": false,
-        "includeAll": true
+        "includeAll": false
       },
       {
         "name": "search",
@@ -65,13 +65,13 @@
     {
       "id": 1,
       "type": "logs",
-      "title": "MOSIP Service Logs — req.requestURI | traceId | level | pod | message",
-      "description": "All service logs. Use the Search variable to filter by traceId or any keyword. Use Level dropdown to filter by log level. Equivalent of Kibana MOSIP Service Logs saved search.",
+      "title": "Service Logs — level | traceId | pod | message (JSON + plain-text)",
+      "description": "All service logs. JSON logs are parsed for level/traceId/message; plain-text logs (kafka etc.) pass through unparsed. Search filters by traceId or any keyword. Level dropdown filters case-insensitively on the raw line so it works for both formats.",
       "gridPos": {"h": 28, "w": 24, "x": 0, "y": 0},
-      "datasource": null,
+      "datasource": {"type": "loki", "uid": "${DS_LOKI}"},
       "targets": [
         {
-          "expr": "{namespace=~\"$namespace\", app=~\"$app\"} |= \"$search\" | json | level=~\"$level\" | line_format \"[{{.level}}] [{{.traceId}}] [{{.__pod__}}] {{.message}}\"",
+          "expr": "{namespace=~\"$namespace\", app=~\"$app\"} |= \"$search\" |~ \"(?i)$level\" | json | __error__=\"\" or __error__=\"JSONParserErr\"",
           "refId": "A"
         }
       ],
@@ -89,12 +89,12 @@
       "id": 2,
       "type": "logs",
       "title": "ACCESS Logs Only — statusCode | timeTaken | req.requestURI | traceId",
-      "description": "Only ACCESS level logs formatted to show HTTP request details: status code, response time, URI and trace ID.",
+      "description": "Only ACCESS level logs (JSON services). Shows status code, response time, URI and trace ID.",
       "gridPos": {"h": 28, "w": 24, "x": 0, "y": 28},
-      "datasource": null,
+      "datasource": {"type": "loki", "uid": "${DS_LOKI}"},
       "targets": [
         {
-          "expr": "{namespace=~\"$namespace\", app=~\"$app\", level=\"ACCESS\"} |= \"$search\" | json | line_format \"[{{.statusCode}}] {{.timeTaken}}ms | {{.req_requestURI}} | trace={{.traceId}} | pod={{.__pod__}}\"",
+          "expr": "{namespace=~\"$namespace\", app=~\"$app\"} |= \"$search\" | json | level=\"ACCESS\" | line_format \"[{{.statusCode}}] {{.timeTaken}}ms | {{.req_requestURI}} | trace={{.traceId}} | pod={{.__pod__}}\"",
           "refId": "A"
         }
       ],
@@ -111,13 +111,13 @@
     {
       "id": 3,
       "type": "logs",
-      "title": "ERROR Logs Only",
-      "description": "Only ERROR level logs across all services in the namespace. Useful for quick error triage.",
+      "title": "ERROR Logs Only (JSON + plain-text)",
+      "description": "Only ERROR-level lines across services in the namespace. Matches the JSON level field and the word ERROR in plain-text lines. Useful for quick error triage.",
       "gridPos": {"h": 16, "w": 24, "x": 0, "y": 56},
-      "datasource": null,
+      "datasource": {"type": "loki", "uid": "${DS_LOKI}"},
       "targets": [
         {
-          "expr": "{namespace=~\"$namespace\", app=~\"$app\"} |= \"$search\" | json | level=\"ERROR\" | line_format \"[{{.traceId}}] [{{.__pod__}}] {{.message}}\"",
+          "expr": "{namespace=~\"$namespace\", app=~\"$app\"} |= \"$search\" |~ \"(?i)ERROR\" | json | __error__=\"\" or __error__=\"JSONParserErr\"",
           "refId": "A"
         }
       ],
@@ -135,15 +135,14 @@
       "id": 4,
       "type": "timeseries",
       "title": "Log Volume by Level",
-      "description": "Count of log lines per level over time. Spike in ERROR = something went wrong.",
+      "description": "Count of log lines per level over time. Uses raw-line regex so it counts both JSON and plain-text logs. Spike in ERROR = something went wrong.",
       "gridPos": {"h": 8, "w": 24, "x": 0, "y": 72},
-      "datasource": null,
+      "datasource": {"type": "loki", "uid": "${DS_LOKI}"},
       "targets": [
-        {
-          "expr": "sum by (level) (count_over_time({namespace=~\"$namespace\", app=~\"$app\"} | json | level=~\"INFO|WARN|ERROR|DEBUG\" [1m]))",
-          "legendFormat": "{{level}}",
-          "refId": "A"
-        }
+        {"expr": "sum(count_over_time({namespace=~\"$namespace\", app=~\"$app\"} |~ \"(?i)ERROR\" [1m]))", "legendFormat": "ERROR", "refId": "A"},
+        {"expr": "sum(count_over_time({namespace=~\"$namespace\", app=~\"$app\"} |~ \"(?i)WARN\"  [1m]))", "legendFormat": "WARN",  "refId": "B"},
+        {"expr": "sum(count_over_time({namespace=~\"$namespace\", app=~\"$app\"} |~ \"(?i)INFO\"  [1m]))", "legendFormat": "INFO",  "refId": "C"},
+        {"expr": "sum(count_over_time({namespace=~\"$namespace\", app=~\"$app\"} |~ \"(?i)DEBUG\" [1m]))", "legendFormat": "DEBUG", "refId": "D"}
       ],
       "fieldConfig": {
         "defaults": {
@@ -166,10 +165,10 @@
       "type": "stat",
       "title": "ERROR Count (last 15m)",
       "gridPos": {"h": 4, "w": 6, "x": 0, "y": 80},
-      "datasource": null,
+      "datasource": {"type": "loki", "uid": "${DS_LOKI}"},
       "targets": [
         {
-          "expr": "sum(count_over_time({namespace=~\"$namespace\", app=~\"$app\"} | json | level=\"ERROR\" [15m]))",
+          "expr": "sum(count_over_time({namespace=~\"$namespace\", app=~\"$app\"} |~ \"(?i)ERROR\" [15m]))",
           "refId": "A"
         }
       ],
@@ -186,10 +185,10 @@
       "type": "stat",
       "title": "WARN Count (last 15m)",
       "gridPos": {"h": 4, "w": 6, "x": 6, "y": 80},
-      "datasource": null,
+      "datasource": {"type": "loki", "uid": "${DS_LOKI}"},
       "targets": [
         {
-          "expr": "sum(count_over_time({namespace=~\"$namespace\", app=~\"$app\"} | json | level=\"WARN\" [15m]))",
+          "expr": "sum(count_over_time({namespace=~\"$namespace\", app=~\"$app\"} |~ \"(?i)WARN\" [15m]))",
           "refId": "A"
         }
       ],
@@ -206,10 +205,10 @@
       "type": "stat",
       "title": "Total Requests (last 15m)",
       "gridPos": {"h": 4, "w": 6, "x": 12, "y": 80},
-      "datasource": null,
+      "datasource": {"type": "loki", "uid": "${DS_LOKI}"},
       "targets": [
         {
-          "expr": "sum(count_over_time({namespace=~\"$namespace\", app=~\"$app\", level=\"ACCESS\"} [15m]))",
+          "expr": "sum(count_over_time({namespace=~\"$namespace\", app=~\"$app\"} |~ \"(?i)ACCESS\" [15m]))",
           "refId": "A"
         }
       ],
@@ -226,10 +225,10 @@
       "type": "stat",
       "title": "5xx Errors (last 15m)",
       "gridPos": {"h": 4, "w": 6, "x": 18, "y": 80},
-      "datasource": null,
+      "datasource": {"type": "loki", "uid": "${DS_LOKI}"},
       "targets": [
         {
-          "expr": "sum(count_over_time({namespace=~\"$namespace\", app=~\"$app\", level=\"ACCESS\"} | json | statusCode >= 500 [15m]))",
+          "expr": "sum(count_over_time({namespace=~\"$namespace\", app=~\"$app\"} | json | level=\"ACCESS\" | statusCode >= 500 [15m]))",
           "refId": "A"
         }
       ],
