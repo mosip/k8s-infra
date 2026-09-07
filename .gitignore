@@ -1,1 +1,3 @@
 .idea
+# Downloaded Helm charts cached by logging/loki/deploy-loki.sh
+logging/loki/.charts/
