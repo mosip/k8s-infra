@@ -50,7 +50,7 @@ datasources:
           derivedFields: []
       - name: Prometheus
         type: prometheus
-        url: http://kube-prometheus-stack-prometheus.logging.svc.cluster.local:9090
+        url: http://kube-prometheus-stack-prometheus.monitoring.svc.cluster.local:9090
         access: proxy
         isDefault: false
         version: 1

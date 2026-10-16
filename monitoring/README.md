@@ -39,5 +39,8 @@ for the removal steps and the node/security-group prerequisites.
   not here. This stack sets `grafana.enabled: false` and only emits dashboard
   ConfigMaps for that Grafana to pick up.
 - **Alerting** (Alertmanager) is part of kube-prometheus-stack — it is configured
-  in that stack's values file, not a separate deployable.
+  in that stack's values file, not a separate deployable. The top-level
+  [`../alerting/`](../alerting/) directory (Slack Alertmanager config,
+  `patch-cluster-name.yaml`, custom rules) applies only to **rancher-monitoring**
+  and is deprecated along with it.
 - **Logs** are handled by the [`../logging/`](../logging/) stacks.

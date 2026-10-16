@@ -7,6 +7,7 @@
 # Usage:
 #   chmod +x delete.sh
 #   ./delete.sh
+#   NAMESPACE=loki-monitoring ./delete.sh   # remove an install from the old namespace
 # =============================================================================
 
 set -e
@@ -28,7 +29,9 @@ error()   { echo -e "${RED}[ERROR]${NC}   $*" >&2; exit 1; }
 # =============================================================================
 # CONFIGURATION — must match install.sh
 # =============================================================================
-NAMESPACE="logging"
+# Override with NAMESPACE=loki-monitoring to remove installs made before the
+# namespace was renamed to "logging" (see README: Migrating from loki-monitoring).
+NAMESPACE="${NAMESPACE:-logging}"
 
 # Helm releases in REVERSE order of install (uninstall dependents first)
 RELEASES=(istio-addons alloy grafana loki)

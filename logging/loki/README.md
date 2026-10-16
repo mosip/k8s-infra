@@ -91,7 +91,7 @@ Without this stack, logs live only inside individual pods and are lost when a po
 - **Samples logs** — DEBUG dropped entirely, INFO kept at 30%, ACCESS logs kept at 10% (metrics cover the rest), WARN/ERROR kept at 100%.
 - Attaches labels: `namespace`, `pod`, `container`, `host`, `app`, `level`, `cluster`, `environment`.
 - Pushes processed logs to Loki.
-- Also exports its own Prometheus metrics to your existing logging system.
+- Also exports its own Prometheus metrics to your existing monitoring system.
 
 **Why sampling?** High-volume INFO and ACCESS logs are repetitive. Sampling reduces storage and cost while keeping all meaningful signals (errors and warnings are never sampled).
 
@@ -221,6 +221,25 @@ The delete script will prompt you to type `yes` before making any changes.
 - The `logging` namespace
 
 > ⚠️ **This is irreversible.** All stored logs and Grafana dashboards will be deleted.
+
+### Migrating from the old `loki-monitoring` namespace
+
+Earlier versions of this stack were installed in the `loki-monitoring`
+namespace. The scripts now default to `logging`, so an existing install is not
+touched by a plain `./delete.sh`. To move an existing environment over:
+
+```bash
+# 1. remove the old install (delete.sh accepts a NAMESPACE override)
+NAMESPACE=loki-monitoring ./delete.sh
+
+# 2. deploy into the new `logging` namespace
+./deploy-loki.sh
+```
+
+Logs stored in the old Loki PVC are not migrated. Re-import any Grafana
+dashboards that were added by hand (not via ConfigMap), and update any
+references to `*.loki-monitoring.svc.cluster.local` (e.g. external Grafana
+datasources) to `*.logging.svc.cluster.local`.
 
 **Uninstall order** mirrors reverse of install: Alloy is removed first (stops log shipping), then Grafana, then Loki (storage backend removed last).
 
