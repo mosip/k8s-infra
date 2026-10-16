@@ -167,7 +167,7 @@ standalone Loki Grafana (the `grafana/grafana` release in `deploy-loki.sh`):
 - name: Prometheus
   type: prometheus
   access: proxy
-  url: http://monitoring-kube-prometheus-prometheus.monitoring.svc.cluster.local:9090
+  url: http://kube-prometheus-stack-prometheus.monitoring.svc.cluster.local:9090
   jsonData:
     timeInterval: 1m
 ```
@@ -185,7 +185,7 @@ emitted in the `monitoring` namespace.
 kubectl get pods -n monitoring
 
 # all targets UP (node-exporter on every node, control-plane components)
-kubectl -n monitoring port-forward svc/monitoring-kube-prometheus-prometheus 9090:9090
+kubectl -n monitoring port-forward svc/kube-prometheus-stack-prometheus 9090:9090
 #   → http://localhost:9090/targets
 
 # how many node-exporters report (should equal node count)

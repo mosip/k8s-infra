@@ -1,7 +1,7 @@
 # =============================================================================
 # Grafana - Production-Ready Values for Loki Logging
 # Cluster: RKE2 v1.28.9 | Namespace: logging
-# Helm Chart: grafana-community/grafana 11.3.2  (appVersion 12.4.1)
+# Helm Chart: grafana-community/grafana 12.11.2
 # =============================================================================
 # --- Replicas ---
 replicas: 1
@@ -50,7 +50,7 @@ datasources:
           derivedFields: []
       - name: Prometheus
         type: prometheus
-        url: http://kube-prometheus-stack-prometheus.monitoring.svc.cluster.local:9090
+        url: http://kube-prometheus-stack-prometheus.logging.svc.cluster.local:9090
         access: proxy
         isDefault: false
         version: 1
@@ -105,7 +105,7 @@ sidecar:
 grafana.ini:
   server:
     protocol: http
-    domain: "grafana.sandbox.mosip.net"  # Update domain
+    domain: "grafana.sandbox.xyz.net"  # Update domain
     root_url: "https://%(domain)s/"
   security:
     allow_embedding: true

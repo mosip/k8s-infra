@@ -32,7 +32,7 @@ error()   { echo -e "${RED}[ERROR]${NC}   $*" >&2; exit 1; }
 # CONFIGURATION — edit before running
 # =============================================================================
 NAMESPACE="monitoring"
-RELEASE="monitoring"
+RELEASE="kube-prometheus-stack"
 KPS_CHART_VERSION="88.6.2"
 PROM_OPERATOR_CRD_VERSION="v0.93.1"
 VALUES_FILE="values-monitoring.yaml"

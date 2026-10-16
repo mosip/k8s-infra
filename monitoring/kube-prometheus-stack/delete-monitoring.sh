@@ -35,7 +35,7 @@ error()   { echo -e "${RED}[ERROR]${NC}   $*" >&2; exit 1; }
 # CONFIGURATION — must match deploy-monitoring.sh
 # =============================================================================
 NAMESPACE="monitoring"
-RELEASE="monitoring"
+RELEASE="kube-prometheus-stack"
 PROM_OPERATOR_CRD_VERSION="v0.93.1"   # only used to know which CRD names to remove
 
 # ── Flags ──

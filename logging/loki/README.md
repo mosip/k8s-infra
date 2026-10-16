@@ -91,7 +91,7 @@ Without this stack, logs live only inside individual pods and are lost when a po
 - **Samples logs** — DEBUG dropped entirely, INFO kept at 30%, ACCESS logs kept at 10% (metrics cover the rest), WARN/ERROR kept at 100%.
 - Attaches labels: `namespace`, `pod`, `container`, `host`, `app`, `level`, `cluster`, `environment`.
 - Pushes processed logs to Loki.
-- Also exports its own Prometheus metrics to your existing monitoring system.
+- Also exports its own Prometheus metrics to your existing logging system.
 
 **Why sampling?** High-volume INFO and ACCESS logs are repetitive. Sampling reduces storage and cost while keeping all meaningful signals (errors and warnings are never sampled).
 
@@ -137,7 +137,7 @@ Helm values for the Loki deployment. Key settings to be aware of:
 
 ### `grafana-values.yaml`
 Helm values for Grafana. Key settings:
-- **Datasource** — pre-configures Loki as a datasource pointing to `http://loki.loki-monitoring.svc.cluster.local:3100`.
+- **Datasource** — pre-configures Loki as a datasource pointing to `http://loki.logging.svc.cluster.local:3100`.
 - **Service type** — controls how Grafana is exposed (ClusterIP, NodePort, or LoadBalancer).
 - **Persistence** — enables a PVC so dashboards survive pod restarts.
 - **Admin password** — set via `--set adminPassword` in the deploy script (do not store plaintext in the values file).
@@ -192,7 +192,7 @@ chmod +x deploy-loki.sh
 | Step | Action |
 |---|---|
 | Pre-flight | Checks kubectl, helm, cluster connectivity, and required files |
-| Step 1 | Creates the `loki-monitoring` namespace |
+| Step 1 | Creates the `logging` namespace |
 | Step 2 | Adds the Grafana Helm repo and updates |
 | Step 3 | Installs or upgrades **Loki** |
 | Step 4 | Installs or upgrades **Grafana** |
@@ -218,7 +218,7 @@ The delete script will prompt you to type `yes` before making any changes.
 - Helm releases: `alloy`, `grafana`, `loki`
 - All PersistentVolumeClaims (log data will be permanently lost)
 - Leftover ConfigMaps
-- The `loki-monitoring` namespace
+- The `logging` namespace
 
 > ⚠️ **This is irreversible.** All stored logs and Grafana dashboards will be deleted.
 
@@ -231,7 +231,7 @@ The delete script will prompt you to type `yes` before making any changes.
 ### Port-Forward (Quick Access)
 
 ```bash
-kubectl port-forward -n loki-monitoring svc/grafana 3000:80
+kubectl port-forward -n logging svc/grafana 3000:80
 ```
 
 Then open: **http://localhost:3000**
@@ -246,7 +246,7 @@ Password: <value of GRAFANA_PASSWORD in deploy-loki.sh>
 ### Loki API Health Check
 
 ```bash
-kubectl port-forward -n loki-monitoring svc/loki 3100:3100
+kubectl port-forward -n logging svc/loki 3100:3100
 curl http://localhost:3100/ready
 ```
 
@@ -287,32 +287,32 @@ sum(rate({cluster="rke2"} | json | level="ERROR" [1m])) by (namespace)
 
 **Pods not starting:**
 ```bash
-kubectl get pods -n loki-monitoring
-kubectl describe pod <pod-name> -n loki-monitoring
-kubectl logs <pod-name> -n loki-monitoring
+kubectl get pods -n logging
+kubectl describe pod <pod-name> -n logging
+kubectl logs <pod-name> -n logging
 ```
 
 **No logs appearing in Grafana:**
 ```bash
 # Check Alloy is running on all nodes
-kubectl get pods -n loki-monitoring -l app.kubernetes.io/name=alloy -o wide
+kubectl get pods -n logging -l app.kubernetes.io/name=alloy -o wide
 
 # Check Alloy logs for errors
-kubectl logs -n loki-monitoring -l app.kubernetes.io/name=alloy --tail=50
+kubectl logs -n logging -l app.kubernetes.io/name=alloy --tail=50
 
 # Verify Loki is receiving data
-kubectl port-forward -n loki-monitoring svc/loki 3100:3100
+kubectl port-forward -n logging svc/loki 3100:3100
 curl "http://localhost:3100/loki/api/v1/labels"
 ```
 
 **Loki PVC pending:**
 ```bash
-kubectl get pvc -n loki-monitoring
+kubectl get pvc -n logging
 # If Pending, check your StorageClass is available
 kubectl get storageclass
 ```
 
 **Grafana cannot reach Loki:**
 - Verify the datasource URL in Grafana Settings → Data Sources → Loki.
-- Should be: `http://loki.loki-monitoring.svc.cluster.local:3100`
+- Should be: `http://loki.logging.svc.cluster.local:3100`
 - Test the connection using the **Save & Test** button in Grafana.
