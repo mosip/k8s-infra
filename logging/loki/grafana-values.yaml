@@ -2,6 +2,7 @@
 # Grafana - Production-Ready Values for Loki Monitoring
 # Cluster: RKE2 v1.28.9 | Namespace: loki-monitoring
 # Helm Chart: grafana-community/grafana 11.3.2  (appVersion 12.4.1)
+# Update grafana.ini.server.domain / root_url for the target env (not sandbox).
 # =============================================================================
 # --- Replicas ---
 replicas: 1

@@ -165,20 +165,26 @@ Helm values for Grafana Alloy. The most important section is `alloy.configMap.co
 
 - `kubectl` installed and configured, connected to your RKE2 cluster.
 - `helm` v3 installed.
+- `curl` installed (used to download Helm charts when GitHub release assets time out).
 - Required files present in the same directory as `deploy-loki.sh`:
   - `loki-values.yaml`
   - `grafana-values.yaml`
   - `alloy-values.yaml`
+  - `istio-addons-values.yaml`
 
 ### Steps
 
 ```bash
 # 1. Clone or copy the deployment files to your working directory
+#    Loki lives on the develop branch: logging/loki/
 
-# 2. Review and update configuration
+# 2. Review and update configuration for THIS environment
 #    - Review alloy-values.yaml and update cluster/environment labels if needed
-#    - Review grafana-values.yaml and update the values as per the requirement.
-#    - Review loki-values.yaml and update the values as per the requirement.
+#    - Review grafana-values.yaml: set grafana.ini.server.domain / root_url
+#      (replace grafana.sandbox.xyz.net with e.g. grafana.<env>.<your-domain>)
+#    - Review istio-addons-values.yaml: set istio.host to the same Grafana hostname
+#    - Review loki-values.yaml and update the values as per the requirement
+#      (storageClass, PVC size, CPU/memory for smaller envs like qadraft)
 
 # 3. Make the script executable
 chmod +x deploy-loki.sh
@@ -187,19 +193,23 @@ chmod +x deploy-loki.sh
 ./deploy-loki.sh
 ```
 
+The script installs **Loki chart 6.55.0 from `grafana-community`** (the OSS chart was removed from `grafana/helm-charts`). Charts are downloaded to `.charts/` first (OCI `ghcr.io`, then curl, then `helm pull`) so a GitHub release-asset timeout does not fail the install.
+
 ### What the Script Does (Step by Step)
 
 | Step | Action |
 |---|---|
-| Pre-flight | Checks kubectl, helm, cluster connectivity, and required files |
+| Pre-flight | Checks kubectl, helm, curl, cluster connectivity, and required files |
 | Step 1 | Creates the `loki-monitoring` namespace |
-| Step 2 | Adds the Grafana Helm repo and updates |
-| Step 3 | Installs or upgrades **Loki** |
-| Step 4 | Installs or upgrades **Grafana** |
-| Step 5 | Installs or upgrades **Grafana Alloy** |
-| Step 6 | Prints pod and service status |
-| Step 7 | Prints access instructions |
-| Step 8 | Waits for Loki and Grafana pods to reach Ready state |
+| Step 2 | Adds Grafana / grafana-community / MOSIP Helm repos |
+| Step 3 | Downloads the Loki chart (OCI → curl → helm pull) and installs/upgrades **Loki** |
+| Step 4 | Downloads and installs or upgrades **Grafana** |
+| Step 5 | Downloads and installs or upgrades **Grafana Alloy** |
+| Step 6 | Downloads and installs or upgrades **Istio addons** |
+| Step 7 | Imports custom Grafana dashboards |
+| Step 8 | Prints pod and service status |
+| Step 9 | Prints access instructions |
+| Step 10 | Waits for Loki and Grafana pods to reach Ready state |
 
 > The script is **idempotent** — running it again will upgrade existing releases rather than failing.
 
@@ -284,6 +294,21 @@ sum(rate({cluster="rke2"} | json | level="ERROR" [1m])) by (namespace)
 ---
 
 ## Troubleshooting
+
+**Helm install fails with `release-assets.githubusercontent.com` / `context deadline exceeded`:**
+
+Helm is timing out while downloading the chart tarball from GitHub's release-asset CDN (this is not a Kubernetes apply failure). `grafana/loki` 6.55.0 is also gone from `grafana/helm-charts` (the release 404s); OSS 6.55.0 lives on `grafana-community/loki`.
+
+`deploy-loki.sh` now pulls the chart from OCI (`ghcr.io/grafana-community/helm-charts/loki`) and falls back to curl with a 5-minute timeout. If every download still fails, copy the chart in from a machine that can reach GitHub:
+
+```bash
+mkdir -p logging/loki/.charts
+curl -fL -o logging/loki/.charts/loki-6.55.0.tgz \
+  https://github.com/grafana-community/helm-charts/releases/download/loki-6.55.0/loki-6.55.0.tgz
+# optional: grafana-11.3.2.tgz, alloy-1.6.2.tgz, istio-addons-0.0.1-develop.tgz
+cd logging/loki
+./deploy-loki.sh
+```
 
 **Pods not starting:**
 ```bash
