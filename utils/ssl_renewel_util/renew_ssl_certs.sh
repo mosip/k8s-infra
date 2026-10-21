@@ -3,13 +3,21 @@
 # renew_ssl_certs.sh
 # Checks SSL certificate expiry and renews if within 7 days.
 # Sends Slack notifications on success or failure.
+#
+# Key behaviour:
+#   - Target cert is derived from what nginx ACTUALLY serves (nginx -T),
+#     not from an arbitrary lineage picked by `find`.
+#   - Renews the exact lineage nginx points at (--cert-name from the live/
+#     directory name), so certbot updates in place instead of spawning a
+#     new -00NN duplicate.
+#   - nginx reload happens via certbot --deploy-hook, only when a cert is
+#     actually deployed.
 # =============================================================================
 
 # --------------------------------------------------------------------------
 # Configuration
 # --------------------------------------------------------------------------
 SLACK_WEBHOOK_URL="<slack_webhook_url>"
-CERT_DIR="/etc/letsencrypt/live"
 LOG_FILE="/var/log/ssl_cert_renewal.log"
 DAYS_THRESHOLD=7
 RENEWAL_SUCCESS=false
@@ -160,22 +168,23 @@ else
 fi
 
 # --------------------------------------------------------------------------
-# Check 6: letsencrypt live directory and cert exist
+# Check 6: nginx actually references an ssl_certificate we can read
+# (Derived from the live nginx config — this is the cert being served.)
 # --------------------------------------------------------------------------
-info "CHECK 6/6: Let's Encrypt certificate directory..."
-if [ ! -d "$CERT_DIR" ]; then
-  err "Certificate directory ${CERT_DIR} does not exist."
-  err "Ensure certbot has been run at least once to issue an initial certificate."
+info "CHECK 6/6: nginx ssl_certificate path..."
+FULLCHAIN_PATH=$(sudo nginx -T 2>/dev/null \
+  | grep -oP '^\s*ssl_certificate\s+\K[^;]+' \
+  | head -n 1)
+
+if [ -z "$FULLCHAIN_PATH" ]; then
+  err "No ssl_certificate directive found in nginx config."
+  err "Ensure nginx is configured to serve an SSL certificate."
+  PREREQ_FAILED=true
+elif [ ! -f "$FULLCHAIN_PATH" ]; then
+  err "nginx ssl_certificate points to a missing file: ${FULLCHAIN_PATH}"
   PREREQ_FAILED=true
 else
-  FULLCHAIN_COUNT=$(find "$CERT_DIR" -maxdepth 2 -name "fullchain.pem" | wc -l)
-  if [ "$FULLCHAIN_COUNT" -eq 0 ]; then
-    err "No fullchain.pem found under ${CERT_DIR}."
-    err "Ensure an initial certificate has been issued via certbot."
-    PREREQ_FAILED=true
-  else
-    info "  PASSED — found ${FULLCHAIN_COUNT} certificate(s) under ${CERT_DIR}."
-  fi
+  info "  PASSED — nginx serves: ${FULLCHAIN_PATH}"
 fi
 
 # --------------------------------------------------------------------------
@@ -196,14 +205,18 @@ info "========== All prerequisite checks PASSED =========="
 # ==========================================================================
 
 # --------------------------------------------------------------------------
-# Step 1: Find the certificate and extract domain
+# Step 1: Resolve the lineage name and domain from the cert nginx serves
 # --------------------------------------------------------------------------
 info "Starting SSL certificate expiry check..."
+info "Using certificate: ${FULLCHAIN_PATH}"
 
-FULLCHAIN_PATH=$(find "$CERT_DIR" -maxdepth 2 -name "fullchain.pem" | head -n 1)
-info "Found certificate at: ${FULLCHAIN_PATH}"
+# live/<CERT_NAME>/fullchain.pem — the directory name IS certbot's lineage
+# name. Renewing by this exact name keeps certbot updating in place instead
+# of creating a new -00NN duplicate.
+CERT_NAME=$(basename "$(dirname "$FULLCHAIN_PATH")")
+info "Lineage (cert-name): ${CERT_NAME}"
 
-# Extract the non-wildcard domain from SAN
+# Extract the non-wildcard domain from the certificate's SAN list.
 DOMAIN=$(sudo openssl x509 -in "$FULLCHAIN_PATH" -noout -text \
   | grep -A 1 "Subject Alternative Name:" \
   | tail -n 1 \
@@ -248,25 +261,27 @@ send_slack_notification \
   "warning"
 
 # --------------------------------------------------------------------------
-# Step 4: Renew using certbot with --cert-name
-# --cert-name ensures certbot updates the existing live/ symlinks in place
-# No manual mv needed — certbot handles the archive and symlink update
+# Step 4: Renew using certbot
+# --cert-name "$CERT_NAME" targets the exact lineage nginx serves, so certbot
+#   updates the existing live/ symlinks in place — no manual mv, no duplicate.
+# --deploy-hook reloads nginx ONLY if a new cert is actually deployed.
 # --------------------------------------------------------------------------
-info "Running certbot renewal for ${MOSIP_DOMAIN}..."
+info "Running certbot renewal for lineage '${CERT_NAME}' (${MOSIP_DOMAIN})..."
 
 sudo certbot certonly \
   --dns-route53 \
   --dns-route53-propagation-seconds 30 \
-  --cert-name "$MOSIP_DOMAIN" \
+  --cert-name "$CERT_NAME" \
   --agree-tos \
   --non-interactive \
+  --deploy-hook "systemctl reload nginx" \
   -d "$MOSIP_DOMAIN" \
   -d "*.$MOSIP_DOMAIN"
 
 info "Certbot completed successfully."
 
 # --------------------------------------------------------------------------
-# Step 5: Verify the new cert was actually issued and symlinks resolve
+# Step 5: Verify the new cert was actually issued
 # --------------------------------------------------------------------------
 NEW_EXPIRY=$(sudo openssl x509 -enddate -noout -in "$FULLCHAIN_PATH" | sed 's/notAfter=//')
 NEW_EXPIRY_EPOCH=$(date --date="$NEW_EXPIRY" +%s)
@@ -274,7 +289,8 @@ info "New certificate expiry: ${NEW_EXPIRY}"
 
 # Certbot may skip renewal if it decides the cert is not yet due (< 30 days
 # remaining by certbot's own threshold). If that happens, treat it as a
-# warning rather than a hard failure — the cert is still valid.
+# warning rather than a hard failure — the cert is still valid, and the
+# deploy-hook will not have fired (nothing was deployed).
 if [ "$NEW_EXPIRY_EPOCH" -le "$EXPIRY_EPOCH" ]; then
   warn "Certbot did not issue a new certificate (expiry unchanged)."
   warn "This can happen if certbot's own 30-day threshold has not been reached."
@@ -286,18 +302,12 @@ if [ "$NEW_EXPIRY_EPOCH" -le "$EXPIRY_EPOCH" ]; then
 fi
 
 # --------------------------------------------------------------------------
-# Step 6: Reload nginx gracefully (no dropped connections)
-# --------------------------------------------------------------------------
-info "Reloading nginx..."
-sudo systemctl reload nginx
-info "Nginx reloaded successfully."
-
-# --------------------------------------------------------------------------
-# Step 7: Success notification
+# Step 6: Success notification
+# nginx was already reloaded by certbot's --deploy-hook above.
 # --------------------------------------------------------------------------
 RENEWAL_SUCCESS=true
 send_slack_notification \
-  ":white_check_mark: *SSL Certificate Renewed Successfully* for \`${MOSIP_DOMAIN}\` on \`$(hostname)\`.\nPrevious expiry: ${EXPIRY_DATE}\nNew expiry: *${NEW_EXPIRY}*." \
+  ":white_check_mark: *SSL Certificate Renewed Successfully* for \`${MOSIP_DOMAIN}\` on \`$(hostname)\`.\nPrevious expiry: ${EXPIRY_DATE}\nNew expiry: *${NEW_EXPIRY}*.\nnginx reloaded via deploy-hook." \
   "good"
 
 info "SSL renewal process completed successfully."
