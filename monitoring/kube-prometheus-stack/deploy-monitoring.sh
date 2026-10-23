@@ -11,6 +11,7 @@
 # Usage:
 #   chmod +x deploy-monitoring.sh
 #   ./deploy-monitoring.sh
+#   ALLOW_CRD_FAILURE=true ./deploy-monitoring.sh   # continue even if a CRD fails to apply
 #
 # Pre-requisites (see PREREQUISITES.md — MUST be done first):
 #   - rancher-monitoring fully removed (operator + helm release) incase previously deployed.
@@ -34,8 +35,13 @@ error()   { echo -e "${RED}[ERROR]${NC}   $*" >&2; exit 1; }
 NAMESPACE="monitoring"
 RELEASE="kube-prometheus-stack"
 KPS_CHART_VERSION="88.6.2"
-PROM_OPERATOR_CRD_VERSION="v0.93.1"
 VALUES_FILE="values-monitoring.yaml"
+# prometheus-operator CRDs are taken from the chart itself (helm show crds), so
+# they always match KPS_CHART_VERSION — there is no separate CRD version to bump.
+
+# Set to true to continue when the CRD step fails (NOT recommended: stale CRDs
+# cause the Alertmanager reconcile loop this step exists to prevent).
+ALLOW_CRD_FAILURE="${ALLOW_CRD_FAILURE:-false}"
 
 # SMTP secret inputs — leave blank to be prompted / read from env
 SMTP_PASSWORD="${SMTP_PASSWORD:-}"
@@ -53,6 +59,16 @@ success "kubectl + helm present, cluster reachable"
 
 [ -f "$VALUES_FILE" ] || error "$VALUES_FILE not found. Run from the deploy directory."
 success "Values file found: $VALUES_FILE"
+
+# Refuse to deploy with unfilled <placeholder> values (e.g. <env_name>,
+# <recipient_mail_id>). Comment lines are ignored; placeholders always contain
+# an underscore, so HTML tags in the email templates (<b>, <br>) don't match.
+PLACEHOLDERS=$(grep -nE '<[a-z]+(_[a-z]+)+>' "$VALUES_FILE" | grep -vE '^[0-9]+:[[:space:]]*#' || true)
+if [ -n "$PLACEHOLDERS" ]; then
+  echo "$PLACEHOLDERS" >&2
+  error "$VALUES_FILE still has unfilled placeholders (above). Edit the '# EDIT' values first."
+fi
+success "No unfilled placeholders in $VALUES_FILE"
 
 # Warn loudly if rancher-monitoring is still around (the recreate-loop cause)
 if kubectl get ns cattle-monitoring-system >/dev/null 2>&1; then
@@ -87,17 +103,20 @@ success "Namespace ready: $NAMESPACE"
 # STEP 3: Upgrade prometheus-operator CRDs (server-side)
 # Prevents the ".status.selector/.shards: field not declared in schema" loop
 # when CRDs from a prior operator (e.g. rancher-monitoring) are present.
+# The CRDs come from the pinned chart, so they always match its operator.
 # =============================================================================
-info "Step 3: Applying matching prometheus-operator CRDs ($PROM_OPERATOR_CRD_VERSION)..."
-CRD_BASE="https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/${PROM_OPERATOR_CRD_VERSION}/example/prometheus-operator-crd"
-for crd in alertmanagers alertmanagerconfigs prometheuses prometheusagents \
-           scrapeconfigs podmonitors probes prometheusrules thanosrulers servicemonitors; do
-  kubectl apply --server-side --force-conflicts \
-    -f "${CRD_BASE}/monitoring.coreos.com_${crd}.yaml" >/dev/null \
-    && info "  applied CRD: $crd" \
-    || warn "  could not apply CRD $crd (may be fine if network-restricted; verify manually)"
-done
-success "CRDs applied/upgraded server-side"
+OPERATOR_VERSION=$(helm show chart prometheus-community/kube-prometheus-stack \
+  --version "$KPS_CHART_VERSION" | awk '/^appVersion:/ {print $2}')
+info "Step 3: Applying prometheus-operator CRDs from chart $KPS_CHART_VERSION (operator ${OPERATOR_VERSION:-unknown})..."
+if helm show crds prometheus-community/kube-prometheus-stack --version "$KPS_CHART_VERSION" \
+     | kubectl apply --server-side --force-conflicts -f - ; then
+  success "CRDs applied/upgraded server-side"
+elif [ "$ALLOW_CRD_FAILURE" = "true" ]; then
+  warn "CRD apply failed — continuing because ALLOW_CRD_FAILURE=true."
+  warn "Verify CRDs manually; stale CRDs cause the Alertmanager reconcile loop."
+else
+  error "CRD apply failed. Fix the error above, or re-run with ALLOW_CRD_FAILURE=true to skip (not recommended)."
+fi
 
 # =============================================================================
 # STEP 4: SMTP secret for Alertmanager email
@@ -145,11 +164,14 @@ echo ""
 # Confirm the Alertmanager pod is stable (not in the recreate loop)
 info "Checking Alertmanager pod stability (10s)..."
 sleep 10
-AM_POD="alertmanager-${RELEASE}-kube-prometheus-alertmanager-0"
-R1=$(kubectl -n "$NAMESPACE" get statefulset "${RELEASE}-kube-prometheus-alertmanager" \
+PROM_SVC="${RELEASE}-prometheus"
+AM_SVC="${RELEASE}-alertmanager"
+AM_STS="alertmanager-${AM_SVC}"
+AM_POD="${AM_STS}-0"
+R1=$(kubectl -n "$NAMESPACE" get statefulset "$AM_STS" \
      -o jsonpath='{.metadata.generation}' 2>/dev/null || echo "?")
 sleep 10
-R2=$(kubectl -n "$NAMESPACE" get statefulset "${RELEASE}-kube-prometheus-alertmanager" \
+R2=$(kubectl -n "$NAMESPACE" get statefulset "$AM_STS" \
      -o jsonpath='{.metadata.generation}' 2>/dev/null || echo "?")
 if [ "$R1" = "$R2" ] && [ "$R1" != "?" ]; then
   success "  Alertmanager StatefulSet stable (generation $R1, not climbing)"
@@ -165,18 +187,18 @@ echo ""
 echo "==========================================="
 echo " Monitoring stack deployed"
 echo "-------------------------------------------"
-echo " Prometheus : svc/${RELEASE}-kube-prometheus-prometheus:9090 (ns $NAMESPACE)"
-echo " Alertmanager: svc/${RELEASE}-kube-prometheus-alertmanager:9093"
+echo " Prometheus : svc/${PROM_SVC}:9090 (ns $NAMESPACE)"
+echo " Alertmanager: svc/${AM_SVC}:9093"
 echo "==========================================="
 echo ""
 echo " NEXT STEPS (manual, one-time per environment):"
 echo ""
 echo " 1. Add Prometheus as a datasource in the standalone Loki Grafana:"
-echo "      url: http://${RELEASE}-kube-prometheus-prometheus.${NAMESPACE}.svc.cluster.local:9090"
+echo "      url: http://${PROM_SVC}.${NAMESPACE}.svc.cluster.local:9090"
 echo "    (set in that Grafana's values datasources block + helm upgrade)"
 echo ""
 echo " 2. Verify all node-exporter targets are UP:"
-echo "      kubectl -n $NAMESPACE port-forward svc/${RELEASE}-kube-prometheus-prometheus 9090:9090"
+echo "      kubectl -n $NAMESPACE port-forward svc/${PROM_SVC} 9090:9090"
 echo "      open http://localhost:9090/targets"
 echo "    If some nodes are DOWN -> check SG port 9100 (PREREQUISITES.md step 3)."
 echo ""
@@ -184,7 +206,7 @@ echo " 3. Verify control-plane targets (etcd/scheduler/controller-manager) UP:"
 echo "    If DOWN -> node config.yaml bind-address + SG ports (prereqs 2 & 3)."
 echo ""
 echo " 4. Test email alerting end-to-end:"
-echo "      kubectl -n $NAMESPACE port-forward svc/${RELEASE}-kube-prometheus-alertmanager 9093:9093"
+echo "      kubectl -n $NAMESPACE port-forward svc/${AM_SVC} 9093:9093"
 echo "      curl -XPOST http://localhost:9093/api/v2/alerts -H 'Content-Type: application/json' \\"
 echo "        -d '[{\"labels\":{\"alertname\":\"EmailTest\",\"severity\":\"critical\",\"cluster\":\"<env>\"},"
 echo "             \"annotations\":{\"summary\":\"Test\",\"description\":\"Verify email\"}}]'"

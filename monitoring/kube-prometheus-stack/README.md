@@ -26,8 +26,8 @@ This stack is independent of Rancher-monitoring.
   │                                                                      │
   │  control-plane nodes          worker nodes                           │
   │  ├─ etcd metrics :2381         ├─ node-exporter :9100                │
-  │  ├─ ctrl-mgr     :10257        └─ (workloads)                        │
-  │  ├─ scheduler    :10259                                              │
+  │  ├─ ctrl-mgr     :10257        ├─ kube-proxy    :10249               │
+  │  ├─ scheduler    :10259        └─ (workloads)                        │
   │  ├─ kube-proxy   :10249                                              │
   │  └─ node-exporter:9100                                               │
   │           │  (scraped over the node network — needs SG + bind-addr)  │
@@ -59,18 +59,21 @@ Read and complete **`PREREQUISITES.md`** before deploying. Summary:
 
 1. **Remove rancher-monitoring fully** (operator Deployment + Helm release, not
    just CRD objects) if migrating from it. Leftovers cause a pod-recreate loop.
-2. **Expose control-plane metrics** — add `bind-address` args to each
-   control-plane node's `/etc/rancher/rke2/config.yaml`; restart with
+2. **Expose component metrics** — add the `bind-address` args and
+   `etcd-expose-metrics: true` to each control-plane node's
+   `/etc/rancher/rke2/config.yaml`, and `kube-proxy-arg: metrics-bind-address`
+   on **every** node (kube-proxy runs on workers too); restart with
    `stop → rke2-killall.sh → start` (NOT plain `systemctl restart`). Best baked
-   into node provisioning so it's there on first boot.
+   into node provisioning so it's there on first boot — the on-prem RKE2
+   templates in `k8-cluster/on-prem/rke2/` already include these.
 3. **Open security-group ports** (Terraform-managed):
-    - Worker SG: `9100`
-    - Control-plane SG: `9100, 10257, 10259, 2381`
+    - Worker SG: `9100, 10249`
+    - Control-plane SG: `9100, 10249, 10257, 10259, 2381`
     - Source: the VPC CIDR (e.g. `172.31.0.0/16`), never `0.0.0.0/0`.
 4. **SMTP credentials** ready for the email secret.
 
-Tooling: `kubectl` + `helm` v3, cluster reachable, outbound access to GitHub
-(for the CRD step) and the Helm chart repo.
+Tooling: `kubectl` + `helm` v3, cluster reachable, outbound access to the Helm
+chart repo.
 
 ---
 
@@ -87,10 +90,12 @@ chmod +x deploy-monitoring.sh
 
 The script:
 1. Pre-flight checks (kubectl/helm/cluster/values; warns if rancher-monitoring
-   is still present).
+   is still present; refuses to continue if `values-monitoring.yaml` still has
+   unfilled `<placeholder>` values).
 2. Adds the Helm repo and verifies the pinned chart version.
-3. Applies matching prometheus-operator CRDs server-side (prevents the
-   stale-CRD schema loop).
+3. Applies the chart's own prometheus-operator CRDs server-side (prevents the
+   stale-CRD schema loop). A failed CRD apply aborts the deploy unless
+   `ALLOW_CRD_FAILURE=true` is set.
 4. Creates the `alertmanager-smtp` secret.
 5. Installs/upgrades the stack.
 6. Verifies pods and checks the Alertmanager StatefulSet isn't in a recreate
@@ -106,7 +111,7 @@ When replicating to a new environment, edit the `# EDIT` markers in
 | Value | What | Example |
 |-------|------|---------|
 | `prometheus.prometheusSpec.externalLabels.cluster` | This env's name (shown in alerts) | `dev-int-inji` |
-| `prometheus.prometheusSpec.externalLabels.tier` | For prod/non-prod routing | `nonprod` |
+| `prometheus.prometheusSpec.externalLabels.tier` | prod/non-prod label (for filtering in Grafana/alerts; not used for routing) | `nonprod` |
 | `storageClassName` | Your cluster's StorageClass | `nfs-csi` |
 | `alertmanager ... smtp_smarthost` | SMTP server | SES / Gmail / org relay |
 | `alertmanager ... smtp_from` | Verified sender address | `alerts@...` |
@@ -118,11 +123,13 @@ And in the deploy script:
 | Variable | What |
 |----------|------|
 | `KPS_CHART_VERSION` | kube-prometheus-stack chart version (pin to the one you validated — `helm list -n monitoring` shows the current CHART) |
-| `PROM_OPERATOR_CRD_VERSION` | prometheus-operator version matching the chart's operator |
+
+The prometheus-operator CRDs are read from the pinned chart (`helm show crds`),
+so bumping `KPS_CHART_VERSION` is the only change needed on a chart upgrade.
 
 The `externalLabels` block is the ONE thing that genuinely differs per
 environment. The Alertmanager routing is otherwise identical across envs — it
-routes on `tier` and displays `cluster`.
+routes on `severity` and displays `cluster` in the email subject.
 
 ---
 
@@ -147,7 +154,7 @@ mode.
 ### Test email end-to-end
 
 ```bash
-kubectl -n monitoring port-forward svc/monitoring-kube-prometheus-alertmanager 9093:9093
+kubectl -n monitoring port-forward svc/kube-prometheus-stack-alertmanager 9093:9093
 curl -XPOST http://localhost:9093/api/v2/alerts -H "Content-Type: application/json" -d '[{
   "labels": {"alertname":"EmailTest","severity":"critical","cluster":"dev-int-inji"},
   "annotations": {"summary":"Test","description":"Verifying email delivery"}
@@ -199,10 +206,10 @@ kubectl -n monitoring port-forward svc/kube-prometheus-stack-prometheus 9090:909
 | Symptom | Likely cause | Fix |
 |---------|--------------|-----|
 | Only some nodes report node-exporter; DOWN targets show `context deadline exceeded` | SG missing port `9100` on the worker/control-plane SG | Add the ingress rule (PREREQUISITES step 3). ICMP/ping working does not mean the port is open. |
-| etcd/scheduler/controller-manager targets DOWN | node `config.yaml` bind-address not applied, or SG missing `10257/10259/2381` | Prereqs 2 & 3. |
+| etcd/scheduler/controller-manager/kube-proxy targets DOWN | node `config.yaml` bind-address / `etcd-expose-metrics` not applied, or SG missing `10249/10257/10259/2381` | Prereqs 2 & 3. |
 | Alertmanager pod recreating in a loop; StatefulSet `generation` climbing fast | Leftover rancher-monitoring operator fighting this one, OR stale CRDs (`.status.selector: field not declared`) | Remove rancher-monitoring operator + helm release (prereq 1); ensure CRDs upgraded (deploy step 3). |
 | `rke2-server` fails on restart: `bind: address already in use` on `:2381` | Plain `systemctl restart` left old etcd holding the port | `systemctl stop` → `rke2-killall.sh` → `systemctl start`. Baking the config into provisioning avoids this entirely. |
-| etcd pod `0/1`, readiness probe failing after metrics change | `listen-metrics-urls` dropped the localhost endpoint | Use `http://0.0.0.0:2381` (includes localhost), not a pinned node IP alone. |
+| etcd pod `0/1`, readiness probe failing after metrics change | `listen-metrics-urls` was overridden via `etcd-arg` and dropped the localhost endpoint | Remove the `etcd-arg` override and use RKE2's native `etcd-expose-metrics: true`. |
 | Email not delivered, config looks right | SMTP auth/sender/TLS, or SES sandbox mode | Check `kubectl -n monitoring logs <alertmanager-pod> -c alertmanager`. For SES: verify sender + request production access. |
 | Prometheus only scrapes targets on its own node | Prometheus scheduled on a node with broken outbound networking | Reachability is per Prometheus's node — confirm its node can reach peers; the usual root cause is the SG `9100` gap above. |
 

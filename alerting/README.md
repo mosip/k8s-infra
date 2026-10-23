@@ -1,10 +1,18 @@
 # Cluster Alerting
 
+> ⚠️ **Deprecated — rancher-monitoring only.** Everything in this directory
+> (Slack `alertmanager.yaml`, `patch-cluster-name.yaml`, `install.sh`) patches the
+> Alertmanager of the legacy [rancher-monitoring](../monitoring/rancher-monitoring/README.md)
+> stack. For new environments use [kube-prometheus-stack](../monitoring/kube-prometheus-stack/README.md),
+> where email alerting and the per-environment `cluster` label are configured in
+> `values-monitoring.yaml`. The sample rules under `custom-alerts` can still be
+> applied there with `kubectl` as `PrometheusRule` objects.
+
 Alerting is part of cluster monitoring, where alert notifications are sent to the configured email or slack channel
 
 ## Prerequisite
 
-Prometheus, Grafana, and alert manager tools are needed to set up alert notifications. [Install monitoring](../monitoring/README.md).
+Prometheus, Grafana, and alert manager tools are needed to set up alert notifications. [Install rancher-monitoring](../monitoring/rancher-monitoring/README.md).
 
 
 ## Slack alerts notification
@@ -37,5 +45,3 @@ When having multiple clusters, you can add a cluster name to be presented as par
 
 - Add cluster name in,  ``patch-cluster-name.yaml``
 - Run  ``install.sh``
-
-

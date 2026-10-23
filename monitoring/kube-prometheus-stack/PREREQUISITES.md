@@ -33,11 +33,14 @@ CRD *kinds* (the deploy script upgrades their schema). See step 4.
 
 ---
 
-## 2. Expose control-plane component metrics (control-plane nodes only)
+## 2. Expose component metrics
 
-The control-plane components (controller-manager, scheduler, kube-proxy, etcd)
-bind their metrics to localhost by default on RKE2. Expose them so Prometheus
-can scrape them cross-node.
+The control-plane components (controller-manager, scheduler, etcd) and
+kube-proxy bind their metrics to localhost by default on RKE2. Expose them so
+Prometheus can scrape them cross-node.
+
+> The on-prem RKE2 templates in `k8-cluster/on-prem/rke2/` already contain these
+> settings, so clusters provisioned from them need no manual change here.
 
 On **each control-plane node**, edit `/etc/rancher/rke2/config.yaml` and add:
 
@@ -48,9 +51,23 @@ kube-scheduler-arg:
   - bind-address=0.0.0.0
 kube-proxy-arg:
   - metrics-bind-address=0.0.0.0
-etcd-arg:
-  - listen-metrics-urls=http://0.0.0.0:2381
+etcd-expose-metrics: true
 ```
+
+Use RKE2's native `etcd-expose-metrics: true` rather than overriding
+`listen-metrics-urls` through `etcd-arg` — the override can drop the localhost
+endpoint (breaking the etcd readiness probe) and clash with RKE2's own etcd
+metrics listener on 2381.
+
+On **each worker (agent) node**, add only the kube-proxy arg (kube-proxy runs on
+every node; without it the kube-proxy target is DOWN on workers):
+
+```yaml
+kube-proxy-arg:
+  - metrics-bind-address=0.0.0.0
+```
+
+Restart agents with `systemctl restart rke2-agent`.
 
 Then restart RKE2 — **use stop → killall → start, NOT `systemctl restart`**.
 A plain restart leaves the old etcd holding port 2381, causing
@@ -76,8 +93,8 @@ Take an etcd snapshot first as a rollback point:
 sudo rke2 etcd-snapshot save --name pre-metrics-change
 ```
 
-Workers do NOT get these args (the components don't run there), except optionally
-`kube-proxy metrics-bind-address` if you want kube-proxy metrics from workers.
+Workers do NOT get the controller-manager/scheduler/etcd settings (those
+components don't run there) — only the kube-proxy arg above.
 
 ---
 
@@ -92,14 +109,16 @@ Source CIDR for all rules: the VPC/node CIDR (e.g. `172.0.0.0/8` or, better,
 your actual VPC CIDR like `172.31.0.0/16`).
 
 **Worker node SG** — add:
-| Port | Purpose |
-|------|---------|
-| 9100 | node-exporter |
+| Port  | Purpose |
+|-------|---------|
+| 9100  | node-exporter |
+| 10249 | kube-proxy |
 
 **Control-plane node SG** — ensure present:
 | Port  | Purpose |
 |-------|---------|
 | 9100  | node-exporter |
+| 10249 | kube-proxy |
 | 10257 | kube-controller-manager |
 | 10259 | kube-scheduler |
 | 2381  | etcd metrics |
@@ -123,8 +142,9 @@ left over from a previous prometheus-operator (e.g. an old rancher-monitoring).
 Stale CRDs cause `.status.selector`/`.status.shards: field not declared in
 schema` errors and a reconcile loop.
 
-`deploy-monitoring.sh` applies the matching CRDs with `--server-side` before the
-Helm install to prevent this. No manual action needed — documented so you know
+`deploy-monitoring.sh` applies the chart's own CRDs (`helm show crds`) with
+`--server-side` before the Helm install to prevent this, and aborts if that
+fails (override with `ALLOW_CRD_FAILURE=true`). No manual action needed — documented so you know
 why that step exists.
 
 ---

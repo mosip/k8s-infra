@@ -12,6 +12,9 @@
 #   - prometheus.prometheusSpec.externalLabels.cluster / tier
 #   - storageClassName (if not nfs-csi)
 #   - alertmanager email recipients / smarthost / sender
+#
+# Placeholders are written as <lower_snake_case> (e.g. <env_name>).
+# deploy-monitoring.sh refuses to run while any of them are left unfilled.
 # =============================================================================
 
 # ── Chart Grafana off: we use the standalone Loki Grafana instead ──
@@ -32,8 +35,8 @@ prometheus:
     # EDIT: environment identity — stamped onto every metric and alert.
     # This is the ONE block that differs per environment.
     externalLabels:
-      cluster: <env_name>        # EDIT per environment
-      tier: nonprod                # EDIT: prod | nonprod
+      cluster: <env_name>          # EDIT per environment
+      tier: nonprod                # EDIT: prod | nonprod (label only; routing is by severity)
 
     retention: 3d
     retentionSize: 30GiB
@@ -71,11 +74,12 @@ alertmanager:
   config:
     global:
       resolve_timeout: 5m
-      # EDIT: SMTP connection. Example is AWS SES (Mumbai). For Gmail test use
-      #   smtp.gmail.com:587 and your address. Password comes from the secret.
-      smtp_smarthost: 'smtp.gmail.com:587'
-      smtp_from: '<mailId>'                    # EDIT (verified sender)
-      smtp_auth_username: '<mailID>'                       # EDIT
+      # EDIT: SMTP connection. Example below is Gmail (smtp.gmail.com:587).
+      #   For AWS SES use e.g. email-smtp.ap-south-1.amazonaws.com:587.
+      #   Password comes from the alertmanager-smtp secret.
+      smtp_smarthost: 'smtp.gmail.com:587'       # EDIT
+      smtp_from: '<sender_mail_id>'              # EDIT (verified sender)
+      smtp_auth_username: '<smtp_username>'      # EDIT
       smtp_auth_password_file: /etc/alertmanager/secrets/alertmanager-smtp/password
       smtp_require_tls: true
     route:
@@ -96,7 +100,7 @@ alertmanager:
       - name: 'null'
       - name: 'email-critical'
         email_configs:
-          - to: '<mailID>'            # EDIT
+          - to: '<critical_recipient_mail_id>'   # EDIT
             send_resolved: true
             headers:
               subject: '[{{ .CommonLabels.cluster }}] [{{ .Status | toUpper }}] {{ .CommonLabels.alertname }}'
@@ -110,7 +114,7 @@ alertmanager:
               {{ end }}
       - name: 'email-warning'
         email_configs:
-          - to: '<mailID>'              # EDIT
+          - to: '<warning_recipient_mail_id>'    # EDIT
             send_resolved: true
             headers:
               subject: '[{{ .CommonLabels.cluster }}] [{{ .Status | toUpper }}] {{ .CommonLabels.alertname }}'
