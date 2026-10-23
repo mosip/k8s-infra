@@ -1,49 +1,46 @@
-# Cluster Monitoring
+# Monitoring (Metrics)
 
-## Install
-Prometheus and Graphana tools are used to monitor the cluster. There are two ways to install monitoring app as given below: 
+This directory holds the metrics-monitoring stacks for the cluster. Each
+subdirectory is a self-contained stack with its own install scripts, Helm
+values, and README. Pick **one** stack per cluster.
 
-### Using Helm charts:
+## Stacks
 
-* Update the values.yaml file based on your requiremnt before installing monitoring.
-* Running `install.sh` will deploy monitoring within your kubernetes cluster.
+| Stack | Directory | Status | What it is |
+|-------|-----------|--------|------------|
+| **kube-prometheus-stack** | [`kube-prometheus-stack/`](./kube-prometheus-stack/) | ✅ Current | Upstream Prometheus + Alertmanager + node-exporter + kube-state-metrics. Independent of Rancher. Email alerting via Alertmanager. Metrics are visualised in the standalone Grafana deployed with the Loki logging stack. |
+| **rancher-monitoring** | [`rancher-monitoring/`](./rancher-monitoring/) | ⚠️ Legacy | Rancher's packaged monitoring (prometheus-operator bundled with Rancher's Grafana). Retained for reference / older environments. |
 
-Note: Using helm charts will deploy `103.1.1+up45.31.1` version of rancher-monitoring.
+## Which to choose
 
-### Using Rancher-ui:
+**Use `kube-prometheus-stack`** for all new and existing environments. It is the
+current standard:
 
-* Select 'Monitoring' App from  Rancher console -> _Apps & Marketplaces_.
-* Select Chart Version `103.1.1+up45.31.1` from dropdown in Rancher console -> _Apps & Marketplaces_.
-* In Helm options, open the YAML file and disable Nginx Ingress.
-  ![ingress-disable.png](../docs/_images/ingress-disable.png)
-* Click on 'Install'.
+- Independent of Rancher (no `cattle-monitoring-system` dependency)
+- Upstream chart — current Prometheus/Alertmanager versions, community dashboards
+- Email alerting (Alertmanager) routed by severity, tagged per environment
+- Metrics surface in the same standalone Grafana as logs (single pane of glass)
 
-## Prometheus
-All MOSIP modules have been configured to let Prometheus scrape metrics.
+**Only use `rancher-monitoring`** if you are maintaining an older environment that
+still runs it and cannot migrate yet. Do **not** deploy both on the same cluster —
+two prometheus-operators fight over the shared CRDs and cause a pod-recreation loop.
 
-## Grafana
-To load a new dashboards to Grafana, sign in with user and password from `rancher-monitoring-grafana` in `cattle-monitoring-system` namespace of Rancher cluster.
+## Migrating from rancher-monitoring → kube-prometheus-stack
 
-Important default dashboards:
+If an environment currently runs rancher-monitoring, fully remove it first
+(operator Deployment + Helm release, not just the CRD objects), then deploy
+kube-prometheus-stack. See the
+[kube-prometheus-stack PREREQUISITES](./kube-prometheus-stack/PREREQUISITES.md)
+for the removal steps and the node/security-group prerequisites.
 
-|Grafana dashboard|Description|
-|---|---|
-|Rancher/Cluster (Nodes)|Consolidated view of all nodes|
-|Rancher/Node|View of each node|
-|Kubernetes/Pesistent Volumes|Storage consumption per PV|
-|Kubernetes/Compute Resources/Workload|Resources per deployment/statefulset|
-|Kubernetes/Compute Resources/Cluster|Resources namespace wise|
+## Relationship to logging and alerting
 
-To see JVM stats you may import chart number `14430` in Grafana dashboard.
-
-## JVM stats 
-MOSIP pods make JVM stats availalbe for Prometheus to scrape the pods. The typical endpoint looks like
-`<base url>/actuator/prometheus`. The scrapping is enabled via module Helm chart (see `metrics` section of `values.yaml`).
-
-A sample of metrics that is pulled by Prometheus is given in [`pod-jvm-scraped-metrics-sample.txt`](./pod-jvm-scraped-metrics-sample.txt)
-
-## Inodes
-To see free inodes on a particular node, login to the node an run 
-```
-df -ih
-```
+- **Grafana** is deployed with the Loki stack under [`../logging/loki/`](../logging/loki/),
+  not here. This stack sets `grafana.enabled: false` and only emits dashboard
+  ConfigMaps for that Grafana to pick up.
+- **Alerting** (Alertmanager) is part of kube-prometheus-stack — it is configured
+  in that stack's values file, not a separate deployable. The top-level
+  [`../alerting/`](../alerting/) directory (Slack Alertmanager config,
+  `patch-cluster-name.yaml`, custom rules) applies only to **rancher-monitoring**
+  and is deprecated along with it.
+- **Logs** are handled by the [`../logging/`](../logging/) stacks.

@@ -23,3 +23,6 @@ INSTALL_RKE2_VERSION=v1.28.9+rke2r1
 cluster_domain=<cluster name>
 # The path where RKE2 will be installed on each node.
 RKE2_PATH=/etc/rancher/rke2
+# Internal CIDR of the cluster nodes (e.g. 10.3.4.0/24). Metrics ports (9100, 10249, 10257, 10259)
+# are opened only to this range in ports.yaml, since node-exporter and kube-proxy serve metrics unauthenticated.
+node_cidr=<node-cidr>

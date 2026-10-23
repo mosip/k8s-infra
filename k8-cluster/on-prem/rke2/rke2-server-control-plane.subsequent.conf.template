@@ -13,3 +13,10 @@ kubelet-arg:
   - eviction-soft-grace-period=memory.available=1m,nodefs.available=1m,nodefs.inodesFree=1m
   - eviction-max-pod-grace-period=120
   - eviction-minimum-reclaim=memory.available=0Mi,nodefs.available=500Mi,imagefs.available=2Gi
+kube-controller-manager-arg:
+  - bind-address=0.0.0.0
+kube-scheduler-arg:
+  - bind-address=0.0.0.0
+kube-proxy-arg:
+  - metrics-bind-address=0.0.0.0
+etcd-expose-metrics: true

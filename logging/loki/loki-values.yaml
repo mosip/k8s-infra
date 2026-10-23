@@ -225,5 +225,5 @@ global:
   clusterDomain: cluster.local
 
 commonLabels:
-  app.kubernetes.io/part-of: loki-monitoring
+  app.kubernetes.io/part-of: logging
   cluster: rke2

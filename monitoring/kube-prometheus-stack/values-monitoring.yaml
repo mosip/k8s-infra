@@ -1,0 +1,174 @@
+# =============================================================================
+# values-monitoring.yaml
+# kube-prometheus-stack values for the standalone monitoring + alerting stack.
+#
+# Covers: Prometheus, Alertmanager (email alerting), node-exporter,
+#         kube-state-metrics, control-plane component scraping.
+# Grafana is DISABLED here — metrics are visualised in the existing
+#   standalone Loki Grafana (deployed by deploy-loki.sh), which has
+#   Prometheus added as a datasource there.
+#
+# PER-ENVIRONMENT VALUES TO EDIT (marked EDIT below):
+#   - prometheus.prometheusSpec.externalLabels.cluster / tier
+#   - storageClassName (if not nfs-csi)
+#   - alertmanager email recipients / smarthost / sender
+#
+# Placeholders are written as <lower_snake_case> (e.g. <env_name>).
+# deploy-monitoring.sh refuses to run while any of them are left unfilled.
+# =============================================================================
+
+# ── Chart Grafana off: we use the standalone Loki Grafana instead ──
+grafana:
+  enabled: false
+  # Still emit the stack's dashboard ConfigMaps so the external Grafana's
+  # sidecar (searchNamespace: ALL) can pick them up.
+  forceDeployDashboards: true
+  sidecar:
+    dashboards:
+      enabled: true
+      label: grafana_dashboard
+      labelValue: "1"
+
+# ── Prometheus ──
+prometheus:
+  prometheusSpec:
+    # EDIT: environment identity — stamped onto every metric and alert.
+    # This is the ONE block that differs per environment.
+    externalLabels:
+      cluster: <env_name>          # EDIT per environment
+      tier: nonprod                # EDIT: prod | nonprod (label only; routing is by severity)
+
+    retention: 3d
+    retentionSize: 30GiB
+    scrapeInterval: 1m
+    evaluationInterval: 1m
+    walCompression: true
+    resources:
+      limits: { cpu: 1000m, memory: 3000Mi }
+      requests: { cpu: 750m, memory: 750Mi }
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          accessModes: ["ReadWriteOnce"]
+          storageClassName: nfs-csi        # EDIT if your StorageClass differs
+          resources:
+            requests:
+              storage: 10Gi
+
+# ── Alertmanager (email alerting) ──
+alertmanager:
+  alertmanagerSpec:
+    retention: 120h
+    replicas: 1
+    # Mounts the SMTP secret at /etc/alertmanager/secrets/alertmanager-smtp/
+    secrets:
+      - alertmanager-smtp
+    storage:
+      volumeClaimTemplate:
+        spec:
+          accessModes: ["ReadWriteOnce"]
+          storageClassName: nfs-csi        # EDIT if your StorageClass differs
+          resources:
+            requests:
+              storage: 5Gi
+  config:
+    global:
+      resolve_timeout: 5m
+      # EDIT: SMTP connection. Example below is Gmail (smtp.gmail.com:587).
+      #   For AWS SES use e.g. email-smtp.ap-south-1.amazonaws.com:587.
+      #   Password comes from the alertmanager-smtp secret.
+      smtp_smarthost: 'smtp.gmail.com:587'       # EDIT
+      smtp_from: '<sender_mail_id>'              # EDIT (verified sender)
+      smtp_auth_username: '<smtp_username>'      # EDIT
+      smtp_auth_password_file: /etc/alertmanager/secrets/alertmanager-smtp/password
+      smtp_require_tls: true
+    route:
+      group_by: ['alertname', 'namespace', 'cluster']
+      group_wait: 30s
+      group_interval: 5m
+      repeat_interval: 4h
+      receiver: 'email-warning'
+      routes:
+        # drop always-firing heartbeat + info noise
+        - matchers: ['alertname =~ "Watchdog|InfoInhibitor"']
+          receiver: 'null'
+        - matchers: ['severity = "critical"']
+          receiver: 'email-critical'
+        - matchers: ['severity = "warning"']
+          receiver: 'email-warning'
+    receivers:
+      - name: 'null'
+      - name: 'email-critical'
+        email_configs:
+          - to: '<critical_recipient_mail_id>'   # EDIT
+            send_resolved: true
+            headers:
+              subject: '[{{ .CommonLabels.cluster }}] [{{ .Status | toUpper }}] {{ .CommonLabels.alertname }}'
+            html: >-
+              {{ range .Alerts }}
+              <b>Environment:</b> {{ .Labels.cluster }}<br>
+              <b>Severity:</b> {{ .Labels.severity }}<br>
+              <b>Namespace:</b> {{ .Labels.namespace }}<br>
+              <b>Summary:</b> {{ .Annotations.summary }}<br>
+              <b>Description:</b> {{ .Annotations.description }}<br><br>
+              {{ end }}
+      - name: 'email-warning'
+        email_configs:
+          - to: '<warning_recipient_mail_id>'    # EDIT
+            send_resolved: true
+            headers:
+              subject: '[{{ .CommonLabels.cluster }}] [{{ .Status | toUpper }}] {{ .CommonLabels.alertname }}'
+            html: >-
+              {{ range .Alerts }}
+              <b>Environment:</b> {{ .Labels.cluster }}<br>
+              <b>Severity:</b> {{ .Labels.severity }}<br>
+              <b>Namespace:</b> {{ .Labels.namespace }}<br>
+              <b>Summary:</b> {{ .Annotations.summary }}<br>
+              <b>Description:</b> {{ .Annotations.description }}<br><br>
+              {{ end }}
+
+# ── Control-plane component scraping ──
+kubeControllerManager:
+  enabled: true
+  service:
+    port: 10257
+    targetPort: 10257
+  serviceMonitor:
+    https: true
+    insecureSkipVerify: true
+kubeScheduler:
+  enabled: true
+  service:
+    port: 10259
+    targetPort: 10259
+  serviceMonitor:
+    https: true
+    insecureSkipVerify: true
+kubeProxy:
+  enabled: true
+  service:
+    port: 10249
+    targetPort: 10249
+kubeEtcd:
+  enabled: true
+  service:
+    port: 2381
+    targetPort: 2381
+  serviceMonitor:
+    scheme: http        # etcd metrics on 2381 are plain HTTP
+
+kubeApiServer:
+  enabled: true
+kubelet:
+  enabled: true
+  serviceMonitor:
+    cAdvisor: true
+kubeStateMetrics:
+  enabled: true
+nodeExporter:
+  enabled: true
+
+prometheus-node-exporter:
+  extraArgs:
+    - --collector.filesystem.mount-points-exclude=^/(dev|proc|sys|var/lib/docker/.+|var/lib/kubelet/.+)($|/)
+    - --collector.filesystem.fs-types-exclude=^(autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|iso9660|mqueue|nsfs|overlay|proc|procfs|pstore|rpc_pipefs|securityfs|selinuxfs|squashfs|sysfs|tracefs)$

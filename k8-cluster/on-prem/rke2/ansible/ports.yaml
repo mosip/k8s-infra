@@ -32,6 +32,20 @@
         port: 9099
         proto: tcp
 
+    - name: node-exporter metrics (node CIDR only)
+      community.general.ufw:
+        rule: allow
+        port: 9100
+        proto: tcp
+        from_ip: "{{ node_cidr }}"
+
+    - name: kube-proxy metrics (node CIDR only)
+      community.general.ufw:
+        rule: allow
+        port: 10249
+        proto: tcp
+        from_ip: "{{ node_cidr }}"
+
     # - name: Prometheus metrics
     #   community.general.ufw:
     #     rule: allow
@@ -81,8 +95,24 @@
         rule: allow
         port: 2381
         proto: tcp
+
+    - name: kube-controller-manager metrics (node CIDR only)
+      community.general.ufw:
+        rule: allow
+        port: 10257
+        proto: tcp
+        from_ip: "{{ node_cidr }}"
+
+    - name: kube-scheduler metrics (node CIDR only)
+      community.general.ufw:
+        rule: allow
+        port: 10259
+        proto: tcp
+        from_ip: "{{ node_cidr }}"
+
     - community.general.ufw:
         state: enabled
+
 - hosts: etcd
   become: true
   tasks:

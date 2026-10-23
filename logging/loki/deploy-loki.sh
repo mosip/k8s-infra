@@ -36,9 +36,9 @@ error()   { echo -e "${RED}[ERROR]${NC}   $*" >&2; exit 1; }
 # =============================================================================
 # CONFIGURATION — Edit these values before running
 # =============================================================================
-NAMESPACE="loki-monitoring"
+NAMESPACE="logging"
 LOKI_CHART_VERSION="6.55.0"
-GRAFANA_CHART_VERSION="11.3.2"
+GRAFANA_CHART_VERSION="12.11.2"
 ALLOY_CHART_VERSION="1.6.2"
 ISTIO_ADDONS_CHART_VERSION="0.0.1-develop"
 

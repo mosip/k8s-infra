@@ -1,7 +1,7 @@
 # =============================================================================
-# Grafana - Production-Ready Values for Loki Monitoring
-# Cluster: RKE2 v1.28.9 | Namespace: loki-monitoring
-# Helm Chart: grafana-community/grafana 11.3.2  (appVersion 12.4.1)
+# Grafana - Production-Ready Values for Loki Logging
+# Cluster: RKE2 v1.28.9 | Namespace: logging
+# Helm Chart: grafana-community/grafana 12.11.2
 # =============================================================================
 # --- Replicas ---
 replicas: 1
@@ -40,7 +40,7 @@ datasources:
     datasources:
       - name: Loki
         type: loki
-        url: http://loki.loki-monitoring.svc.cluster.local:3100
+        url: http://loki.logging.svc.cluster.local:3100
         access: proxy
         isDefault: true
         version: 1
@@ -48,6 +48,15 @@ datasources:
         jsonData:
           maxLines: 5000
           derivedFields: []
+      - name: Prometheus
+        type: prometheus
+        url: http://kube-prometheus-stack-prometheus.monitoring.svc.cluster.local:9090
+        access: proxy
+        isDefault: false
+        version: 1
+        editable: true
+        jsonData:
+          timeInterval: 1m
 # --- Default Dashboards ---
 dashboardProviders:
   dashboardproviders.yaml:
@@ -80,7 +89,7 @@ sidecar:
     label: grafana_dashboard
     labelValue: "1"
     folder: /tmp/dashboards
-    searchNamespace: loki-monitoring
+    searchNamespace: ALL
     # Pick up dashboards added/updated/removed without restarting Grafana
     watchMethod: WATCH
     # Optional: drop them into a named folder in the Grafana UI
@@ -96,7 +105,7 @@ sidecar:
 grafana.ini:
   server:
     protocol: http
-    domain: "grafana.sandbox.xyz.net"
+    domain: "grafana.sandbox.xyz.net"  # Update domain
     root_url: "https://%(domain)s/"
   security:
     allow_embedding: true
@@ -142,5 +151,5 @@ podAnnotations:
   prometheus.io/path: "/metrics"
 # --- Labels ---
 commonLabels:
-  app.kubernetes.io/part-of: loki-monitoring
+  app.kubernetes.io/part-of: logging
   cluster: rke2
