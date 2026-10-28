@@ -1,6 +1,6 @@
 #!/bin/bash
-# Uninstall nfs-client-provisioner
-## Usage: ./delete-nfs-provisioner.sh [kubeconfig]
+# Uninstall nfs-csi (csi-driver-nfs) helm chart
+## Usage: ./delete-nfs-client-csi.sh [kubeconfig]
 
 if [ $# -ge 1 ] ; then
   export KUBECONFIG=$1
